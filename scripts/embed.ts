@@ -1,13 +1,32 @@
-import { config } from "dotenv";
+import { existsSync, readFileSync } from "fs";
+import { resolve } from "path";
 
-import { getDb } from "../src/lib/db";
-import { listSitesMissingEmbeddings, updateSiteEmbedding } from "../src/lib/repositories/sites";
-import { embedTexts } from "../src/lib/services/embeddings";
+function loadEnvFile(filename: string, override = false) {
+  const path = resolve(process.cwd(), filename);
+  if (!existsSync(path)) return;
 
-config({ path: ".env" });
-config({ path: ".env.local", override: true });
+  for (const line of readFileSync(path, "utf8").split("\n")) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#") || !trimmed.includes("=")) continue;
 
-const BATCH_SIZE = 20;
+    const idx = trimmed.indexOf("=");
+    const key = trimmed.slice(0, idx).trim();
+    let value = trimmed.slice(idx + 1).trim();
+    if (
+      (value.startsWith('"') && value.endsWith('"')) ||
+      (value.startsWith("'") && value.endsWith("'"))
+    ) {
+      value = value.slice(1, -1);
+    }
+
+    if (override || process.env[key] === undefined) {
+      process.env[key] = value;
+    }
+  }
+}
+
+loadEnvFile(".env");
+loadEnvFile(".env.local", true);
 
 async function main() {
   if (!process.env.DATABASE_URL) {
@@ -17,9 +36,16 @@ async function main() {
     throw new Error("OPENAI_API_KEY is required");
   }
 
-  // Ensure db singleton can initialize.
+  const { getDb } = await import("../src/lib/db");
+  const {
+    listSitesMissingEmbeddings,
+    updateSiteEmbedding,
+  } = await import("../src/lib/repositories/sites");
+  const { embedTexts } = await import("../src/lib/services/embeddings");
+
   getDb();
 
+  const BATCH_SIZE = 20;
   let total = 0;
 
   for (;;) {
@@ -28,9 +54,7 @@ async function main() {
       break;
     }
 
-    const texts = batch.map(
-      (site) => site.searchText ?? site.name,
-    );
+    const texts = batch.map((site) => site.searchText ?? site.name);
     console.log(`Embedding ${batch.length} sites…`);
     const embeddings = await embedTexts(texts);
 

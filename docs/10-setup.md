@@ -18,8 +18,12 @@ Copy both:
 
 | Use | Which URI | Port / mode |
 |---|---|---|
-| App runtime (`DATABASE_URL`) | **Transaction** pooler (or “URI” with pooler) | Often `6543` |
-| Migrations (`DATABASE_URL_DIRECT`) | **Direct** connection | `5432` |
+| App + migrate (`DATABASE_URL`) | **Transaction** pooler | Often `6543` |
+| Optional (`DATABASE_URL_DIRECT`) | **Session** pooler (preferred) or Direct | `5432` |
+
+On the Connect screen pick **Direct → Connection string**, then copy the **pooler** URI for `DATABASE_URL`.
+
+**WSL / IPv6 note:** Supabase **Direct** (`db.xxxx.supabase.co:5432`) is often IPv6-only. From WSL that can fail with `ENETUNREACH`. Use the **pooler** host for `DATABASE_URL` (and leave `DATABASE_URL_DIRECT` unset, or set it to the Session pooler URI).
 
 Paste into `.env` / `.env.local`. If the password has special characters (`#`, `@`, etc.), URL-encode them (e.g. `#` → `%23`).
 
@@ -88,6 +92,7 @@ ADMIN_SESSION_SECRET=paste-openssl-rand-hex-32
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 OPENAI_API_KEY=sk-...
 OPENAI_EMBEDDING_MODEL=text-embedding-3-small
+OPENAI_CHAT_MODEL=gpt-4o-mini   # used only when top match is below threshold
 ```
 
 Generate a session secret:

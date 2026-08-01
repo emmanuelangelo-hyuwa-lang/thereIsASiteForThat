@@ -94,8 +94,9 @@ src/
 ```bash
 DATABASE_URL=postgresql://...           # Supabase pooler (app runtime)
 DATABASE_URL_DIRECT=postgresql://...    # Supabase direct (migrations)
-OPENAI_API_KEY=                         # embeddings / semantic search
+OPENAI_API_KEY=                         # embeddings / semantic search + RAG chat
 OPENAI_EMBEDDING_MODEL=text-embedding-3-small
+OPENAI_CHAT_MODEL=gpt-4o-mini           # RAG fallback on weak matches only
 ADMIN_PASSWORD=
 ADMIN_SESSION_SECRET=
 NEXT_PUBLIC_SITE_URL=http://localhost:3000

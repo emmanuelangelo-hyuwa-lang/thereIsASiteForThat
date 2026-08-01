@@ -17,6 +17,10 @@ export function getOpenAIEmbeddingModel(): string {
   return optional("OPENAI_EMBEDDING_MODEL") ?? "text-embedding-3-small";
 }
 
+export function getOpenAIChatModel(): string {
+  return optional("OPENAI_CHAT_MODEL") ?? "gpt-4o-mini";
+}
+
 export function hasOpenAIConfigured(): boolean {
   return Boolean(optional("OPENAI_API_KEY"));
 }

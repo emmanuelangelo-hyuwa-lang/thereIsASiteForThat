@@ -20,6 +20,8 @@ function modeLabel(mode: SearchMode): string {
       return "Closest matches";
     case "keyword":
       return "Catalog matches";
+    case "ai_inferred":
+      return "AI-suggested matches";
     case "empty":
       return "No matches";
     case "unavailable":
@@ -46,6 +48,14 @@ export function SearchResultsList({
 
   return (
     <div>
+      {compact && aiSummary ? (
+        <div className="border-b border-[var(--border)] px-3 py-2.5">
+          <p className="text-xs font-medium text-[var(--muted)]">{modeLabel(mode)}</p>
+          <p className="mt-0.5 text-xs leading-relaxed text-[var(--ink)]/80">
+            {aiSummary}
+          </p>
+        </div>
+      ) : null}
       {!compact && (
         <div className="border-b border-[var(--border)] px-6 py-4 sm:px-8">
           <p className="text-sm text-[var(--muted)]">{modeLabel(mode)}</p>

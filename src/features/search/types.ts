@@ -12,7 +12,13 @@ export type SearchResultItem = {
   source: "curated" | "keyword" | "ai_inferred";
 };
 
-export type SearchMode = "curated" | "soft" | "keyword" | "empty" | "unavailable";
+export type SearchMode =
+  | "curated"
+  | "soft"
+  | "keyword"
+  | "ai_inferred"
+  | "empty"
+  | "unavailable";
 
 export type SearchResponseData = {
   query: string;

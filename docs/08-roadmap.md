@@ -68,8 +68,8 @@ Solo-developer, shippable phases. Optimize for a working search experience early
 
 ## Phase 5 — RAG Fallback + SEO Hardening
 
+- [x] LLM fallback path + AI-inferred labeling (`OPENAI_CHAT_MODEL`, weak matches only)
 - Threshold tuning with eval set
-- LLM fallback path + AI-inferred labeling
 - Sitemap, metadata, structured data
 - Promote top queries to indexable search pages
 - Soft launch

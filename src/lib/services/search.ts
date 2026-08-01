@@ -15,6 +15,10 @@ import {
 } from "@/lib/repositories/search";
 import { upsertSearchPageHit } from "@/lib/repositories/search-pages";
 import { embedText } from "@/lib/services/embeddings";
+import {
+  orderHitsByRagIds,
+  recommendFromCandidates,
+} from "@/lib/services/rag";
 import { normalizeQuery } from "@/lib/utils/normalize-query";
 import { slugify } from "@/lib/utils/slugify";
 
@@ -35,11 +39,14 @@ export type SearchResultItem = {
 export type SearchResponseData = {
   query: string;
   slug: string;
-  mode: "curated" | "soft" | "keyword" | "empty" | "unavailable";
+  mode: "curated" | "soft" | "keyword" | "ai_inferred" | "empty" | "unavailable";
   results: SearchResultItem[];
   aiSummary: string | null;
   threshold: number;
 };
+
+const RAG_CANDIDATE_LIMIT = 12;
+const MIN_HIT_SIMILARITY = 0.05;
 
 function toResult(
   hit: SimilarityHit,
@@ -90,6 +97,60 @@ async function getQueryEmbedding(queryNormalized: string): Promise<number[]> {
   return embedding;
 }
 
+async function applyRagFallback(
+  query: string,
+  candidates: SimilarityHit[],
+): Promise<{
+  hits: SimilarityHit[];
+  mode: SearchResponseData["mode"];
+  source: SearchResultItem["source"];
+  aiSummary: string;
+}> {
+  const recommendation = await recommendFromCandidates(query, candidates);
+
+  if (recommendation) {
+    const notes =
+      recommendation.notes.length > 0
+        ? ` ${recommendation.notes.slice(0, 2).join(" ")}`
+        : "";
+    const summary = `${recommendation.summary}${notes}`;
+
+    if (recommendation.rankedSiteIds.length > 0) {
+      return {
+        hits: orderHitsByRagIds(candidates, recommendation.rankedSiteIds),
+        mode: "ai_inferred",
+        source: "ai_inferred",
+        aiSummary: summary,
+      };
+    }
+
+    // Model judged candidates unhelpful — keep the explanation, avoid junk rows.
+    return {
+      hits: [],
+      mode: "empty",
+      source: "ai_inferred",
+      aiSummary: summary,
+    };
+  }
+
+  if (candidates.length > 0) {
+    return {
+      hits: candidates,
+      mode: "soft",
+      source: "curated",
+      aiSummary:
+        "No strong curated match yet — closest catalog sites below.",
+    };
+  }
+
+  return {
+    hits: [],
+    mode: "empty",
+    source: "curated",
+    aiSummary: "No matches in the catalog. Try a simpler task phrase.",
+  };
+}
+
 export async function searchSites(input: {
   query: string;
   limit?: number;
@@ -116,6 +177,7 @@ export async function searchSites(input: {
   let source: SearchResultItem["source"] = "curated";
   let mode: SearchResponseData["mode"] = "curated";
   let aiSummary: string | null = null;
+  let skipSimilarityFloor = false;
 
   try {
     if (hasOpenAIConfigured()) {
@@ -133,18 +195,25 @@ export async function searchSites(input: {
             : "No matches in the catalog. Try a simpler task phrase.";
       } else {
         const embedding = await getQueryEmbedding(query);
-        hits = await searchPublishedByEmbedding(embedding, limit);
-        source = "curated";
-        const top = hits[0]?.similarity ?? 0;
-        if (hits.length === 0) {
-          mode = "empty";
-          aiSummary = "No matches in the catalog. Try a simpler task phrase.";
-        } else if (top >= threshold) {
+        const candidateLimit = Math.max(limit, RAG_CANDIDATE_LIMIT);
+        const candidates = await searchPublishedByEmbedding(
+          embedding,
+          candidateLimit,
+        );
+        const top = candidates[0]?.similarity ?? 0;
+
+        if (candidates.length > 0 && top >= threshold) {
+          hits = candidates.slice(0, limit);
+          source = "curated";
           mode = "curated";
+          aiSummary = null;
         } else {
-          mode = "soft";
-          aiSummary =
-            "No strong curated match yet — closest catalog sites below.";
+          const rag = await applyRagFallback(query, candidates);
+          hits = rag.hits.slice(0, limit);
+          mode = rag.mode;
+          source = rag.source;
+          aiSummary = rag.aiSummary;
+          skipSimilarityFloor = rag.mode === "ai_inferred";
         }
       }
     } else {
@@ -175,7 +244,7 @@ export async function searchSites(input: {
   }
 
   const results = hits
-    .filter((hit) => hit.similarity > 0.05)
+    .filter((hit) => skipSimilarityFloor || hit.similarity > MIN_HIT_SIMILARITY)
     .map((hit) => toResult(hit, source));
 
   if (recordPageHit && results.length > 0 && !results[0]?.siteId.startsWith("seed_")) {
