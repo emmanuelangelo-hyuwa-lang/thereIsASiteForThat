@@ -55,6 +55,12 @@ export default async function AdminDashboardPage() {
           Browse sites
         </Link>
         <Link
+          href="/admin/submissions"
+          className="rounded-lg border border-[var(--border)] px-4 py-2 text-[var(--ink)] transition hover:border-[var(--accent)]/40"
+        >
+          Submissions
+        </Link>
+        <Link
           href="/admin/sites/new"
           className="rounded-lg bg-[var(--accent)] px-4 py-2 font-semibold text-white transition hover:bg-[var(--accent-strong)]"
         >

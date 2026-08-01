@@ -9,6 +9,10 @@ import {
   verifyAdminPassword,
 } from "@/lib/auth/session";
 import { createSiteAsAdmin, updateSiteAsAdmin } from "@/lib/services/sites";
+import {
+  approveSubmissionAsAdmin,
+  rejectSubmissionAsAdmin,
+} from "@/lib/services/submissions";
 import { slugify } from "@/lib/utils/slugify";
 
 function splitLines(value: FormDataEntryValue | null): string[] {
@@ -94,5 +98,33 @@ export async function updateSiteAction(formData: FormData) {
     unstable_rethrow(error);
     const message = error instanceof Error ? error.message : "Failed to update site";
     redirect(`/admin/sites/${id}?error=${encodeURIComponent(message)}`);
+  }
+}
+
+export async function approveSubmissionAction(formData: FormData) {
+  const id = String(formData.get("id") ?? "");
+  try {
+    await approveSubmissionAsAdmin(id);
+    revalidatePath("/admin/submissions");
+    redirect("/admin/submissions");
+  } catch (error) {
+    unstable_rethrow(error);
+    const message =
+      error instanceof Error ? error.message : "Failed to approve submission";
+    redirect(`/admin/submissions?error=${encodeURIComponent(message)}`);
+  }
+}
+
+export async function rejectSubmissionAction(formData: FormData) {
+  const id = String(formData.get("id") ?? "");
+  try {
+    await rejectSubmissionAsAdmin(id);
+    revalidatePath("/admin/submissions");
+    redirect("/admin/submissions");
+  } catch (error) {
+    unstable_rethrow(error);
+    const message =
+      error instanceof Error ? error.message : "Failed to reject submission";
+    redirect(`/admin/submissions?error=${encodeURIComponent(message)}`);
   }
 }

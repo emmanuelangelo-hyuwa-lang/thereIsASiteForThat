@@ -33,6 +33,12 @@ export default async function AdminConsoleLayout({
             Sites
           </Link>
           <Link
+            href="/admin/submissions"
+            className="text-[var(--muted)] transition hover:text-[var(--ink)]"
+          >
+            Submissions
+          </Link>
+          <Link
             href="/admin/sites/new"
             className="font-medium text-[var(--accent)] transition hover:text-[var(--accent-strong)]"
           >
