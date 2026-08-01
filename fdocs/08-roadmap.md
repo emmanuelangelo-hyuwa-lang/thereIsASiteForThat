@@ -17,11 +17,11 @@ Solo-developer, shippable phases. Optimize for a working search experience early
 
 ## Phase 1 — Skeleton App
 
-- Next.js App Router + Tailwind + TypeScript
-- Drizzle + Supabase Postgres
-- Enable pgvector
-- Base layout, design tokens, homepage shell (brand + search UI, no real search yet)
-- Env + deploy to Vercel preview
+- [x] Next.js App Router + Tailwind + TypeScript
+- [x] Drizzle + Supabase Postgres schema scaffolding
+- [x] pgvector extension SQL + embedding column in schema
+- [x] Base layout, design tokens, homepage shell (brand + search UI, no real search yet)
+- [ ] Env wired to live Supabase + deploy to Vercel preview
 
 **Exit:** Live homepage shell on a preview URL.
 
