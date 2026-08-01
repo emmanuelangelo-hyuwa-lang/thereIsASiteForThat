@@ -119,7 +119,7 @@ Avoid overusing the acronym in UI.
 
 | Date | Decision | Status |
 |---|---|---|
-| 2026-08-01 | Docs-first in `fdocs/` | Done |
+| 2026-08-01 | Docs-first in `docs/` | Done |
 | 2026-08-01 | Stack: Next.js + Supabase + Drizzle + pgvector + OpenAI + Vercel | Proposed |
 | 2026-08-01 | Threshold default 0.78 | Proposed |
 | 2026-08-01 | No ads in v1 results | Proposed |

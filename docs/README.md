@@ -29,4 +29,4 @@ Next.js · Supabase (Postgres + pgvector) · Drizzle ORM · OpenAI embeddings ·
 
 ## Reading order
 
-1. PRD → 2. Competitive analysis → 3. Architecture → 4. Data model → 5. Search → 6. UX → 7. SEO → 8. Roadmap → 9. Decisions
+1. PRD → 2. Competitive analysis → 3. Architecture → 4. Data model → 5. Search → 6. UX → 7. SEO → 8. Roadmap → 9. Decisions → 10. Setup
