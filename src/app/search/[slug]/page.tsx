@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { SaveSearchButton } from "@/features/search/SaveSearchButton";
 import { SearchBox } from "@/features/search/SearchBox";
 import { SearchResultsList } from "@/features/search/SearchResultsList";
 import { getSiteUrl } from "@/lib/env";
 import { getSearchPageBySlug } from "@/lib/repositories/search-pages";
 import { JsonLd } from "@/lib/seo/json-ld";
 import { absoluteUrl } from "@/lib/seo/url";
+import { getSavedSearchState } from "@/lib/services/saved-searches";
 import {
   queryFromSearchSlug,
   searchSites,
@@ -49,6 +51,7 @@ export default async function SearchPage({ params }: SearchPageProps) {
     limit: 10,
     recordPageHit: true,
   });
+  const savedState = await getSavedSearchState(data.query);
 
   const heading =
     data.query.length > 0
@@ -88,6 +91,13 @@ export default async function SearchPage({ params }: SearchPageProps) {
         <p className="mt-4 max-w-xl text-[var(--muted)]">{intro}</p>
         <div className="mt-8 max-w-xl">
           <SearchBox autoFocus={false} showInstantResults={false} />
+        </div>
+        <div className="mt-4">
+          <SaveSearchButton
+            query={data.query}
+            initialSaved={savedState.saved}
+            callbackPath={`/search/${slug}`}
+          />
         </div>
       </section>
 

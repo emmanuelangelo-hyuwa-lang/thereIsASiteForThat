@@ -1,12 +1,14 @@
 import { listSeedCategories } from "@/lib/catalog/seed-catalog";
+import { requireAdminUser } from "@/lib/auth/admin";
 import { listCategories } from "@/lib/repositories/categories";
+import { getSiteByUrl } from "@/lib/repositories/sites";
 import {
+  getPendingOrApprovedSubmissionByUrl,
   getSubmissionById,
   insertSubmission,
   listPendingSubmissions,
   updateSubmissionStatus,
 } from "@/lib/repositories/submissions";
-import { requireAdminUser } from "@/lib/auth/admin";
 import { normalizeUrl } from "@/lib/utils/url";
 import {
   submissionFormSchema,
@@ -49,10 +51,30 @@ export async function createPublicSubmission(raw: unknown): Promise<{ id: string
     throw new Error("Invalid category");
   }
 
+  const url = normalizeUrl(input.url);
+
   try {
+    const existingSite = await getSiteByUrl(url);
+    if (existingSite) {
+      if (existingSite.status === "published") {
+        throw new Error(
+          `That site is already in the catalog (/site/${existingSite.slug}).`,
+        );
+      }
+      throw new Error("That URL is already in the catalog.");
+    }
+
+    const existingSubmission = await getPendingOrApprovedSubmissionByUrl(url);
+    if (existingSubmission?.status === "pending") {
+      throw new Error("That URL was already submitted and is waiting for review.");
+    }
+    if (existingSubmission?.status === "approved") {
+      throw new Error("That URL was already submitted and approved.");
+    }
+
     const row = await insertSubmission({
       name: input.name,
-      url: normalizeUrl(input.url),
+      url,
       description: input.description,
       categorySlug,
       tags: parseTags(input.tags ?? ""),
@@ -61,6 +83,16 @@ export async function createPublicSubmission(raw: unknown): Promise<{ id: string
     });
     return { id: row.id };
   } catch (error) {
+    if (error instanceof Error) {
+      const message = error.message;
+      if (
+        message === "Invalid category" ||
+        message.startsWith("That site is already") ||
+        message.startsWith("That URL")
+      ) {
+        throw error;
+      }
+    }
     console.error("Submission insert failed:", error);
     throw new Error(
       "Could not save submission. Database may not be migrated yet — try again after setup.",
@@ -88,6 +120,5 @@ export async function approveSubmissionAsAdmin(id: string, notes?: string) {
   if (!existing) {
     throw new Error("Submission not found");
   }
-  // Approval marks the queue item; admin still creates the site via Sites UI.
   return updateSubmissionStatus(id, "approved", notes);
 }

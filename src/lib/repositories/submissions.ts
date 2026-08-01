@@ -27,6 +27,21 @@ export async function getSubmissionById(id: string) {
   return rows[0] ?? null;
 }
 
+export async function getPendingOrApprovedSubmissionByUrl(url: string) {
+  const rows = await getDb()
+    .select()
+    .from(submissions)
+    .where(eq(submissions.url, url))
+    .orderBy(desc(submissions.createdAt))
+    .limit(5);
+
+  return (
+    rows.find(
+      (row) => row.status === "pending" || row.status === "approved",
+    ) ?? null
+  );
+}
+
 export async function updateSubmissionStatus(
   id: string,
   status: "approved" | "rejected",

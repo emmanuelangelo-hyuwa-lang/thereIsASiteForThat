@@ -67,6 +67,15 @@ export async function getPublishedSiteBySlug(slug: string) {
   return rows[0] ?? null;
 }
 
+export async function getSiteByUrl(url: string) {
+  const rows = await getDb()
+    .select({ id: sites.id, slug: sites.slug, status: sites.status })
+    .from(sites)
+    .where(eq(sites.url, url))
+    .limit(1);
+  return rows[0] ?? null;
+}
+
 export async function insertSite(values: SiteInsert) {
   const rows = await getDb().insert(sites).values(values).returning();
   return rows[0]!;

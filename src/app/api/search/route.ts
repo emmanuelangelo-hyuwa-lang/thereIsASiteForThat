@@ -2,9 +2,26 @@ import { NextResponse } from "next/server";
 
 import { searchSites } from "@/lib/services/search";
 import { fail, ok } from "@/lib/utils/api-response";
+import {
+  checkRateLimit,
+  clientIpFromRequest,
+} from "@/lib/utils/rate-limit";
 import { searchRequestSchema } from "@/lib/validators/search";
 
 export async function POST(request: Request) {
+  const ip = clientIpFromRequest(request);
+  const limit = checkRateLimit({
+    key: `search:${ip}`,
+    limit: 60,
+    windowMs: 60 * 1000,
+  });
+  if (!limit.ok) {
+    return NextResponse.json(fail("Too many searches. Slow down a moment."), {
+      status: 429,
+      headers: { "Retry-After": String(limit.retryAfterSec) },
+    });
+  }
+
   let body: unknown;
 
   try {

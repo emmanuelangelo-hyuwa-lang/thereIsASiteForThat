@@ -59,7 +59,7 @@ Solo-developer, shippable phases. Optimize for a working search experience early
 - [x] Collection pages (7 launch collections) + category browse
 - [x] Public `/submit` + admin moderation queue
 - [x] Seed-catalog fallback so browse/search work before migrate/embed
-- [ ] Rate limits + duplicate URL checks (harden later)
+- [x] Rate limits + duplicate URL checks on submit/search
 - [ ] Migrate/seed/embed against live Postgres (**needs you**)
 
 **Exit:** Full v1 product loop: search → detail → visit → submit → moderate.
@@ -97,7 +97,7 @@ Priority order (suggested):
 
 - [x] Google sign-in (Auth.js) + `users` table — guest search stays ungated
 - [x] Bookmarks + `/me/bookmarks` + thin `/me` hub
-- Saved searches
+- [x] Saved searches + `/me/searches`
 - Submission history tied to account
 - Personal lists → optional share links
 - Notes, compare shortlist, preferences

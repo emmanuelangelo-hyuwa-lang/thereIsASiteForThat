@@ -1,6 +1,6 @@
 # User Accounts & Google Sign-In — Feature Spec
 
-**Status:** MVP shipped — Google sign-in + bookmarks + `/me` hub. Remaining features still backlog.  
+**Status:** MVP+ shipped — Google sign-in, bookmarks, saved searches, `/me` hub. Remaining features still backlog.  
 **Auth provider:** Auth.js (NextAuth v5) + Google (`AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET`, or `GOOGLE_CLIENT_*`)  
 **Principle:** Search and browse stay fully public. Sign-in unlocks *save, sync, and personalize* — never gates finding a site.
 

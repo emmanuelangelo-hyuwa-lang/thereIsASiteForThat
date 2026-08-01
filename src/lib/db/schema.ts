@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import {
+  boolean,
   index,
   integer,
   jsonb,
@@ -9,8 +10,8 @@ import {
   primaryKey,
   text,
   timestamp,
+  uniqueIndex,
   uuid,
-  boolean,
   vector,
 } from "drizzle-orm/pg-core";
 
@@ -208,5 +209,24 @@ export const bookmarks = pgTable(
     primaryKey({ columns: [table.userId, table.siteId] }),
     index("bookmarks_user_id_idx").on(table.userId),
     index("bookmarks_site_id_idx").on(table.siteId),
+  ],
+);
+
+export const savedSearches = pgTable(
+  "saved_searches",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    query: text("query").notNull(),
+    slug: text("slug").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("saved_searches_user_id_idx").on(table.userId),
+    uniqueIndex("saved_searches_user_slug_unique").on(table.userId, table.slug),
   ],
 );

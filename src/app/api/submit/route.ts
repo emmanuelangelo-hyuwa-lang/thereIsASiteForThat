@@ -3,8 +3,28 @@ import { ZodError } from "zod";
 
 import { createPublicSubmission } from "@/lib/services/submissions";
 import { fail, ok } from "@/lib/utils/api-response";
+import {
+  checkRateLimit,
+  clientIpFromRequest,
+} from "@/lib/utils/rate-limit";
 
 export async function POST(request: Request) {
+  const ip = clientIpFromRequest(request);
+  const limit = checkRateLimit({
+    key: `submit:${ip}`,
+    limit: 8,
+    windowMs: 60 * 60 * 1000,
+  });
+  if (!limit.ok) {
+    return NextResponse.json(
+      fail("Too many submissions from this network. Try again later."),
+      {
+        status: 429,
+        headers: { "Retry-After": String(limit.retryAfterSec) },
+      },
+    );
+  }
+
   let body: unknown;
 
   try {
