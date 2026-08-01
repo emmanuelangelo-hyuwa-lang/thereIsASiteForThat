@@ -7,7 +7,7 @@
 | Frontend / framework | Next.js (App Router) | SSR/SEO, API routes, Vercel-native |
 | Language | TypeScript | End-to-end type safety |
 | Styling | Tailwind CSS | Fast UI iteration |
-| Database | Custom Postgres + pgvector | Portable; any host (Docker, Railway, Neon, etc.) |
+| Database | Custom Postgres + pgvector | Local WSL for dev; hosted Postgres in prod |
 | ORM | Drizzle ORM | Thin, typed, migration-friendly |
 | Embeddings | OpenAI `text-embedding-3-small` | Cheap, good enough for v1 (optional until search) |
 | LLM fallback | OpenAI (or compatible) | RAG recommendations |
@@ -85,7 +85,7 @@ src/
 
 | Env | Purpose |
 |---|---|
-| Local | Next.js + local/Docker Postgres |
+| Local | Next.js + WSL Postgres |
 | Preview | Vercel preview + staging Postgres |
 | Production | Vercel prod + production Postgres |
 

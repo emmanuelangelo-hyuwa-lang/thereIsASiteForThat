@@ -2,42 +2,65 @@
 
 What **you** need to do to unlock Phase 2 (database + admin + seed).
 
-The app talks to a **custom Postgres** database (not Supabase). OpenAI can wait until search/embeddings.
+The app talks to **Postgres on WSL** (not Docker, not Supabase). OpenAI can wait until search/embeddings.
 
 ---
 
-## 1. Provision Postgres + pgvector
+## 1. Install Postgres + pgvector on WSL
 
-Use any Postgres host you like (local Docker, Railway, Neon, Render, VPS, etc.).
-
-Requirements:
-
-- Postgres 15+ recommended
-- `vector` extension (pgvector)
-- Optional: `pg_trgm`
-
-Example local Docker:
+In your WSL terminal (Ubuntu/Debian assumed):
 
 ```bash
-docker run --name tias-postgres \
-  -e POSTGRES_PASSWORD=postgres \
-  -e POSTGRES_DB=thereisasiteforthat \
-  -p 5432:5432 \
-  -d pgvector/pgvector:pg16
+sudo apt update
+sudo apt install -y postgresql postgresql-contrib
+
+# Start the service if needed
+sudo service postgresql start
+
+# Create an app user + database (adjust names/password)
+sudo -u postgres psql <<'SQL'
+CREATE USER tias WITH PASSWORD 'tias' CREATEDB;
+CREATE DATABASE thereisasiteforthat OWNER tias;
+\c thereisasiteforthat
+CREATE EXTENSION IF NOT EXISTS vector;
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+GRANT ALL ON SCHEMA public TO tias;
+SQL
 ```
 
-Connection string shape:
+### pgvector package notes
 
-```text
-postgresql://USER:PASSWORD@HOST:5432/DBNAME
+If `CREATE EXTENSION vector` fails, install pgvector for your Postgres major version, e.g.:
+
+```bash
+# Check version
+psql --version
+
+# Example for PG16 on Ubuntu — package name varies by distro/version
+sudo apt install -y postgresql-16-pgvector
+# or build from https://github.com/pgvector/pgvector if no package exists
 ```
 
-If extensions didn’t apply via migration, run:
+Then reconnect and run:
 
 ```sql
-create extension if not exists vector;
-create extension if not exists pg_trgm;
+CREATE EXTENSION IF NOT EXISTS vector;
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
 ```
+
+Connection string for local WSL:
+
+```text
+postgresql://tias:tias@localhost:5432/thereisasiteforthat
+```
+
+Confirm it works:
+
+```bash
+psql "postgresql://tias:tias@localhost:5432/thereisasiteforthat" -c '\dx'
+```
+
+You should see `vector` (and ideally `pg_trgm`) listed.
 
 ---
 
@@ -50,7 +73,7 @@ cp .env.example .env.local
 Set at least:
 
 ```bash
-DATABASE_URL=postgresql://...
+DATABASE_URL=postgresql://tias:tias@localhost:5432/thereisasiteforthat
 ADMIN_PASSWORD=choose-a-strong-password
 ADMIN_SESSION_SECRET=paste-openssl-rand-hex-32
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
@@ -101,15 +124,14 @@ npm run db:embed
 1. Push repo to GitHub
 2. Import on Vercel (or your host)
 3. Add the same env vars
-4. Point `DATABASE_URL` at your hosted Postgres
+4. Point `DATABASE_URL` at a hosted Postgres for production (WSL is local-dev only)
 5. Set `NEXT_PUBLIC_SITE_URL` to the production URL
-6. Ensure the DB allows connections from your host (IP allowlist / SSL as needed)
 
 ---
 
 ## Done when
 
-- [ ] Postgres with pgvector reachable
+- [ ] WSL Postgres with pgvector reachable
 - [ ] `.env.local` filled (`DATABASE_URL`, admin vars)
 - [ ] `db:migrate` succeeds
 - [ ] `db:seed` succeeds
