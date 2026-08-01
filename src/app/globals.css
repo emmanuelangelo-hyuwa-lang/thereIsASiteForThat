@@ -76,13 +76,26 @@ body {
   border-color: var(--border);
 }
 
-/* Solid popover — avoid seeing page content through instant search results */
+/* Solid popover — must stay fully opaque over page content */
 .search-popover {
-  background-color: var(--panel);
+  isolation: isolate;
+  opacity: 1 !important;
+  background-color: #ffffff;
   color: var(--ink);
   box-shadow:
-    0 18px 40px rgba(0, 0, 0, 0.28),
+    0 18px 40px rgba(21, 19, 28, 0.16),
     0 0 0 1px var(--border);
+}
+
+.search-popover__scroll,
+.search-popover__footer {
+  background-color: #ffffff;
+}
+
+html.dark .search-popover,
+html.dark .search-popover__scroll,
+html.dark .search-popover__footer {
+  background-color: #1a1726;
 }
 
 @keyframes rise-in {

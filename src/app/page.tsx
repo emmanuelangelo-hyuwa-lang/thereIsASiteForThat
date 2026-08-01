@@ -20,9 +20,9 @@ export default async function HomePage() {
 
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-5 pb-10 pt-2 sm:px-8 sm:pt-4">
-      <section className="panel animate-rise relative overflow-visible px-6 py-14 text-center sm:px-12 sm:py-20">
-        <div className="relative mx-auto flex max-w-2xl flex-col items-center">
-          <p className="text-xs font-medium uppercase tracking-[0.16em] text-[var(--muted)]">
+      <section className="panel relative overflow-visible px-6 py-14 text-center sm:px-12 sm:py-20">
+        <div className="relative z-30 mx-auto flex max-w-2xl flex-col items-center">
+          <p className="animate-rise text-xs font-medium uppercase tracking-[0.16em] text-[var(--muted)]">
             Directory for useful websites
           </p>
           <h1 className="animate-rise-delay mt-4 font-[family-name:var(--font-display)] text-[2.6rem] leading-[1.05] tracking-tight text-[var(--ink)] sm:text-6xl md:text-7xl">
@@ -31,7 +31,7 @@ export default async function HomePage() {
           <p className="animate-rise-delay mt-5 max-w-lg text-base leading-relaxed text-[var(--muted)] sm:text-lg">
             Need a website to do X? Here&apos;s the best one.
           </p>
-          <div className="animate-rise-delay-2 mt-10 w-full max-w-xl">
+          <div className="relative z-30 mt-10 w-full max-w-xl">
             <SearchBox />
           </div>
           <div className="animate-rise-delay-2 mt-5 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm text-[var(--muted)]">

@@ -171,7 +171,7 @@ export function SearchBox({
 
       {showInstantResults && open && query.trim().length >= 2 ? (
         <div className="search-popover absolute left-0 right-0 z-50 mt-2 flex max-h-[min(28rem,70vh)] flex-col overflow-hidden rounded-xl border border-[var(--border)] text-left">
-          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+          <div className="search-popover__scroll min-h-0 flex-1 overflow-y-auto overscroll-contain">
             {loading && !instant ? (
               <p className="px-4 py-4 text-sm text-[var(--muted)]">Searching…</p>
             ) : instant ? (
@@ -186,7 +186,7 @@ export function SearchBox({
               <p className="px-4 py-4 text-sm text-[var(--muted)]">No results.</p>
             )}
           </div>
-          <div className="shrink-0 border-t border-[var(--border)] bg-[var(--panel)] px-3 py-2.5">
+          <div className="search-popover__footer shrink-0 border-t border-[var(--border)] px-3 py-2.5">
             <button
               type="button"
               className="text-xs font-medium text-[var(--accent)] hover:text-[var(--accent-strong)]"
