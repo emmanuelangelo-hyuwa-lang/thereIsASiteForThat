@@ -171,3 +171,42 @@ export const clickEvents = pgTable("click_events", {
     .defaultNow()
     .notNull(),
 });
+
+/** End-user accounts (Google OAuth). Separate from admin password sessions. */
+export const users = pgTable(
+  "users",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    googleSub: text("google_sub").notNull().unique(),
+    email: text("email").notNull(),
+    name: text("name"),
+    avatarUrl: text("avatar_url"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    lastSeenAt: timestamp("last_seen_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [index("users_email_idx").on(table.email)],
+);
+
+export const bookmarks = pgTable(
+  "bookmarks",
+  {
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    siteId: uuid("site_id")
+      .notNull()
+      .references(() => sites.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.userId, table.siteId] }),
+    index("bookmarks_user_id_idx").on(table.userId),
+    index("bookmarks_site_id_idx").on(table.siteId),
+  ],
+);

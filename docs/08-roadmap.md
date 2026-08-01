@@ -93,17 +93,15 @@ Priority order (suggested):
 
 ## Phase 7 — Accounts & personal features (Google OAuth)
 
-**Docs first:** [11-user-accounts-features.md](./11-user-accounts-features.md) — do not start until Phase 3+ search loop works.
+**Docs:** [11-user-accounts-features.md](./11-user-accounts-features.md)
 
-Ship order when greenlit:
-
-1. Google sign-in (`GOOGLE_CLIENT_ID`) + `users` table — guest search stays ungated
-2. Bookmarks + `/me/bookmarks` + thin `/me` hub
-3. Saved searches
-4. Submission history tied to account
-5. Personal lists → optional share links
-6. Notes, compare shortlist, preferences
-7. Later: follow/digest email, soft votes, light personalization
+- [x] Google sign-in (Auth.js) + `users` table — guest search stays ungated
+- [x] Bookmarks + `/me/bookmarks` + thin `/me` hub
+- Saved searches
+- Submission history tied to account
+- Personal lists → optional share links
+- Notes, compare shortlist, preferences
+- Later: follow/digest email, soft votes, light personalization
 
 Admin password auth stays separate from Google user sessions.
 

@@ -93,7 +93,18 @@ NEXT_PUBLIC_SITE_URL=http://localhost:3000
 OPENAI_API_KEY=sk-...
 OPENAI_EMBEDDING_MODEL=text-embedding-3-small
 OPENAI_CHAT_MODEL=gpt-4o-mini   # used only when top match is below threshold
+AUTH_SECRET=paste-openssl-rand-hex-32
+AUTH_GOOGLE_ID=                 # Google OAuth client ID
+AUTH_GOOGLE_SECRET=             # Google OAuth client secret
 ```
+
+Google OAuth redirect URI (Cloud Console):
+
+```text
+http://localhost:3000/api/auth/callback/google
+```
+
+Production: `https://YOUR_DOMAIN/api/auth/callback/google`.
 
 Generate a session secret:
 

@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { BookmarkButton } from "@/features/bookmarks/BookmarkButton";
 import { VisitSiteLink } from "@/features/search/VisitSiteLink";
 import { SiteList } from "@/features/sites/SiteList";
 import { getSiteUrl } from "@/lib/env";
 import { JsonLd } from "@/lib/seo/json-ld";
 import { absoluteUrl } from "@/lib/seo/url";
+import { getBookmarkState } from "@/lib/services/bookmarks";
 import {
   getCatalogSiteBySlug,
   listCatalogAlternatives,
@@ -43,7 +45,10 @@ export default async function SitePage({ params }: SitePageProps) {
     notFound();
   }
 
-  const alternatives = await listCatalogAlternatives(site, 6);
+  const [alternatives, bookmarkState] = await Promise.all([
+    listCatalogAlternatives(site, 6),
+    getBookmarkState(site.id),
+  ]);
   const siteUrl = getSiteUrl();
 
   const appLd = {
@@ -101,6 +106,12 @@ export default async function SitePage({ params }: SitePageProps) {
           >
             Visit site
           </VisitSiteLink>
+          <BookmarkButton
+            siteId={site.id}
+            initialBookmarked={bookmarkState.bookmarked}
+            bookmarkable={bookmarkState.bookmarkable}
+            callbackPath={`/site/${site.slug}`}
+          />
           <Link
             href={`/search/${site.tags[0] ? site.tags[0].replace(/\s+/g, "-") : site.categorySlug}`}
             className="inline-flex rounded-lg border border-[var(--border)] px-5 py-2.5 text-sm font-medium text-[var(--ink)] transition hover:border-[var(--accent)]/40"

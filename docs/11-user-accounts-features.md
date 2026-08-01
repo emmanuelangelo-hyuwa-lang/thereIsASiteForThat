@@ -1,7 +1,7 @@
 # User Accounts & Google Sign-In — Feature Spec
 
-**Status:** Planning only — do not implement until Phase 3–4 search/product loop is solid.  
-**Auth provider (proposed):** Google OAuth (`GOOGLE_CLIENT_ID` / secret)  
+**Status:** MVP shipped — Google sign-in + bookmarks + `/me` hub. Remaining features still backlog.  
+**Auth provider:** Auth.js (NextAuth v5) + Google (`AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET`, or `GOOGLE_CLIENT_*`)  
 **Principle:** Search and browse stay fully public. Sign-in unlocks *save, sync, and personalize* — never gates finding a site.
 
 ---
@@ -211,16 +211,15 @@ Map to roadmap as **Phase 7 — Accounts & personal features** (after soft launc
 ## 7. Env & Stack Notes (when we implement)
 
 ```bash
-GOOGLE_CLIENT_ID=
-GOOGLE_CLIENT_SECRET=
-# Auth.js / NextAuth
-AUTH_SECRET=          # or NEXTAUTH_SECRET
-AUTH_URL=             # production URL
+AUTH_SECRET=
+AUTH_GOOGLE_ID=
+AUTH_GOOGLE_SECRET=
+# Optional aliases: GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET
 ```
 
-- Library lean: **Auth.js (NextAuth v5)** with Google provider, Drizzle adapter optional.
-- Callbacks: upsert `users` on sign-in.
-- Middleware: protect `/me/*` only; keep `/admin/*` on existing admin session.
+- **Auth.js (NextAuth v5)** JWT sessions; upsert `users` on Google sign-in.
+- Protect `/me/*` in layout (`auth()` redirect); `/admin/*` stays password session.
+- Bookmark toggle on `/site/[slug]`; guests are sent through Google then back.
 
 ---
 

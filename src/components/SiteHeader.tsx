@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { AccountMenu } from "@/features/auth/AccountMenu";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
 export function SiteHeader() {
@@ -27,6 +28,7 @@ export function SiteHeader() {
             Submit
           </Link>
         </nav>
+        <AccountMenu />
         <ThemeToggle />
       </div>
     </header>
