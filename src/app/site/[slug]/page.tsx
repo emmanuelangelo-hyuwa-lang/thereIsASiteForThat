@@ -1,8 +1,12 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { VisitSiteLink } from "@/features/search/VisitSiteLink";
 import { SiteList } from "@/features/sites/SiteList";
+import { getSiteUrl } from "@/lib/env";
+import { JsonLd } from "@/lib/seo/json-ld";
+import { absoluteUrl } from "@/lib/seo/url";
 import {
   getCatalogSiteBySlug,
   listCatalogAlternatives,
@@ -13,15 +17,22 @@ type SitePageProps = {
   params: Promise<{ slug: string }>;
 };
 
-export async function generateMetadata({ params }: SitePageProps) {
+export async function generateMetadata({
+  params,
+}: SitePageProps): Promise<Metadata> {
   const { slug } = await params;
   const site = await getCatalogSiteBySlug(slug);
   if (!site) {
     return { title: "Site not found" };
   }
+
+  const siteUrl = getSiteUrl();
   return {
     title: `${site.name} — best for ${site.tags[0] ?? site.categoryName}`,
     description: site.description,
+    alternates: {
+      canonical: absoluteUrl(siteUrl, `/site/${slug}`),
+    },
   };
 }
 
@@ -33,9 +44,32 @@ export default async function SitePage({ params }: SitePageProps) {
   }
 
   const alternatives = await listCatalogAlternatives(site, 6);
+  const siteUrl = getSiteUrl();
+
+  const appLd = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    name: site.name,
+    url: site.url,
+    description: site.description,
+    applicationCategory: site.categoryName,
+    offers: {
+      "@type": "Offer",
+      category: pricingLabel(site.pricing),
+    },
+    aggregateRating: {
+      "@type": "AggregateRating",
+      ratingValue: site.rating,
+      bestRating: 5,
+      worstRating: 1,
+      ratingCount: 1,
+    },
+    mainEntityOfPage: absoluteUrl(siteUrl, `/site/${site.slug}`),
+  };
 
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-5 pb-10 pt-2 sm:px-8">
+      <JsonLd data={appLd} />
       <section className="panel px-6 py-10 sm:px-10">
         <p className="text-xs font-medium uppercase tracking-[0.14em] text-[var(--muted)]">
           <Link

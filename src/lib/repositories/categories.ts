@@ -7,6 +7,16 @@ export async function listCategories() {
   return getDb().select().from(categories).orderBy(asc(categories.name));
 }
 
+export async function listCategorySitemapEntries() {
+  return getDb()
+    .select({
+      slug: categories.slug,
+      updatedAt: categories.createdAt,
+    })
+    .from(categories)
+    .orderBy(asc(categories.slug));
+}
+
 export async function getCategoryById(id: string) {
   const rows = await getDb()
     .select()

@@ -249,10 +249,15 @@ export async function searchSites(input: {
 
   if (recordPageHit && results.length > 0 && !results[0]?.siteId.startsWith("seed_")) {
     try {
+      const topConfidence = results[0]?.confidence ?? 0;
+      const hasSolidResult =
+        mode === "curated" || topConfidence >= threshold;
+
       await upsertSearchPageHit({
         query,
         slug,
         lastResultsJson: results.slice(0, 5),
+        hasSolidResult,
       });
     } catch (error) {
       console.error("Failed to upsert search page hit:", error);

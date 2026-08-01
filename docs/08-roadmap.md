@@ -69,10 +69,10 @@ Solo-developer, shippable phases. Optimize for a working search experience early
 ## Phase 5 — RAG Fallback + SEO Hardening
 
 - [x] LLM fallback path + AI-inferred labeling (`OPENAI_CHAT_MODEL`, weak matches only)
+- [x] Sitemap, robots, metadata, structured data (JSON-LD)
+- [x] Promote top queries to indexable search pages (hit ≥ 5 + solid result; seed ~30 launch pages)
 - Threshold tuning with eval set
-- Sitemap, metadata, structured data
-- Promote top queries to indexable search pages
-- Soft launch
+- Soft launch / deploy
 
 **Exit:** No dead-end searches; SEO plumbing live.
 

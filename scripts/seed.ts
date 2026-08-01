@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm";
 
 import { SEED_CATEGORIES } from "../src/data/seed/categories";
 import { SEED_COLLECTIONS } from "../src/data/seed/collections";
+import { SEED_SEARCH_PAGES } from "../src/data/seed/search-pages";
 import { SEED_SITES } from "../src/data/seed/sites";
 import { getDb } from "../src/lib/db";
 import {
@@ -11,7 +12,9 @@ import {
   collections,
   sites,
 } from "../src/lib/db/schema";
+import { upsertIndexableSearchPage } from "../src/lib/repositories/search-pages";
 import { buildSearchText } from "../src/lib/services/search-text";
+import { slugify } from "../src/lib/utils/slugify";
 import { normalizeUrl } from "../src/lib/utils/url";
 
 config({ path: ".env" });
@@ -149,6 +152,15 @@ async function main() {
     if (values.length > 0) {
       await db.insert(collectionSites).values(values);
     }
+  }
+
+  console.log(`Seeding ${SEED_SEARCH_PAGES.length} indexable search pages…`);
+  for (const page of SEED_SEARCH_PAGES) {
+    await upsertIndexableSearchPage({
+      query: page.query,
+      slug: slugify(page.query),
+      intro: page.intro,
+    });
   }
 
   console.log("Seed complete.");

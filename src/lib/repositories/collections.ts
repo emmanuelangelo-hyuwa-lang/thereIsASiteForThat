@@ -7,6 +7,16 @@ export async function listCollectionsFromDb() {
   return getDb().select().from(collections).orderBy(asc(collections.name));
 }
 
+export async function listCollectionSitemapEntries() {
+  return getDb()
+    .select({
+      slug: collections.slug,
+      updatedAt: collections.createdAt,
+    })
+    .from(collections)
+    .orderBy(asc(collections.slug));
+}
+
 export async function getCollectionBySlugFromDb(slug: string) {
   const rows = await getDb()
     .select()

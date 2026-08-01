@@ -33,6 +33,17 @@ export async function listPublishedSites() {
     .orderBy(desc(sites.publishedAt));
 }
 
+export async function listPublishedSiteSitemapEntries() {
+  return getDb()
+    .select({
+      slug: sites.slug,
+      updatedAt: sites.updatedAt,
+    })
+    .from(sites)
+    .where(eq(sites.status, "published"))
+    .orderBy(desc(sites.updatedAt));
+}
+
 export async function getSiteById(id: string) {
   const rows = await getDb().select().from(sites).where(eq(sites.id, id)).limit(1);
   return rows[0] ?? null;

@@ -69,13 +69,15 @@ SSR/SSG required — do not hide results behind client-only fetch for indexable 
 
 ## 6. Technical SEO Checklist
 
-- [ ] Unique titles/descriptions per page
-- [ ] Sitemap.xml including sites, collections, indexable search pages
-- [ ] Canonical tags
+- [x] Unique titles/descriptions per page
+- [x] Sitemap.xml including sites, collections, indexable search pages (`src/app/sitemap.ts`)
+- [x] Canonical tags (search / site / collection)
+- [x] `robots.txt` with admin/api disallow (`src/app/robots.ts`)
+- [x] Thin search pages `noindex` until `isIndexable`
 - [ ] Fast LCP (search hero image optional; don't block)
-- [ ] Structured data: `ItemList` on search/collection pages; `SoftwareApplication` or `WebApplication` on site pages where accurate
+- [x] Structured data: `ItemList` on search/collection pages; `WebApplication` on site pages
 - [ ] Outbound links: `noopener`; use `sponsored`/`nofollow` only when paid/affiliate
-- [ ] Mobile-friendly layout
+- [x] Mobile-friendly layout
 
 ---
 
