@@ -68,8 +68,9 @@ Solo-developer, shippable phases. Optimize for a working search experience early
 
 ## Phase 5 — RAG Fallback + SEO Hardening
 
+- [x] Soft-match summaries via Ollama chat (`llama3.2`)
 - Threshold tuning with eval set
-- LLM fallback path + AI-inferred labeling
+- Richer LLM fallback path + AI-inferred labeling
 - Sitemap, metadata, structured data
 - Promote top queries to indexable search pages
 - Soft launch

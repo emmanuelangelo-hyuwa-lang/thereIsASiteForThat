@@ -26,7 +26,7 @@ A searchable directory where users describe a task in plain language and get the
 
 ## Stack (v1)
 
-Next.js · custom Postgres + pgvector · Drizzle ORM · OpenAI embeddings · Vercel · Cloudflare R2 (later)
+Next.js · custom Postgres + pgvector · Drizzle ORM · Ollama embeddings/chat · Vercel · Cloudflare R2 (later)
 
 ## Reading order
 

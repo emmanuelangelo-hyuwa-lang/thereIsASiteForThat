@@ -152,7 +152,7 @@ async function main() {
   }
 
   console.log("Seed complete.");
-  console.log("Next: npm run db:embed  (requires OPENAI_API_KEY)");
+  console.log("Next: npm run ai:check && npm run db:embed  (requires Ollama)");
 }
 
 main().catch((error) => {

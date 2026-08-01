@@ -68,7 +68,7 @@ export const sites = pgTable(
     tags: text("tags").array().notNull().default(sql`'{}'::text[]`),
     screenshotUrl: text("screenshot_url"),
     status: siteStatusEnum("status").notNull().default("draft"),
-    embedding: vector("embedding", { dimensions: 1536 }),
+    embedding: vector("embedding", { dimensions: 768 }),
     searchText: text("search_text"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
@@ -155,7 +155,7 @@ export const searchPages = pgTable("search_pages", {
 
 export const queryCache = pgTable("query_cache", {
   queryNormalized: text("query_normalized").primaryKey(),
-  embedding: vector("embedding", { dimensions: 1536 }).notNull(),
+  embedding: vector("embedding", { dimensions: 768 }).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true })
     .defaultNow()
     .notNull(),

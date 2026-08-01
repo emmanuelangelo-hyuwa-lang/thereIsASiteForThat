@@ -28,7 +28,7 @@ Product and engineering docs live in [`docs/`](./docs/README.md).
 - Next.js (App Router) + TypeScript + Tailwind
 - Custom Postgres + pgvector
 - Drizzle ORM
-- OpenAI embeddings (optional until search)
+- Ollama embeddings + chat (`nomic-embed-text`, `llama3.2`)
 - Vercel
 
 ## Getting started
@@ -48,11 +48,12 @@ Full checklist: [`docs/10-setup.md`](./docs/10-setup.md)
 ```bash
 cp .env.example .env.local
 # fill DATABASE_URL + ADMIN_PASSWORD + ADMIN_SESSION_SECRET
-# OPENAI_API_KEY can wait until embeddings/search
+# install Ollama + pull nomic-embed-text (and llama3.2)
 
 npm run db:migrate
 npm run db:seed
-# npm run db:embed   # later, when OpenAI is set
+npm run ai:check
+npm run db:embed
 ```
 
 Admin: [http://localhost:3000/admin/login](http://localhost:3000/admin/login)
@@ -69,7 +70,8 @@ Admin: [http://localhost:3000/admin/login](http://localhost:3000/admin/login)
 | `npm run db:migrate` | Apply migrations |
 | `npm run db:push` | Push schema without migration files |
 | `npm run db:seed` | Seed categories, sites, collections |
-| `npm run db:embed` | Embed published sites missing vectors |
+| `npm run db:embed` | Embed published sites via Ollama |
+| `npm run ai:check` | Verify Ollama embeddings + chat |
 | `npm run db:studio` | Drizzle Studio |
 
 ## Project layout
