@@ -1,3 +1,4 @@
+import { scoreSeedSearch } from "@/lib/catalog/seed-catalog";
 import {
   getSearchConfidenceThreshold,
   hasOpenAIConfigured,
@@ -60,6 +61,20 @@ function toResult(
   };
 }
 
+function seedHits(query: string, limit: number): SimilarityHit[] {
+  return scoreSeedSearch(query, limit).map((site) => ({
+    id: site.id,
+    name: site.name,
+    slug: site.slug,
+    url: site.url,
+    description: site.description,
+    pricing: site.pricing,
+    rating: site.rating.toFixed(1),
+    tags: site.tags,
+    similarity: site.similarity,
+  }));
+}
+
 async function getQueryEmbedding(queryNormalized: string): Promise<number[]> {
   const cached = await getCachedQueryEmbedding(queryNormalized);
   if (cached) {
@@ -107,12 +122,15 @@ export async function searchSites(input: {
       const embeddedCount = await countPublishedWithEmbeddings();
       if (embeddedCount === 0) {
         hits = await searchPublishedByKeyword(query, limit);
+        if (hits.length === 0) {
+          hits = seedHits(query, limit);
+        }
         source = "keyword";
-        mode = hits.length > 0 ? "keyword" : "unavailable";
+        mode = hits.length > 0 ? "keyword" : "empty";
         aiSummary =
           hits.length > 0
-            ? "Semantic index is empty — showing keyword matches. Run npm run db:embed when ready."
-            : "No published sites with embeddings yet. Seed the catalog and run npm run db:embed.";
+            ? "Showing catalog matches. Add embeddings later for stronger semantic ranking."
+            : "No matches in the catalog. Try a simpler task phrase.";
       } else {
         const embedding = await getQueryEmbedding(query);
         hits = await searchPublishedByEmbedding(embedding, limit);
@@ -126,36 +144,41 @@ export async function searchSites(input: {
         } else {
           mode = "soft";
           aiSummary =
-            "No strong curated match yet — closest catalog sites below. AI recommendations come in a later phase.";
+            "No strong curated match yet — closest catalog sites below.";
         }
       }
     } else {
-      hits = await searchPublishedByKeyword(query, limit);
+      try {
+        hits = await searchPublishedByKeyword(query, limit);
+      } catch {
+        hits = [];
+      }
+      if (hits.length === 0) {
+        hits = seedHits(query, limit);
+      }
       source = "keyword";
-      mode = hits.length > 0 ? "keyword" : "unavailable";
+      mode = hits.length > 0 ? "keyword" : "empty";
       aiSummary =
         hits.length > 0
-          ? "OpenAI is not configured — showing keyword matches only."
-          : "Search needs OPENAI_API_KEY for semantic results, or published sites for keyword fallback.";
+          ? "Keyword matches from the curated catalog. Semantic ranking unlocks when OPENAI_API_KEY is set and embeddings are generated."
+          : "No matches in the catalog. Try a simpler task phrase.";
     }
   } catch (error) {
-    console.error("Search failed:", error);
-    return {
-      query,
-      slug,
-      mode: "unavailable",
-      results: [],
-      aiSummary:
-        "Search is temporarily unavailable. Check database connectivity and that migrations have been applied.",
-      threshold,
-    };
+    console.error("Search failed, using seed catalog:", error);
+    hits = seedHits(query, limit);
+    source = "keyword";
+    mode = hits.length > 0 ? "keyword" : "unavailable";
+    aiSummary =
+      hits.length > 0
+        ? "Showing bundled catalog matches while the database is offline."
+        : "Search is temporarily unavailable.";
   }
 
   const results = hits
     .filter((hit) => hit.similarity > 0.05)
     .map((hit) => toResult(hit, source));
 
-  if (recordPageHit && results.length > 0) {
+  if (recordPageHit && results.length > 0 && !results[0]?.siteId.startsWith("seed_")) {
     try {
       await upsertSearchPageHit({
         query,

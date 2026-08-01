@@ -1,5 +1,8 @@
+import Link from "next/link";
+
 import { VisitSiteLink } from "@/features/search/VisitSiteLink";
 import type { SearchMode, SearchResultItem } from "@/features/search/types";
+import { pricingLabel } from "@/lib/utils/pricing";
 
 type SearchResultsListProps = {
   query: string;
@@ -9,19 +12,6 @@ type SearchResultsListProps = {
   compact?: boolean;
 };
 
-function pricingLabel(pricing: SearchResultItem["pricing"]): string {
-  switch (pricing) {
-    case "free":
-      return "Free";
-    case "freemium":
-      return "Freemium";
-    case "paid":
-      return "Paid";
-    case "free_trial":
-      return "Free trial";
-  }
-}
-
 function modeLabel(mode: SearchMode): string {
   switch (mode) {
     case "curated":
@@ -29,7 +19,7 @@ function modeLabel(mode: SearchMode): string {
     case "soft":
       return "Closest matches";
     case "keyword":
-      return "Keyword matches";
+      return "Catalog matches";
     case "empty":
       return "No matches";
     case "unavailable":
@@ -64,9 +54,9 @@ export function SearchResultsList({
           ) : null}
         </div>
       )}
-      <ul className={compact ? "divide-y divide-[var(--border)]" : "divide-y divide-[var(--border)]"}>
+      <ul className="divide-y divide-[var(--border)]">
         {results.map((result, index) => {
-          const isBest = index === 0 && (mode === "curated" || mode === "soft");
+          const isBest = index === 0 && mode !== "empty" && mode !== "unavailable";
           return (
             <li
               key={result.siteId}
@@ -75,9 +65,12 @@ export function SearchResultsList({
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-                    <h3 className="text-base font-semibold text-[var(--ink)] sm:text-lg">
+                    <Link
+                      href={`/site/${result.slug}`}
+                      className="text-base font-semibold text-[var(--ink)] transition hover:text-[var(--accent)] sm:text-lg"
+                    >
                       {result.name}
-                    </h3>
+                    </Link>
                     <span className="text-xs font-medium text-[var(--accent)]">
                       {isBest
                         ? `Best match (${result.confidencePercent}%)`
@@ -89,9 +82,21 @@ export function SearchResultsList({
                   </p>
                   <p className="mt-2 text-xs text-[var(--muted)]">
                     {pricingLabel(result.pricing)}
-                    {Number.isFinite(result.rating) ? ` · ${result.rating.toFixed(1)}★` : null}
-                    {result.source === "keyword" ? " · keyword" : null}
+                    {Number.isFinite(result.rating)
+                      ? ` · ${result.rating.toFixed(1)}★`
+                      : null}
+                    {result.tags.length > 0
+                      ? ` · ${result.tags.slice(0, 3).join(", ")}`
+                      : null}
                   </p>
+                  {!compact ? (
+                    <Link
+                      href={`/site/${result.slug}`}
+                      className="mt-2 inline-block text-xs font-medium text-[var(--accent)] hover:text-[var(--accent-strong)]"
+                    >
+                      Pros, cons & alternatives →
+                    </Link>
+                  ) : null}
                 </div>
                 <VisitSiteLink
                   href={result.url}
