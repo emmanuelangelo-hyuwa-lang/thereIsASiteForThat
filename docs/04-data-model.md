@@ -1,6 +1,6 @@
 # Data Model
 
-Custom Postgres. ORM: Drizzle. Vectors: pgvector.
+**Supabase Postgres** (hosted). ORM: Drizzle. Vectors: pgvector. Auth users are app tables — not Supabase Auth.
 
 ---
 
@@ -128,6 +128,38 @@ Durable SEO pages for popular / unique queries.
 | confidence | numeric | nullable |
 | created_at | timestamptz | |
 
+### `users` (Google OAuth / Auth.js)
+
+| Column | Type | Notes |
+|---|---|---|
+| id | uuid PK | |
+| google_sub | text | unique Google subject |
+| email | text | |
+| name | text | nullable |
+| avatar_url | text | nullable |
+| created_at | timestamptz | |
+| last_seen_at | timestamptz | |
+
+### `bookmarks`
+
+| Column | Type | Notes |
+|---|---|---|
+| user_id | uuid FK → users | |
+| site_id | uuid FK → sites | |
+| created_at | timestamptz | |
+| PK | (user_id, site_id) | |
+
+### `saved_searches`
+
+| Column | Type | Notes |
+|---|---|---|
+| id | uuid PK | |
+| user_id | uuid FK → users | |
+| query | text | normalized query text |
+| slug | text | e.g. `compress-a-pdf` |
+| created_at | timestamptz | |
+| unique | (user_id, slug) | |
+
 ---
 
 ## 3. Embedding Text Recipe
@@ -163,15 +195,16 @@ Convert distance → confidence % in the service layer (see [05-search-pipeline.
 ## 5. Access Notes
 
 - Public reads go through Next.js server code (published `sites` / collections / indexable search pages).
-- Writes for catalog management require an admin password session (`ADMIN_PASSWORD` + signed cookie).
-- No database-level RLS vendor — enforce access in the app layer.
+- Catalog admin writes require password session (`ADMIN_PASSWORD` + signed cookie).
+- End-user bookmarks / saved searches require Auth.js Google session; `/me/*` gated in layout.
+- No Supabase RLS — enforce access in the app layer.
 
 ---
 
 ## 6. Seed Strategy
 
-1. Seed ~15–20 categories.
-2. Manually curate 150–300 sites with real pros/cons (quality over fluff).
-3. Embed in batch after seed.
-4. Create 7 launch collections with 8–15 sites each.
-5. Pre-create ~30 high-intent `search_pages` (`compress-pdf`, `remove-background`, etc.).
+1. Seed ~12 categories (shipped).
+2. Curate ~70+ sites with pros/cons; grow toward 150–300.
+3. Embed in batch (`npm run db:embed`).
+4. Seven launch collections.
+5. ~30 high-intent indexable `search_pages`.

@@ -1,96 +1,93 @@
 # Decisions & Open Questions
 
-Recommended defaults for v1. Revisit with data after soft launch.
+Locked choices for what we shipped. Revisit with data after soft launch.
 
 ---
 
 ## 1. Confidence threshold (curated vs AI fallback)
 
-**Question:** What similarity score triggers curated vs LLM fallback?
-
-**Recommendation:** Start at **0.78** cosine similarity.
+**Default in code:** **0.78** cosine similarity (`SEARCH_CONFIDENCE_THRESHOLD`).
 
 | Score | Behavior |
 |---|---|
 | ≥ 0.78 | Curated mode; show confidence % |
-| 0.65–0.77 | Soft band: still show vector hits but prefer RAG summary framing |
-| < 0.65 | Full AI-inferred path; be explicit about uncertainty |
+| Below | RAG over catalog candidates; label `ai_inferred` |
 
-**How to finalize:** Label 50 queries after seed; pick threshold maximizing Recall@3 while keeping false-confident rate low.
+**How to finalize:** Label ~50 queries after seed; tune for Recall@3 vs false-confident rate.
 
 ---
 
 ## 2. Moderation workload
 
-**Question:** How much manual review is sustainable solo?
+**Shipped guards:**
 
-**Recommendation:**
+- Rate-limit submissions: **8 / IP / hour**
+- Auto-reject duplicate URLs (catalog + pending/approved submissions)
+- Batch review as needed; quality over volume
 
-- Cap intake: rate-limit submissions (e.g. 5/IP/day).
-- Auto-reject exact duplicate URLs.
-- Batch review 2–3×/week, not real-time.
-- Target approval rate quality over volume; "no" is fine.
-- If queue > ~30 pending for >1 week, tighten form (require email, captcha).
+**Later if spam rises:** captcha, email required, tighter caps.
 
 ---
 
 ## 3. Monetization
 
-**Question:** Affiliate, sponsored, or ad-free?
-
-**Recommendation for v1:** **Ad-free results. Optional disclosed affiliates later.**
+**v1:** Ad-free results. Optional disclosed affiliates later.
 
 - Never let payment change "Best match".
-- If sponsored appears post-v1, separate row labeled **Sponsored**, never inside organic ranking.
-- Affiliate links OK only with disclosure and when the editor still ranks that site organically.
-
-Trust compounds; ads early destroy the "best one" promise.
+- Sponsored (post-v1) = separate labeled row, never inside organic ranking.
 
 ---
 
 ## 4. Spam / low-quality submissions
 
-**Guards:**
-
-1. Duplicate URL detection (normalize trailing slash, `www`, utm params).
-2. Blocklist disposable email domains if email collected.
-3. Require real description (≥ 40 chars) and valid category.
-4. Honeypot field + Cloudflare Turnstile / hCaptcha on `/submit`.
-5. Published entries only affect search (pending never embedded).
+**In place:** duplicate URL normalize + IP rate limits.  
+**Still backlog:** honeypot, Turnstile, disposable-email blocklist.
 
 ---
 
-## 5. Auth scope in v1
+## 5. Auth
 
-**Decision:** No end-user accounts in v1. Admin-only password session (`ADMIN_PASSWORD` + signed httpOnly cookie).
+| Audience | Mechanism |
+|---|---|
+| Admin | `ADMIN_PASSWORD` + signed httpOnly cookie |
+| End users | **Auth.js (NextAuth v5) + Google OAuth** |
 
-**Post-v1 (planned):** Google OAuth for end users — bookmarks, saved searches, personal lists, etc. Spec: [11-user-accounts-features.md](./11-user-accounts-features.md). Admin remains separate from Google user sessions. Search/browse stay fully usable without sign-in.
-
----
-
-## 6. Embedding model
-
-**Decision:** OpenAI `text-embedding-3-small` (1536 dims).
-
-Re-evaluate only if cost or quality becomes a problem; keep dimension stable once seeded.
+**Shipped:** bookmarks, saved searches, `/me` hub. Guest search/browse ungated.  
+**Not used:** Supabase Auth, Clerk, Auth0.  
+Admin remains separate from Google sessions. Spec: [11-user-accounts-features.md](./11-user-accounts-features.md).
 
 ---
 
-## 7. ORM / backend
+## 6. Embedding + chat models
 
-**Decision:** Drizzle + Postgres + pgvector. Hosted DB: **Supabase Postgres** (connection string only). No Supabase Auth / client SDK — admin is password + signed cookie.
+| Role | Model |
+|---|---|
+| Embeddings | OpenAI `text-embedding-3-small` (1536 dims) |
+| RAG chat | OpenAI `gpt-4o-mini` (weak matches only) |
 
-Services/repositories layer in TypeScript; no business logic in React components.
+Keep embedding dimension stable once seeded.
 
 ---
 
-## 8. Indexable search pages — when?
+## 7. Database / ORM
 
-**Decision:**
+| Choice | Detail |
+|---|---|
+| Hosted DB | **Supabase Postgres** (connection string only) |
+| Extensions | `vector`, `pg_trgm` |
+| Client | Drizzle + `postgres.js`; pooler URI; `prepare: false` |
+| Local alt | Optional WSL Postgres (not required) |
+
+No Supabase JS client / Auth SDK.
+
+---
+
+## 8. Indexable search pages
 
 - Admin can pin any slug.
 - Auto-promote after **5** successful searches with ≥1 result above threshold.
 - Thin/empty pages stay `noindex`.
+- Seed ~30 high-intent pages at launch.
 
 ---
 
@@ -103,15 +100,17 @@ Services/repositories layer in TypeScript; no business logic in React components
 | Hero | ThereIsASiteForThat |
 | Tagline | Need a website to do X? Here's the best one. |
 
-Avoid overusing the acronym in UI.
+Visual: editorial atlas home — Instrument Serif + IBM Plex Sans, ink-teal accent, light/dark toggle.
 
 ---
 
-## 10. Still open (need founder call)
+## 10. Still open
 
 - Whether submitter email is required
 - Soft launch channel (PH, Twitter/X, HN, Indie Hackers)
-- Domain DNS / analytics (Plausible vs GA4)
+- Analytics (Plausible vs GA4)
+- Threshold eval set
+- Production deploy env completeness (Google redirect + all secrets on Vercel)
 
 ---
 
@@ -121,9 +120,11 @@ Avoid overusing the acronym in UI.
 |---|---|---|
 | 2026-08-01 | Docs-first in `docs/` | Done |
 | 2026-08-01 | Stack: Next.js + Postgres + Drizzle + pgvector + OpenAI + Vercel | Done |
-| 2026-08-01 | Drop Supabase Auth; admin password session instead of magic link | Done |
-| 2026-08-01 | Hosted DB: Supabase Postgres (pgvector); keep Drizzle + postgres.js | Done |
-| 2026-08-01 | Threshold default 0.78 | Proposed |
+| 2026-08-01 | Admin password session (not Supabase Auth / not Google admin) | Done |
+| 2026-08-01 | Hosted DB: Supabase Postgres; Drizzle + postgres.js + pooler | Done |
+| 2026-08-01 | OpenAI embeddings + `gpt-4o-mini` RAG | Done |
+| 2026-08-01 | Threshold default 0.78 | In code |
 | 2026-08-01 | No ads in v1 results | Proposed |
-| 2026-08-01 | Visual system: editorial atlas home, Instrument Serif + IBM Plex Sans, ink-teal accent, light/dark toggle | Done |
-| 2026-08-01 | End-user Google OAuth + bookmarks deferred; feature map in `11-user-accounts-features.md` | Planned |
+| 2026-08-01 | Editorial atlas home UI | Done |
+| 2026-08-01 | Auth.js Google + bookmarks + saved searches | Done |
+| 2026-08-01 | Submit duplicate URL checks + IP rate limits | Done |

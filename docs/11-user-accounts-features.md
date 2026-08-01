@@ -26,8 +26,8 @@
 | Table / concept | Purpose |
 |---|---|
 | `users` | `id`, `google_sub` (unique), `email`, `name`, `avatar_url`, `created_at`, `last_seen_at` |
-| `sessions` | Auth.js / NextAuth session storage (or JWT-only if we keep it minimal) |
-| Feature tables | All FK → `users.id` (bookmarks, lists, notes, …) |
+| Session | Auth.js JWT session (no DB `sessions` table in MVP) |
+| Feature tables | FK → `users.id` — shipped: `bookmarks`, `saved_searches`; backlog: lists, notes, … |
 
 Anonymous usage continues unchanged. On first Google sign-in, upsert `users` by `google_sub`.
 
@@ -50,24 +50,22 @@ Save a site for later. Primary reason to add Google Client ID.
 
 **Data:** `bookmarks (user_id, site_id, created_at)` unique `(user_id, site_id)`
 
-#### 3.2 Saved searches
+#### 3.2 Saved searches — shipped
 
 Save a query ("compress a pdf", "notion alternatives") and reopen it later.
 
-- Save from homepage / search results
-- `/me/searches` — reopen → runs current ranking (not a frozen snapshot)
+- Save from `/search/[slug]` (signed-in)
+- `/me/searches` — reopen → current ranking (not a frozen snapshot)
+- Unique per user + slug
 - Optional later: email/push when catalog gets a stronger match
 
-**Data:** `saved_searches (user_id, query, slug?, created_at)`
+**Data:** `saved_searches (id, user_id, query, slug, created_at)` unique `(user_id, slug)`
 
-#### 3.3 Account home (`/me`)
+#### 3.3 Account home (`/me`) — shipped (thin)
 
-Thin hub, not a dashboard wall:
-
-- Bookmarks count + recent
-- Saved searches
-- My submissions (status)
+- Links to bookmarks + saved searches
 - Sign out
+- Backlog: my submissions status
 
 One job: "stuff I saved."
 

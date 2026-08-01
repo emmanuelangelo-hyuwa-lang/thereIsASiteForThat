@@ -2,7 +2,7 @@
 
 Need a website to do X? Here's the best one.
 
-Searchable directory for useful websites — curated matches first, AI-inferred fallback when the catalog misses.
+Searchable directory for useful websites — curated matches first, AI-inferred fallback when the catalog misses. Google sign-in unlocks bookmarks and saved searches (search stays public).
 
 ## Docs
 
@@ -18,44 +18,36 @@ Product and engineering docs live in [`docs/`](./docs/README.md).
 | [06-ux-design.md](./docs/06-ux-design.md) | UX principles, pages, IA |
 | [07-seo-strategy.md](./docs/07-seo-strategy.md) | Long-tail pages, URL design, content |
 | [08-roadmap.md](./docs/08-roadmap.md) | Phased build plan |
-| [09-decisions.md](./docs/09-decisions.md) | Open questions + recommended defaults |
-| [10-setup.md](./docs/10-setup.md) | What you need to configure (Postgres, env, seed) |
+| [09-decisions.md](./docs/09-decisions.md) | Decisions + defaults |
+| [10-setup.md](./docs/10-setup.md) | Env, Supabase, seed, Google OAuth |
+| [11-user-accounts-features.md](./docs/11-user-accounts-features.md) | Google auth, bookmarks, saved searches |
 
-**Reading order:** PRD → Competitive analysis → Architecture → Data model → Search → UX → SEO → Roadmap → Decisions → Setup
+## Stack (what we actually use)
 
-## Stack
-
-- Next.js (App Router) + TypeScript + Tailwind
-- Custom Postgres + pgvector
-- Drizzle ORM
-- OpenAI embeddings (optional until search)
-- Vercel
+- **Next.js** App Router + TypeScript + Tailwind
+- **Supabase Postgres** + **pgvector** + **pg_trgm** (connection string only — not Supabase Auth)
+- **Drizzle ORM** + `postgres.js`
+- **OpenAI** `text-embedding-3-small` + `gpt-4o-mini` (RAG on weak matches)
+- **Auth.js (NextAuth v5)** Google OAuth for end users
+- Admin: password + signed cookie (separate from Google)
+- Hosting target: **Vercel** (domain: thereisasiteforthat.com)
 
 ## Getting started
 
 ```bash
 npm install
-cp .env.example .env.local
+cp .env.example .env
+# fill DATABASE_URL, ADMIN_*, OPENAI_*, AUTH_* — see docs/10-setup.md
+npm run db:migrate
+npm run db:seed
+npm run db:embed
 npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
 
-### Database + admin (Phase 2)
-
-Full checklist: [`docs/10-setup.md`](./docs/10-setup.md)
-
-```bash
-cp .env.example .env.local
-# fill DATABASE_URL + ADMIN_PASSWORD + ADMIN_SESSION_SECRET
-# OPENAI_API_KEY can wait until embeddings/search
-
-npm run db:migrate
-npm run db:seed
-# npm run db:embed   # later, when OpenAI is set
-```
-
-Admin: [http://localhost:3000/admin/login](http://localhost:3000/admin/login)
+Admin: [http://localhost:3000/admin/login](http://localhost:3000/admin/login)  
+Account: Sign in (header) → bookmarks / saved searches under `/me`
 
 ## Scripts
 
@@ -68,7 +60,7 @@ Admin: [http://localhost:3000/admin/login](http://localhost:3000/admin/login)
 | `npm run db:generate` | Generate Drizzle migrations |
 | `npm run db:migrate` | Apply migrations |
 | `npm run db:push` | Push schema without migration files |
-| `npm run db:seed` | Seed categories, sites, collections |
+| `npm run db:seed` | Seed categories, sites, collections, search pages |
 | `npm run db:embed` | Embed published sites missing vectors |
 | `npm run db:studio` | Drizzle Studio |
 
@@ -76,9 +68,10 @@ Admin: [http://localhost:3000/admin/login](http://localhost:3000/admin/login)
 
 ```
 src/
-  app/           # Routes + API handlers
-  components/    # Shared UI
-  features/      # Feature UI (search, …)
+  app/           # Routes + API handlers (/me, /api/auth, …)
+  auth.ts        # Auth.js config (Google)
+  components/    # Shared UI (home atlas, header, …)
+  features/      # Feature UI (search, bookmarks, auth, …)
   lib/
     db/          # Drizzle client + schema
     repositories/
@@ -86,4 +79,5 @@ src/
     validators/
     utils/
 docs/            # Product & engineering docs
+drizzle/         # SQL migrations
 ```

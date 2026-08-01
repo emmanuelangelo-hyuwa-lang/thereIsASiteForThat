@@ -29,7 +29,7 @@
 
 - Not building a general web search engine.
 - Not limiting scope to AI tools only.
-- Not building user accounts / social features beyond a deferred favorites path.
+- Not gating search behind sign-in; accounts are optional (Google) for bookmarks / saved searches only.
 - Not becoming a news feed, leaderboard mega-portal, or ad-dense marketplace in v1.
 
 ---
@@ -153,12 +153,16 @@ Decide early enough that ranking logic stays honest:
 
 ---
 
-## 8. Out of Scope Until Post-v1
+## 8. Accounts (shipped MVP) vs later
 
-- Favorites / bookmarking accounts (Google OAuth — see [11-user-accounts-features.md](./11-user-accounts-features.md))
+**Shipped:** Google OAuth (Auth.js), bookmarks, saved searches, `/me` hub — see [11-user-accounts-features.md](./11-user-accounts-features.md).
+
+**Still post-v1 / backlog:**
+
 - Upvoting / community ranking
 - Side-by-side comparison
 - Personalized AI recommendations
+- Personal lists, notes, submission history on `/me`
 - Browser extension / Chrome search shortcut (`tias <query>`)
 - Public API
 - "Replace X with Y" pages

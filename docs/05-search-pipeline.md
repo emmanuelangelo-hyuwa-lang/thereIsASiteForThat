@@ -2,6 +2,8 @@
 
 The product *is* search. This doc defines the v1 pipeline end-to-end.
 
+**Implementation:** `src/lib/services/search.ts` + `src/lib/services/rag.ts` · OpenAI `text-embedding-3-small` + `gpt-4o-mini` · Supabase Postgres / pgvector · rate limit 60/min/IP on `/api/search`.
+
 ---
 
 ## 1. Goals
