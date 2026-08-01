@@ -14,4 +14,8 @@ export const EXAMPLE_QUERIES = [
   "remove background",
   "make a resume",
   "color palette",
+  "qr code generator",
+  "temporary email",
+  "json formatter",
+  "find internships",
 ] as const;

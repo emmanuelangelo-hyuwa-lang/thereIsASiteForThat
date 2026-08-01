@@ -125,5 +125,5 @@ Avoid overusing the acronym in UI.
 | 2026-08-01 | Hosted DB: Supabase Postgres (pgvector); keep Drizzle + postgres.js | Done |
 | 2026-08-01 | Threshold default 0.78 | Proposed |
 | 2026-08-01 | No ads in v1 results | Proposed |
-| 2026-08-01 | Visual system: Railway-inspired panels, Instrument Serif + IBM Plex Sans, violet accent, light/dark toggle | Done |
+| 2026-08-01 | Visual system: editorial atlas home, Instrument Serif + IBM Plex Sans, ink-teal accent, light/dark toggle | Done |
 | 2026-08-01 | End-user Google OAuth + bookmarks deferred; feature map in `11-user-accounts-features.md` | Planned |
