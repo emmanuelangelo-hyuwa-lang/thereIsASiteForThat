@@ -41,7 +41,7 @@ CREATE TABLE "collections" (
 --> statement-breakpoint
 CREATE TABLE "query_cache" (
 	"query_normalized" text PRIMARY KEY NOT NULL,
-	"embedding" vector(768) NOT NULL,
+	"embedding" vector(1536) NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
@@ -72,7 +72,7 @@ CREATE TABLE "sites" (
 	"tags" text[] DEFAULT '{}'::text[] NOT NULL,
 	"screenshot_url" text,
 	"status" "site_status" DEFAULT 'draft' NOT NULL,
-	"embedding" vector(768),
+	"embedding" vector(1536),
 	"search_text" text,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,

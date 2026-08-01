@@ -13,8 +13,7 @@
     "typecheck": "tsc --noEmit",
     "db:push": "drizzle-kit push",
     "db:seed": "tsx scripts/seed.ts",
-    "db:embed": "tsx scripts/embed.ts",
-    "ai:check": "tsx scripts/check-ollama.ts"
+    "db:embed": "tsx scripts/embed.ts"
   },
   "dependencies": {
     "drizzle-orm": "^0.45.2",

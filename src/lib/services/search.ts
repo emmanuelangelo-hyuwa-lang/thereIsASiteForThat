@@ -1,9 +1,8 @@
 import { scoreSeedSearch } from "@/lib/catalog/seed-catalog";
 import {
   getSearchConfidenceThreshold,
-  hasAiConfigured,
+  hasOpenAIConfigured,
 } from "@/lib/env";
-import { isEmbeddingProviderReachable } from "@/lib/ai/embeddings";
 import {
   getCachedQueryEmbedding,
   setCachedQueryEmbedding,
@@ -16,7 +15,6 @@ import {
 } from "@/lib/repositories/search";
 import { upsertSearchPageHit } from "@/lib/repositories/search-pages";
 import { embedText } from "@/lib/services/embeddings";
-import { summarizeSearchResults } from "@/lib/services/recommend";
 import { normalizeQuery } from "@/lib/utils/normalize-query";
 import { slugify } from "@/lib/utils/slugify";
 
@@ -119,23 +117,11 @@ export async function searchSites(input: {
   let mode: SearchResponseData["mode"] = "curated";
   let aiSummary: string | null = null;
 
-  const aiReady = hasAiConfigured() && (await isEmbeddingProviderReachable());
-
   try {
-    if (aiReady) {
-      let embeddedCount = 0;
-      try {
-        embeddedCount = await countPublishedWithEmbeddings();
-      } catch {
-        embeddedCount = 0;
-      }
-
+    if (hasOpenAIConfigured()) {
+      const embeddedCount = await countPublishedWithEmbeddings();
       if (embeddedCount === 0) {
-        try {
-          hits = await searchPublishedByKeyword(query, limit);
-        } catch {
-          hits = [];
-        }
+        hits = await searchPublishedByKeyword(query, limit);
         if (hits.length === 0) {
           hits = seedHits(query, limit);
         }
@@ -143,7 +129,7 @@ export async function searchSites(input: {
         mode = hits.length > 0 ? "keyword" : "empty";
         aiSummary =
           hits.length > 0
-            ? "Showing catalog matches. Run npm run db:embed after Ollama is up for semantic ranking."
+            ? "Showing catalog matches. Add embeddings later for stronger semantic ranking."
             : "No matches in the catalog. Try a simpler task phrase.";
       } else {
         const embedding = await getQueryEmbedding(query);
@@ -157,7 +143,8 @@ export async function searchSites(input: {
           mode = "curated";
         } else {
           mode = "soft";
-          source = "ai_inferred";
+          aiSummary =
+            "No strong curated match yet — closest catalog sites below.";
         }
       }
     } else {
@@ -173,7 +160,7 @@ export async function searchSites(input: {
       mode = hits.length > 0 ? "keyword" : "empty";
       aiSummary =
         hits.length > 0
-          ? "Keyword matches from the curated catalog. Start Ollama (nomic-embed-text) for semantic ranking."
+          ? "Keyword matches from the curated catalog. Semantic ranking unlocks when OPENAI_API_KEY is set and embeddings are generated."
           : "No matches in the catalog. Try a simpler task phrase.";
     }
   } catch (error) {
@@ -183,32 +170,13 @@ export async function searchSites(input: {
     mode = hits.length > 0 ? "keyword" : "unavailable";
     aiSummary =
       hits.length > 0
-        ? "Showing bundled catalog matches while search infrastructure is offline."
+        ? "Showing bundled catalog matches while the database is offline."
         : "Search is temporarily unavailable.";
   }
 
   const results = hits
     .filter((hit) => hit.similarity > 0.05)
-    .map((hit) =>
-      toResult(
-        hit,
-        mode === "soft" ? "ai_inferred" : source,
-      ),
-    );
-
-  if (mode === "soft" || (mode === "empty" && aiReady)) {
-    const summary = await summarizeSearchResults({
-      query,
-      results,
-      mode: mode === "empty" ? "empty" : "soft",
-    });
-    if (summary) {
-      aiSummary = summary;
-    } else if (mode === "soft") {
-      aiSummary =
-        "No strong curated match yet — closest catalog sites below.";
-    }
-  }
+    .map((hit) => toResult(hit, source));
 
   if (recordPageHit && results.length > 0 && !results[0]?.siteId.startsWith("seed_")) {
     try {

@@ -68,18 +68,11 @@ Trust compounds; ads early destroy the "best one" promise.
 
 ---
 
-## 6. Embedding / AI provider
+## 6. Embedding model
 
-**Decision:** **Ollama** by default (open source, local).
+**Decision:** OpenAI `text-embedding-3-small` (1536 dims).
 
-| Concern | Choice |
-|---|---|
-| Provider | `AI_PROVIDER=ollama` |
-| Embeddings | `nomic-embed-text` (**768** dims) |
-| Chat / soft summaries | `llama3.2` |
-| Optional escape hatch | `AI_PROVIDER=openai` (requires matching vector dims + re-embed) |
-
-Keep embedding dimensions stable once seeded. Schema column is `vector(768)`.
+Re-evaluate only if cost or quality becomes a problem; keep dimension stable once seeded.
 
 ---
 
@@ -133,4 +126,3 @@ Avoid overusing the acronym in UI.
 | 2026-08-01 | No ads in v1 results | Proposed |
 | 2026-08-01 | Visual system: Railway-inspired panels, Instrument Serif + IBM Plex Sans, violet accent, light/dark toggle | Done |
 | 2026-08-01 | End-user Google OAuth + bookmarks deferred; feature map in `11-user-accounts-features.md` | Planned |
-| 2026-08-01 | Default AI stack: Ollama (`nomic-embed-text` 768 + `llama3.2`) instead of OpenAI | Done |

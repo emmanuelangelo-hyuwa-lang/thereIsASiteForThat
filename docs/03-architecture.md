@@ -9,8 +9,8 @@
 | Styling | Tailwind CSS | Fast UI iteration |
 | Database | Custom Postgres + pgvector | Local WSL for dev; hosted Postgres in prod |
 | ORM | Drizzle ORM | Thin, typed, migration-friendly |
-| Embeddings | Ollama `nomic-embed-text` (768) | Open source, local; OpenAI optional |
-| LLM fallback | Ollama `llama3.2` | Soft-match summaries / RAG |
+| Embeddings | OpenAI `text-embedding-3-small` | Cheap, good enough for v1 (optional until search) |
+| LLM fallback | OpenAI (or compatible) | RAG recommendations |
 | File storage | Cloudflare R2 (later) | Screenshots |
 | Hosting | Vercel | Preview deploys, edge-friendly |
 | Admin auth | Password + signed httpOnly cookie | Solo-dev simple, no auth vendor |
@@ -25,8 +25,8 @@
                                 │
                                 ▼
                      ┌─────────────────────┐
-                     │  Ollama (local)     │
-                     │  Embeddings + chat  │
+                     │  OpenAI (later)     │
+                     │  Embeddings + LLM   │
                      └─────────────────────┘
 ```
 
@@ -94,11 +94,8 @@ src/
 ```bash
 DATABASE_URL=postgresql://...
 DATABASE_URL_DIRECT=              # optional, for migrations if pooled
-AI_PROVIDER=ollama
-OLLAMA_BASE_URL=http://127.0.0.1:11434
-OLLAMA_EMBEDDING_MODEL=nomic-embed-text
-OLLAMA_CHAT_MODEL=llama3.2
-EMBEDDING_DIMENSIONS=768
+OPENAI_API_KEY=                   # fill later for embeddings/search
+OPENAI_EMBEDDING_MODEL=text-embedding-3-small
 ADMIN_PASSWORD=
 ADMIN_SESSION_SECRET=
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
@@ -108,7 +105,7 @@ SEARCH_CONFIDENCE_THRESHOLD=0.78
 ## 7. Cost Control (solo-dev)
 
 - Cache query embeddings for identical normalized queries (short TTL or persistent `query_cache`).
-- Use Ollama `nomic-embed-text` (768 dims).
+- Use `text-embedding-3-small` (1536 dims).
 - Cap RAG LLM to when similarity is below threshold only.
 - Debounce client search; require min 2–3 chars.
 - Rate-limit `/api/search` and `/api/submissions` by IP.

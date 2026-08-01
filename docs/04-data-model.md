@@ -42,7 +42,7 @@ create extension if not exists pg_trgm; -- optional keyword assist
 | tags | text[] | |
 | screenshot_url | text | nullable |
 | status | enum | `draft` \| `published` \| `archived` |
-| embedding | vector(768) | Ollama `nomic-embed-text` |
+| embedding | vector(1536) | OpenAI small |
 | search_text | text | denormalized blob for embedding source |
 | created_at | timestamptz | |
 | updated_at | timestamptz | |
@@ -114,7 +114,7 @@ Durable SEO pages for popular / unique queries.
 | Column | Type | Notes |
 |---|---|---|
 | query_normalized | text PK | |
-| embedding | vector(768) | |
+| embedding | vector(1536) | |
 | created_at | timestamptz | |
 
 ### `click_events` (analytics lite)

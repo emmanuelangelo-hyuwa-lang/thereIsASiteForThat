@@ -22,7 +22,7 @@ User query
 Normalize (trim, lowercase, collapse whitespace)
    │
    ▼
-Embed query (Ollama nomic-embed-text)
+Embed query (OpenAI text-embedding-3-small)
    │
    ▼
 pgvector similarity against published sites

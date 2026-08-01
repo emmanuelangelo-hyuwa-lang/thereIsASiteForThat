@@ -1,5 +1,5 @@
 import { requireAdminUser } from "@/lib/auth/admin";
-import { hasAiConfigured } from "@/lib/env";
+import { hasOpenAIConfigured } from "@/lib/env";
 import { getCategoryById } from "@/lib/repositories/categories";
 import {
   getSiteById,
@@ -54,7 +54,7 @@ export async function createSiteAsAdmin(raw: unknown): Promise<SiteRow> {
 
   const site = await insertSite(values);
 
-  if (site.status === "published" && hasAiConfigured()) {
+  if (site.status === "published" && hasOpenAIConfigured()) {
     try {
       const embedding = await embedText(values.searchText);
       const updated = await updateSite(site.id, { embedding });
@@ -93,7 +93,7 @@ export async function updateSiteAsAdmin(
   const contentChanged =
     existing.searchText !== values.searchText || existing.status !== values.status;
 
-  if (site.status === "published" && contentChanged && hasAiConfigured()) {
+  if (site.status === "published" && contentChanged && hasOpenAIConfigured()) {
     try {
       const embedding = await embedText(values.searchText);
       const updated = await updateSite(site.id, { embedding });
