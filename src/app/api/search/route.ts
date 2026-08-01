@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
+import { searchSites } from "@/lib/services/search";
 import { fail, ok } from "@/lib/utils/api-response";
-import { slugify } from "@/lib/utils/slugify";
 import { searchRequestSchema } from "@/lib/validators/search";
 
 export async function POST(request: Request) {
@@ -20,14 +20,15 @@ export async function POST(request: Request) {
     });
   }
 
-  // Placeholder until embeddings + pgvector search are wired.
-  return NextResponse.json(
-    ok({
+  try {
+    const data = await searchSites({
       query: parsed.data.query,
-      slug: slugify(parsed.data.query),
-      mode: "unavailable" as const,
-      results: [],
-      aiSummary: "Search is scaffolded but not connected to the catalog yet.",
-    }),
-  );
+      limit: parsed.data.limit,
+      recordPageHit: true,
+    });
+    return NextResponse.json(ok(data));
+  } catch (error) {
+    console.error("POST /api/search failed:", error);
+    return NextResponse.json(fail("Search failed"), { status: 500 });
+  }
 }

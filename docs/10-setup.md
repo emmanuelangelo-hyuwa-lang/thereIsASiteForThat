@@ -110,6 +110,13 @@ When OpenAI is ready:
 npm run db:embed
 ```
 
+Then search works end-to-end:
+
+1. Homepage: type ≥2 characters → instant results with confidence %
+2. Enter → `/search/{slug}` SSR page
+3. **Visit site** logs `POST /api/click` then opens the outbound URL
+4. Without embeddings / OpenAI, search falls back to `pg_trgm` keyword matches
+
 ---
 
 ## 4. Admin
@@ -136,4 +143,5 @@ npm run db:embed
 - [ ] `db:migrate` succeeds
 - [ ] `db:seed` succeeds
 - [ ] Password signs you into `/admin`
-- [ ] (Later) `OPENAI_API_KEY` set + `db:embed` succeeds
+- [ ] `OPENAI_API_KEY` set + `db:embed` succeeds
+- [ ] Homepage instant search returns ranked results

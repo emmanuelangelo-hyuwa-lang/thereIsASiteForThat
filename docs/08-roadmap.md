@@ -42,11 +42,12 @@ Solo-developer, shippable phases. Optimize for a working search experience early
 
 ## Phase 3 — Search v1 ← next code phase
 
-- `/api/search` embedding + pgvector
-- Confidence scores in UI
-- Instant search on homepage
-- `/search/[slug]` SSR pages
-- Click event logging (outbound)
+- [x] `/api/search` embedding + pgvector (keyword fallback if no embeddings)
+- [x] Confidence scores in UI
+- [x] Instant search on homepage
+- [x] `/search/[slug]` SSR pages
+- [x] Click event logging (outbound via `POST /api/click`)
+- [ ] Apply migrate + seed + embed against your Postgres (**needs you** — pgvector)
 
 **Exit:** Real queries return ranked curated results.
 
@@ -79,14 +80,30 @@ Solo-developer, shippable phases. Optimize for a working search experience early
 
 Priority order (suggested):
 
-1. Favorites (lightweight accounts)
-2. "X alternatives" pages
-3. Hybrid keyword + vector search
-4. Screenshots via R2
-5. Upvotes / community ranking
-6. Comparison view
-7. Browser extension / `tias` search shortcut
-8. Public API
+1. "X alternatives" pages
+2. Hybrid keyword + vector search
+3. Screenshots via R2
+4. Comparison view (guest shortlist OK; signed-in sync later)
+5. Browser extension / `tias` search shortcut
+6. Public API
+
+---
+
+## Phase 7 — Accounts & personal features (Google OAuth)
+
+**Docs first:** [11-user-accounts-features.md](./11-user-accounts-features.md) — do not start until Phase 3+ search loop works.
+
+Ship order when greenlit:
+
+1. Google sign-in (`GOOGLE_CLIENT_ID`) + `users` table — guest search stays ungated
+2. Bookmarks + `/me/bookmarks` + thin `/me` hub
+3. Saved searches
+4. Submission history tied to account
+5. Personal lists → optional share links
+6. Notes, compare shortlist, preferences
+7. Later: follow/digest email, soft votes, light personalization
+
+Admin password auth stays separate from Google user sessions.
 
 ---
 

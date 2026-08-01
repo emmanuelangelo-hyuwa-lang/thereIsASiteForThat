@@ -18,6 +18,7 @@ Product and engineering docs for **ThereIsASiteForThat.com**.
 | [08-roadmap.md](./08-roadmap.md) | Phased build plan |
 | [09-decisions.md](./09-decisions.md) | Open questions + recommended defaults |
 | [10-setup.md](./10-setup.md) | What you need to configure (Postgres, env, seed) |
+| [11-user-accounts-features.md](./11-user-accounts-features.md) | Google auth, bookmarks, and personal features (post-v1) |
 
 ## Product in one sentence
 
@@ -29,4 +30,4 @@ Next.js · custom Postgres + pgvector · Drizzle ORM · OpenAI embeddings · Ver
 
 ## Reading order
 
-1. PRD → 2. Competitive analysis → 3. Architecture → 4. Data model → 5. Search → 6. UX → 7. SEO → 8. Roadmap → 9. Decisions → 10. Setup
+1. PRD → 2. Competitive analysis → 3. Architecture → 4. Data model → 5. Search → 6. UX → 7. SEO → 8. Roadmap → 9. Decisions → 10. Setup → 11. Accounts (when planning personal features)

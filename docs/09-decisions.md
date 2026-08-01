@@ -62,9 +62,9 @@ Trust compounds; ads early destroy the "best one" promise.
 
 ## 5. Auth scope in v1
 
-**Decision:** No end-user accounts. Admin-only password session (`ADMIN_PASSWORD` + signed httpOnly cookie).
+**Decision:** No end-user accounts in v1. Admin-only password session (`ADMIN_PASSWORD` + signed httpOnly cookie).
 
-Favorites deferred to post-v1.
+**Post-v1 (planned):** Google OAuth for end users — bookmarks, saved searches, personal lists, etc. Spec: [11-user-accounts-features.md](./11-user-accounts-features.md). Admin remains separate from Google user sessions. Search/browse stay fully usable without sign-in.
 
 ---
 
@@ -125,3 +125,4 @@ Avoid overusing the acronym in UI.
 | 2026-08-01 | Threshold default 0.78 | Proposed |
 | 2026-08-01 | No ads in v1 results | Proposed |
 | 2026-08-01 | Visual system: Railway-inspired panels, Instrument Serif + IBM Plex Sans, violet accent, light/dark toggle | Done |
+| 2026-08-01 | End-user Google OAuth + bookmarks deferred; feature map in `11-user-accounts-features.md` | Planned |

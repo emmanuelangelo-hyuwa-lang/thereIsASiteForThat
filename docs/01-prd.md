@@ -155,7 +155,7 @@ Decide early enough that ranking logic stays honest:
 
 ## 8. Out of Scope Until Post-v1
 
-- Favorites / bookmarking accounts
+- Favorites / bookmarking accounts (Google OAuth — see [11-user-accounts-features.md](./11-user-accounts-features.md))
 - Upvoting / community ranking
 - Side-by-side comparison
 - Personalized AI recommendations
