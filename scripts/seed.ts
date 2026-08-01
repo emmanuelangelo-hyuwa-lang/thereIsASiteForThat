@@ -14,11 +14,12 @@ import {
 import { buildSearchText } from "../src/lib/services/search-text";
 import { normalizeUrl } from "../src/lib/utils/url";
 
-config({ path: ".env.local" });
+config({ path: ".env" });
+config({ path: ".env.local", override: true });
 
 async function main() {
   if (!process.env.DATABASE_URL) {
-    throw new Error("DATABASE_URL is required. Copy .env.example to .env.local first.");
+    throw new Error("DATABASE_URL is required. Copy .env.example to .env first.");
   }
 
   const db = getDb();

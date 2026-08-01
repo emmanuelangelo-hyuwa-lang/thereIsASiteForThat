@@ -4,7 +4,8 @@ import { getDb } from "../src/lib/db";
 import { listSitesMissingEmbeddings, updateSiteEmbedding } from "../src/lib/repositories/sites";
 import { embedTexts } from "../src/lib/services/embeddings";
 
-config({ path: ".env.local" });
+config({ path: ".env" });
+config({ path: ".env.local", override: true });
 
 const BATCH_SIZE = 20;
 
