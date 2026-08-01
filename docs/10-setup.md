@@ -2,48 +2,46 @@
 
 What **you** need to do to unlock Phase 2 (database + admin + seed).
 
-The app code for Phase 2 is in the repo. Until the env is filled, admin/search stay offline.
+The app talks to a **custom Postgres** database (not Supabase). OpenAI can wait until search/embeddings.
 
 ---
 
-## 1. Create a Supabase project
+## 1. Provision Postgres + pgvector
 
-1. Go to [https://supabase.com](https://supabase.com) → New project
-2. Copy from **Project Settings → API**:
-   - Project URL → `NEXT_PUBLIC_SUPABASE_URL`
-   - `anon` `public` key → `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-   - `service_role` key → `SUPABASE_SERVICE_ROLE_KEY` (server only; never expose to client)
-3. Copy from **Project Settings → Database**:
-   - Connection string (URI) → `DATABASE_URL`
-   - Prefer the **Transaction** pooler URI for serverless, or direct URI for local scripts
-   - If migrations fail on prepared statements, use the pooler and keep `prepare: false` (already set)
+Use any Postgres host you like (local Docker, Railway, Neon, Render, VPS, etc.).
 
----
+Requirements:
 
-## 2. Enable Auth email (magic link)
+- Postgres 15+ recommended
+- `vector` extension (pgvector)
+- Optional: `pg_trgm`
 
-1. Supabase → **Authentication → Providers → Email** → enabled
-2. **Authentication → URL configuration**
-   - Site URL: `http://localhost:3000` (local)
-   - Redirect URLs: `http://localhost:3000/admin/auth/callback`
-3. For production later, add your Vercel URL + `/admin/auth/callback`
+Example local Docker:
 
----
+```bash
+docker run --name tias-postgres \
+  -e POSTGRES_PASSWORD=postgres \
+  -e POSTGRES_DB=thereisasiteforthat \
+  -p 5432:5432 \
+  -d pgvector/pgvector:pg16
+```
 
-## 3. Enable pgvector
+Connection string shape:
 
-In Supabase **SQL Editor**, if extensions didn’t apply via migration:
+```text
+postgresql://USER:PASSWORD@HOST:5432/DBNAME
+```
+
+If extensions didn’t apply via migration, run:
 
 ```sql
 create extension if not exists vector;
 create extension if not exists pg_trgm;
 ```
 
-(Our `drizzle/0000_init.sql` also creates these.)
-
 ---
 
-## 4. Fill `.env.local`
+## 2. Fill `.env.local`
 
 ```bash
 cp .env.example .env.local
@@ -52,51 +50,68 @@ cp .env.example .env.local
 Set at least:
 
 ```bash
-NEXT_PUBLIC_SUPABASE_URL=...
-NEXT_PUBLIC_SUPABASE_ANON_KEY=...
-SUPABASE_SERVICE_ROLE_KEY=...
-DATABASE_URL=...
-OPENAI_API_KEY=...                 # for embeddings
-ADMIN_EMAILS=you@example.com       # your login email
+DATABASE_URL=postgresql://...
+ADMIN_PASSWORD=choose-a-strong-password
+ADMIN_SESSION_SECRET=paste-openssl-rand-hex-32
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
 
+Generate a session secret:
+
+```bash
+openssl rand -hex 32
+```
+
+OpenAI can stay empty for now:
+
+```bash
+OPENAI_API_KEY=
+OPENAI_EMBEDDING_MODEL=text-embedding-3-small
+```
+
+Fill `OPENAI_API_KEY` later before `npm run db:embed` / semantic search.
+
 ---
 
-## 5. Migrate + seed + embed
+## 3. Migrate + seed
 
 ```bash
 npm run db:migrate    # or: npm run db:push
 npm run db:seed       # ~12 categories, ~70 sites, 7 collections
-npm run db:embed      # writes pgvector embeddings (costs a little OpenAI $)
 npm run dev
 ```
 
-Then open:
+When OpenAI is ready:
 
-- Site: [http://localhost:3000](http://localhost:3000)
-- Admin login: [http://localhost:3000/admin/login](http://localhost:3000/admin/login)
-
-Use an email listed in `ADMIN_EMAILS`.
+```bash
+npm run db:embed
+```
 
 ---
 
-## 6. Deploy (Phase 1 exit)
+## 4. Admin
+
+- Open [http://localhost:3000/admin/login](http://localhost:3000/admin/login)
+- Sign in with `ADMIN_PASSWORD`
+
+---
+
+## 5. Deploy (optional)
 
 1. Push repo to GitHub
-2. Import on Vercel
-3. Add the same env vars in Vercel project settings
-4. Set `NEXT_PUBLIC_SITE_URL` to the Vercel URL
-5. Add that URL to Supabase Auth redirect allowlist
+2. Import on Vercel (or your host)
+3. Add the same env vars
+4. Point `DATABASE_URL` at your hosted Postgres
+5. Set `NEXT_PUBLIC_SITE_URL` to the production URL
+6. Ensure the DB allows connections from your host (IP allowlist / SSL as needed)
 
 ---
 
 ## Done when
 
-- [ ] Supabase project created
-- [ ] `.env.local` filled
+- [ ] Postgres with pgvector reachable
+- [ ] `.env.local` filled (`DATABASE_URL`, admin vars)
 - [ ] `db:migrate` succeeds
 - [ ] `db:seed` succeeds
-- [ ] `db:embed` succeeds
-- [ ] Magic link signs you into `/admin`
-- [ ] Vercel preview deployed (optional but recommended)
+- [ ] Password signs you into `/admin`
+- [ ] (Later) `OPENAI_API_KEY` set + `db:embed` succeeds

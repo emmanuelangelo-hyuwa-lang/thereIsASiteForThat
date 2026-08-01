@@ -19,16 +19,16 @@ Product and engineering docs live in [`docs/`](./docs/README.md).
 | [07-seo-strategy.md](./docs/07-seo-strategy.md) | Long-tail pages, URL design, content |
 | [08-roadmap.md](./docs/08-roadmap.md) | Phased build plan |
 | [09-decisions.md](./docs/09-decisions.md) | Open questions + recommended defaults |
-| [10-setup.md](./docs/10-setup.md) | What you need to configure (Supabase, env, seed) |
+| [10-setup.md](./docs/10-setup.md) | What you need to configure (Postgres, env, seed) |
 
 **Reading order:** PRD → Competitive analysis → Architecture → Data model → Search → UX → SEO → Roadmap → Decisions → Setup
 
 ## Stack
 
 - Next.js (App Router) + TypeScript + Tailwind
-- Supabase Postgres + pgvector
+- Custom Postgres + pgvector
 - Drizzle ORM
-- OpenAI embeddings
+- OpenAI embeddings (optional until search)
 - Vercel
 
 ## Getting started
@@ -47,11 +47,12 @@ Full checklist: [`docs/10-setup.md`](./docs/10-setup.md)
 
 ```bash
 cp .env.example .env.local
-# fill Supabase + OpenAI + ADMIN_EMAILS
+# fill DATABASE_URL + ADMIN_PASSWORD + ADMIN_SESSION_SECRET
+# OPENAI_API_KEY can wait until embeddings/search
 
 npm run db:migrate
 npm run db:seed
-npm run db:embed
+# npm run db:embed   # later, when OpenAI is set
 ```
 
 Admin: [http://localhost:3000/admin/login](http://localhost:3000/admin/login)

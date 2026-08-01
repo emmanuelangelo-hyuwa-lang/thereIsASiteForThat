@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-import { signInWithEmail } from "@/app/admin/actions";
+import { signInWithPassword } from "@/app/admin/actions";
 import { getAdminUser } from "@/lib/auth/admin";
 
 export const metadata: Metadata = {
@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 };
 
 type LoginPageProps = {
-  searchParams: Promise<{ error?: string; sent?: string }>;
+  searchParams: Promise<{ error?: string }>;
 };
 
 export default async function AdminLoginPage({ searchParams }: LoginPageProps) {
@@ -28,14 +28,9 @@ export default async function AdminLoginPage({ searchParams }: LoginPageProps) {
           Admin login
         </h1>
         <p className="mt-2 text-sm text-[var(--muted)]">
-          Magic link sign-in. Your email must be in <code>ADMIN_EMAILS</code>.
+          Password auth for solo admin. Set <code>ADMIN_PASSWORD</code> and{" "}
+          <code>ADMIN_SESSION_SECRET</code> in <code>.env.local</code>.
         </p>
-
-        {params.sent ? (
-          <p className="mt-6 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-sm text-[var(--ink)]">
-            Check your email for the login link.
-          </p>
-        ) : null}
 
         {params.error ? (
           <p className="mt-6 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-700 dark:text-red-300">
@@ -43,25 +38,26 @@ export default async function AdminLoginPage({ searchParams }: LoginPageProps) {
           </p>
         ) : null}
 
-        <form action={signInWithEmail} className="mt-8 space-y-4">
+        <form action={signInWithPassword} className="mt-8 space-y-4">
           <div>
-            <label htmlFor="email" className="text-sm font-medium text-[var(--ink)]">
-              Email
+            <label htmlFor="password" className="text-sm font-medium text-[var(--ink)]">
+              Password
             </label>
             <input
-              id="email"
-              name="email"
-              type="email"
+              id="password"
+              name="password"
+              type="password"
               required
+              autoComplete="current-password"
               className="mt-2 w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2.5 text-[var(--ink)] outline-none focus:border-[var(--accent)]/55"
-              placeholder="you@example.com"
+              placeholder="••••••••"
             />
           </div>
           <button
             type="submit"
             className="w-full rounded-lg bg-[var(--accent)] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--accent-strong)]"
           >
-            Send magic link
+            Sign in
           </button>
         </form>
 

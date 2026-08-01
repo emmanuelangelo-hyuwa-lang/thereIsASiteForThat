@@ -9,14 +9,14 @@ export function getSearchConfidenceThreshold(): number {
   return Number.isFinite(parsed) ? parsed : 0.78;
 }
 
-export function getAdminEmails(): string[] {
-  const raw = optional("ADMIN_EMAILS") ?? "";
-  return raw
-    .split(",")
-    .map((email) => email.trim().toLowerCase())
-    .filter(Boolean);
-}
-
 export function getSiteUrl(): string {
   return optional("NEXT_PUBLIC_SITE_URL") ?? "http://localhost:3000";
+}
+
+export function getOpenAIEmbeddingModel(): string {
+  return optional("OPENAI_EMBEDDING_MODEL") ?? "text-embedding-3-small";
+}
+
+export function hasOpenAIConfigured(): boolean {
+  return Boolean(optional("OPENAI_API_KEY"));
 }

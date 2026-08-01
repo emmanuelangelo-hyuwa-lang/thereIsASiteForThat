@@ -18,10 +18,10 @@ Solo-developer, shippable phases. Optimize for a working search experience early
 ## Phase 1 — Skeleton App
 
 - [x] Next.js App Router + Tailwind + TypeScript
-- [x] Drizzle + Supabase Postgres schema scaffolding
+- [x] Drizzle + custom Postgres schema scaffolding
 - [x] pgvector extension SQL + embedding column in schema
 - [x] Base layout, design tokens, homepage shell (brand + search UI, no real search yet)
-- [ ] Env wired to live Supabase + deploy to Vercel preview (**needs you** — see [10-setup.md](./10-setup.md))
+- [ ] Env wired to live Postgres + deploy to Vercel preview (**needs you** — see [10-setup.md](./10-setup.md))
 
 **Exit:** Live homepage shell on a preview URL.
 
@@ -30,11 +30,11 @@ Solo-developer, shippable phases. Optimize for a working search experience early
 ## Phase 2 — Directory CRUD + Seed
 
 - [x] Schema migrations (`sites`, `categories`, `collections`, …)
-- [x] Admin auth (magic link + `ADMIN_EMAILS` allowlist)
+- [x] Admin auth (password + signed session cookie)
 - [x] Admin create/edit/publish sites
 - [x] Seed data (~70 curated sites + 12 categories + 7 collections)
 - [x] Batch embedding job (`npm run db:embed`)
-- [ ] Run migrate/seed/embed against your Supabase (**needs you**)
+- [ ] Run migrate/seed against your Postgres (**needs you**); embed when OpenAI is ready
 
 **Exit:** Published catalog in DB with embeddings.
 

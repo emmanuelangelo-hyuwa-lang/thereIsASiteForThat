@@ -17,7 +17,7 @@ Product and engineering docs for **ThereIsASiteForThat.com**.
 | [07-seo-strategy.md](./07-seo-strategy.md) | Long-tail pages, URL design, content |
 | [08-roadmap.md](./08-roadmap.md) | Phased build plan |
 | [09-decisions.md](./09-decisions.md) | Open questions + recommended defaults |
-| [10-setup.md](./10-setup.md) | What you need to configure (Supabase, env, seed) |
+| [10-setup.md](./10-setup.md) | What you need to configure (Postgres, env, seed) |
 
 ## Product in one sentence
 
@@ -25,7 +25,7 @@ A searchable directory where users describe a task in plain language and get the
 
 ## Stack (v1)
 
-Next.js · Supabase (Postgres + pgvector) · Drizzle ORM · OpenAI embeddings · Vercel · Cloudflare R2 (later)
+Next.js · custom Postgres + pgvector · Drizzle ORM · OpenAI embeddings · Vercel · Cloudflare R2 (later)
 
 ## Reading order
 

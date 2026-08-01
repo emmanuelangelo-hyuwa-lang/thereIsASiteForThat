@@ -1,6 +1,6 @@
 # Data Model
 
-Postgres via Supabase. ORM: Drizzle. Vectors: pgvector.
+Custom Postgres. ORM: Drizzle. Vectors: pgvector.
 
 ---
 
@@ -160,11 +160,11 @@ Convert distance → confidence % in the service layer (see [05-search-pipeline.
 
 ---
 
-## 5. RLS Notes
+## 5. Access Notes
 
-- Public read: `sites` where `status = published`, published `collections`, indexable `search_pages`.
-- Writes: service role only (Next.js server with service key).
-- Admin UI uses authenticated session checked against `ADMIN_EMAILS`.
+- Public reads go through Next.js server code (published `sites` / collections / indexable search pages).
+- Writes for catalog management require an admin password session (`ADMIN_PASSWORD` + signed cookie).
+- No database-level RLS vendor — enforce access in the app layer.
 
 ---
 

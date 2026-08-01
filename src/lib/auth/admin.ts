@@ -1,36 +1,12 @@
-import { getAdminEmails } from "@/lib/env";
-import { createClient } from "@/lib/supabase/server";
+import { hasAdminSession } from "@/lib/auth/session";
 
 export type AdminUser = {
-  id: string;
-  email: string;
+  authenticated: true;
 };
 
 export async function getAdminUser(): Promise<AdminUser | null> {
-  try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user?.email) {
-      return null;
-    }
-
-    const allowlist = getAdminEmails();
-    if (allowlist.length === 0) {
-      return null;
-    }
-
-    const email = user.email.toLowerCase();
-    if (!allowlist.includes(email)) {
-      return null;
-    }
-
-    return { id: user.id, email };
-  } catch {
-    return null;
-  }
+  const ok = await hasAdminSession();
+  return ok ? { authenticated: true } : null;
 }
 
 export async function requireAdminUser(): Promise<AdminUser> {

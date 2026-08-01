@@ -23,7 +23,7 @@ export default async function AdminConsoleLayout({
           <p className="text-xs font-medium uppercase tracking-[0.14em] text-[var(--muted)]">
             Admin
           </p>
-          <p className="mt-1 text-sm text-[var(--ink)]">{admin.email}</p>
+          <p className="mt-1 text-sm text-[var(--ink)]">Signed in</p>
         </div>
         <div className="flex flex-wrap items-center gap-3 text-sm">
           <Link href="/admin" className="text-[var(--muted)] transition hover:text-[var(--ink)]">

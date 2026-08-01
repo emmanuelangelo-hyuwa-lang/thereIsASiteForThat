@@ -62,7 +62,7 @@ Trust compounds; ads early destroy the "best one" promise.
 
 ## 5. Auth scope in v1
 
-**Decision:** No end-user accounts. Admin-only auth via Supabase Auth + email allowlist.
+**Decision:** No end-user accounts. Admin-only password session (`ADMIN_PASSWORD` + signed httpOnly cookie).
 
 Favorites deferred to post-v1.
 
@@ -78,7 +78,7 @@ Re-evaluate only if cost or quality becomes a problem; keep dimension stable onc
 
 ## 7. ORM / backend
 
-**Decision:** Drizzle + Supabase Postgres + pgvector (per PRD).
+**Decision:** Drizzle + custom Postgres + pgvector (no Supabase).
 
 Services/repositories layer in TypeScript; no business logic in React components.
 
@@ -120,7 +120,8 @@ Avoid overusing the acronym in UI.
 | Date | Decision | Status |
 |---|---|---|
 | 2026-08-01 | Docs-first in `docs/` | Done |
-| 2026-08-01 | Stack: Next.js + Supabase + Drizzle + pgvector + OpenAI + Vercel | Proposed |
+| 2026-08-01 | Stack: Next.js + custom Postgres + Drizzle + pgvector + OpenAI + Vercel | Done |
+| 2026-08-01 | Drop Supabase; admin password session instead of magic link | Done |
 | 2026-08-01 | Threshold default 0.78 | Proposed |
 | 2026-08-01 | No ads in v1 results | Proposed |
 | 2026-08-01 | Visual system: Railway-inspired panels, Instrument Serif + IBM Plex Sans, violet accent, light/dark toggle | Done |

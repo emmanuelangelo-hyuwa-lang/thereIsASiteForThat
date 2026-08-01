@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 
-const EMBEDDING_MODEL = "text-embedding-3-small";
+import { getOpenAIEmbeddingModel } from "@/lib/env";
 
 function getOpenAI() {
   const apiKey = process.env.OPENAI_API_KEY;
@@ -13,7 +13,7 @@ function getOpenAI() {
 export async function embedText(text: string): Promise<number[]> {
   const openai = getOpenAI();
   const response = await openai.embeddings.create({
-    model: EMBEDDING_MODEL,
+    model: getOpenAIEmbeddingModel(),
     input: text,
   });
 
@@ -31,7 +31,7 @@ export async function embedTexts(texts: string[]): Promise<number[][]> {
 
   const openai = getOpenAI();
   const response = await openai.embeddings.create({
-    model: EMBEDDING_MODEL,
+    model: getOpenAIEmbeddingModel(),
     input: texts,
   });
 

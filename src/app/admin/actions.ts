@@ -3,8 +3,12 @@
 import { revalidatePath } from "next/cache";
 import { redirect, unstable_rethrow } from "next/navigation";
 
+import {
+  clearAdminSessionCookie,
+  setAdminSessionCookie,
+  verifyAdminPassword,
+} from "@/lib/auth/session";
 import { createSiteAsAdmin, updateSiteAsAdmin } from "@/lib/services/sites";
-import { createClient } from "@/lib/supabase/server";
 import { slugify } from "@/lib/utils/slugify";
 
 function splitLines(value: FormDataEntryValue | null): string[] {
@@ -47,35 +51,23 @@ function formToSiteInput(formData: FormData) {
   };
 }
 
-export async function signInWithEmail(formData: FormData) {
-  const email = String(formData.get("email") ?? "")
-    .trim()
-    .toLowerCase();
-  if (!email) {
-    redirect("/admin/login?error=missing-email");
+export async function signInWithPassword(formData: FormData) {
+  const password = String(formData.get("password") ?? "");
+
+  if (!process.env.ADMIN_PASSWORD || !process.env.ADMIN_SESSION_SECRET) {
+    redirect("/admin/login?error=Admin%20env%20is%20not%20configured");
   }
 
-  const supabase = await createClient();
-  const { getSiteUrl } = await import("@/lib/env");
-  const origin = getSiteUrl();
-
-  const { error } = await supabase.auth.signInWithOtp({
-    email,
-    options: {
-      emailRedirectTo: `${origin}/admin/auth/callback`,
-    },
-  });
-
-  if (error) {
-    redirect(`/admin/login?error=${encodeURIComponent(error.message)}`);
+  if (!verifyAdminPassword(password)) {
+    redirect("/admin/login?error=Invalid%20password");
   }
 
-  redirect("/admin/login?sent=1");
+  await setAdminSessionCookie();
+  redirect("/admin");
 }
 
 export async function signOutAdmin() {
-  const supabase = await createClient();
-  await supabase.auth.signOut();
+  await clearAdminSessionCookie();
   redirect("/admin/login");
 }
 

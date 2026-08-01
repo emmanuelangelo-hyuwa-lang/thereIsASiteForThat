@@ -7,26 +7,25 @@
 | Frontend / framework | Next.js (App Router) | SSR/SEO, API routes, Vercel-native |
 | Language | TypeScript | End-to-end type safety |
 | Styling | Tailwind CSS | Fast UI iteration |
-| Database | Supabase Postgres | Managed Postgres + auth later |
-| Vector search | pgvector | No separate vector DB |
+| Database | Custom Postgres + pgvector | Portable; any host (Docker, Railway, Neon, etc.) |
 | ORM | Drizzle ORM | Thin, typed, migration-friendly |
-| Embeddings | OpenAI `text-embedding-3-small` | Cheap, good enough for v1 |
+| Embeddings | OpenAI `text-embedding-3-small` | Cheap, good enough for v1 (optional until search) |
 | LLM fallback | OpenAI (or compatible) | RAG recommendations |
 | File storage | Cloudflare R2 (later) | Screenshots |
 | Hosting | Vercel | Preview deploys, edge-friendly |
-| Admin auth | Supabase Auth (email magic link) or simple env allowlist | Solo-dev safe |
+| Admin auth | Password + signed httpOnly cookie | Solo-dev simple, no auth vendor |
 
 ## 2. High-Level Diagram
 
 ```
 ┌──────────────┐     ┌─────────────────────┐     ┌──────────────────┐
-│  Browser     │────▶│  Next.js (Vercel)   │────▶│  Supabase        │
-│  Search UI   │◀────│  App Router + APIs  │◀────│  Postgres+pgvec  │
+│  Browser     │────▶│  Next.js (Vercel)   │────▶│  Postgres        │
+│  Search UI   │◀────│  App Router + APIs  │◀────│  + pgvector      │
 └──────────────┘     └──────────┬──────────┘     └──────────────────┘
                                 │
                                 ▼
                      ┌─────────────────────┐
-                     │  OpenAI             │
+                     │  OpenAI (later)     │
                      │  Embeddings + LLM   │
                      └─────────────────────┘
 ```
@@ -74,7 +73,7 @@ src/
 
 1. Admin creates/approves site.
 2. Service builds embedding text (name + description + tags + pros).
-3. Store embedding on `sites.embedding`.
+3. Store embedding on `sites.embedding` (when OpenAI is configured).
 4. Status → `published`.
 
 ### 4.3 Submission
@@ -86,19 +85,20 @@ src/
 
 | Env | Purpose |
 |---|---|
-| Local | Next.js + Supabase local or remote dev project |
-| Preview | Vercel preview + shared staging Supabase (or branch DB later) |
-| Production | Vercel prod + prod Supabase |
+| Local | Next.js + local/Docker Postgres |
+| Preview | Vercel preview + staging Postgres |
+| Production | Vercel prod + production Postgres |
 
 ## 6. Env Vars (expected)
 
 ```bash
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
-SUPABASE_SERVICE_ROLE_KEY=
-DATABASE_URL=                 # for Drizzle
-OPENAI_API_KEY=
-ADMIN_EMAILS=                 # comma-separated allowlist
+DATABASE_URL=postgresql://...
+DATABASE_URL_DIRECT=              # optional, for migrations if pooled
+OPENAI_API_KEY=                   # fill later for embeddings/search
+OPENAI_EMBEDDING_MODEL=text-embedding-3-small
+ADMIN_PASSWORD=
+ADMIN_SESSION_SECRET=
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
 SEARCH_CONFIDENCE_THRESHOLD=0.78
 ```
 
@@ -116,3 +116,4 @@ SEARCH_CONFIDENCE_THRESHOLD=0.78
 - Kafka / queues (use Vercel background or simple cron later)
 - Multi-tenant org model
 - Real-time collaborative features
+- Supabase (or other BaaS) for DB/auth
