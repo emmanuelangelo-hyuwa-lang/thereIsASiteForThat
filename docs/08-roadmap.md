@@ -55,10 +55,12 @@ Solo-developer, shippable phases. Optimize for a working search experience early
 
 ## Phase 4 — Detail, Collections, Submit
 
-- `/site/[slug]` with pros/cons/alternatives
-- Collection pages (7 launch collections)
-- Public `/submit` + admin moderation queue
-- Rate limits + duplicate URL checks
+- [x] `/site/[slug]` with pros/cons/alternatives
+- [x] Collection pages (7 launch collections) + category browse
+- [x] Public `/submit` + admin moderation queue
+- [x] Seed-catalog fallback so browse/search work before migrate/embed
+- [ ] Rate limits + duplicate URL checks (harden later)
+- [ ] Migrate/seed/embed against live Postgres (**needs you**)
 
 **Exit:** Full v1 product loop: search → detail → visit → submit → moderate.
 
