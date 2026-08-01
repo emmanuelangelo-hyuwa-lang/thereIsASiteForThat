@@ -16,3 +16,7 @@ export function getAdminEmails(): string[] {
     .map((email) => email.trim().toLowerCase())
     .filter(Boolean);
 }
+
+export function getSiteUrl(): string {
+  return optional("NEXT_PUBLIC_SITE_URL") ?? "http://localhost:3000";
+}

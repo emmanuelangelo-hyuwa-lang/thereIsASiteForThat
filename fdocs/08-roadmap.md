@@ -9,7 +9,7 @@ Solo-developer, shippable phases. Optimize for a working search experience early
 - [x] PRD
 - [x] Competitive analysis (TAAFT)
 - [x] Architecture, data model, search, UX, SEO docs
-- [ ] Repo scaffolding decision locked
+- [x] Repo scaffolding decision locked
 
 **Exit:** Docs approved; ready to scaffold Next.js app.
 
@@ -21,7 +21,7 @@ Solo-developer, shippable phases. Optimize for a working search experience early
 - [x] Drizzle + Supabase Postgres schema scaffolding
 - [x] pgvector extension SQL + embedding column in schema
 - [x] Base layout, design tokens, homepage shell (brand + search UI, no real search yet)
-- [ ] Env wired to live Supabase + deploy to Vercel preview
+- [ ] Env wired to live Supabase + deploy to Vercel preview (**needs you** — see [10-setup.md](./10-setup.md))
 
 **Exit:** Live homepage shell on a preview URL.
 
@@ -29,17 +29,18 @@ Solo-developer, shippable phases. Optimize for a working search experience early
 
 ## Phase 2 — Directory CRUD + Seed
 
-- Schema migrations (`sites`, `categories`, `collections`, …)
-- Admin auth (allowlist)
-- Admin create/edit/publish sites
-- Seed 150–300 curated entries + categories
-- Batch embedding job
+- [x] Schema migrations (`sites`, `categories`, `collections`, …)
+- [x] Admin auth (magic link + `ADMIN_EMAILS` allowlist)
+- [x] Admin create/edit/publish sites
+- [x] Seed data (~70 curated sites + 12 categories + 7 collections)
+- [x] Batch embedding job (`npm run db:embed`)
+- [ ] Run migrate/seed/embed against your Supabase (**needs you**)
 
 **Exit:** Published catalog in DB with embeddings.
 
 ---
 
-## Phase 3 — Search v1
+## Phase 3 — Search v1 ← next code phase
 
 - `/api/search` embedding + pgvector
 - Confidence scores in UI

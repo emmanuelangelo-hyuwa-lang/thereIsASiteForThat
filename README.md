@@ -24,17 +24,20 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-### Database (when ready)
+### Database + admin (Phase 2)
 
-1. Create a Supabase project.
-2. Run `drizzle/0000_extensions.sql` in the SQL editor (`vector`, `pg_trgm`).
-3. Set `DATABASE_URL` in `.env.local`.
-4. Generate/apply migrations:
+Full checklist: [`fdocs/10-setup.md`](./fdocs/10-setup.md)
 
 ```bash
-npm run db:generate
+cp .env.example .env.local
+# fill Supabase + OpenAI + ADMIN_EMAILS
+
 npm run db:migrate
+npm run db:seed
+npm run db:embed
 ```
+
+Admin: [http://localhost:3000/admin/login](http://localhost:3000/admin/login)
 
 ## Scripts
 
@@ -46,6 +49,9 @@ npm run db:migrate
 | `npm run typecheck` | TypeScript check |
 | `npm run db:generate` | Generate Drizzle migrations |
 | `npm run db:migrate` | Apply migrations |
+| `npm run db:push` | Push schema without migration files |
+| `npm run db:seed` | Seed categories, sites, collections |
+| `npm run db:embed` | Embed published sites missing vectors |
 | `npm run db:studio` | Drizzle Studio |
 
 ## Project layout

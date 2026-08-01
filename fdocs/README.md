@@ -17,6 +17,7 @@ Product and engineering docs for **ThereIsASiteForThat.com**.
 | [07-seo-strategy.md](./07-seo-strategy.md) | Long-tail pages, URL design, content |
 | [08-roadmap.md](./08-roadmap.md) | Phased build plan |
 | [09-decisions.md](./09-decisions.md) | Open questions + recommended defaults |
+| [10-setup.md](./10-setup.md) | What you need to configure (Supabase, env, seed) |
 
 ## Product in one sentence
 
