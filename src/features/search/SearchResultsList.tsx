@@ -114,7 +114,7 @@ export function SearchResultsList({
                   query={query}
                   source={result.source === "ai_inferred" ? "ai_inferred" : "search"}
                   confidence={result.confidence}
-                  className="inline-flex shrink-0 items-center justify-center rounded-lg bg-[var(--accent)] px-3.5 py-2 text-sm font-semibold text-white transition hover:bg-[var(--accent-strong)]"
+                  className="inline-flex w-full shrink-0 items-center justify-center rounded-lg bg-[var(--accent)] px-3.5 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--accent-strong)] sm:w-auto"
                 >
                   Visit site
                 </VisitSiteLink>

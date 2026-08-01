@@ -13,8 +13,8 @@ export default async function SubmitPage() {
 
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-5 pb-10 pt-2 sm:px-8">
-      <section className="panel mx-auto w-full max-w-2xl px-6 py-10 sm:px-10">
-        <h1 className="font-[family-name:var(--font-display)] text-4xl tracking-tight text-[var(--ink)] sm:text-5xl">
+      <section className="panel mx-auto w-full max-w-2xl px-5 py-8 sm:px-10 sm:py-10">
+        <h1 className="font-[family-name:var(--font-display)] text-3xl tracking-tight text-[var(--ink)] sm:text-5xl">
           Submit a site
         </h1>
         <p className="mt-4 text-[var(--muted)]">

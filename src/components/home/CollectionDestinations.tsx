@@ -15,8 +15,8 @@ export function CollectionDestinations({
 
   return (
     <section className="mx-auto w-full max-w-6xl px-5 sm:px-8">
-      <div className="flex items-end justify-between gap-4">
-        <div>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
+        <div className="min-w-0">
           <h2 className="font-[family-name:var(--font-display)] text-3xl tracking-tight text-[var(--ink)] sm:text-4xl">
             Start with a collection
           </h2>

@@ -138,7 +138,7 @@ export function SearchBox({
           Search for a website
         </label>
         <div className="flex items-stretch overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--surface)] transition focus-within:border-[var(--accent)]/55">
-          <div className="flex items-center pl-4 text-[var(--muted)]" aria-hidden="true">
+          <div className="flex items-center pl-3 text-[var(--muted)] sm:pl-4" aria-hidden="true">
             <SearchIcon />
           </div>
           <input
@@ -156,13 +156,13 @@ export function SearchBox({
             }}
             placeholder={placeholder}
             suppressHydrationWarning
-            className={`min-w-0 flex-1 bg-transparent px-3 py-4 text-base text-[var(--ink)] outline-none placeholder:text-[var(--muted)] sm:text-lg ${
+            className={`min-w-0 flex-1 bg-transparent px-2 py-3.5 text-base text-[var(--ink)] outline-none placeholder:text-[var(--muted)] sm:px-3 sm:py-4 sm:text-lg ${
               placeholderVisible ? "placeholder:opacity-100" : "placeholder:opacity-0"
             } placeholder:transition-opacity placeholder:duration-200`}
           />
           <button
             type="submit"
-            className="m-1.5 shrink-0 rounded-lg bg-[var(--accent)] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--accent-strong)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] sm:px-5"
+            className="m-1.5 shrink-0 rounded-lg bg-[var(--accent)] px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--accent-strong)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] sm:px-5"
           >
             Search
           </button>

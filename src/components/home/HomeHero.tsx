@@ -7,11 +7,11 @@ import { slugify } from "@/lib/utils/slugify";
 export function HomeHero() {
   return (
     <section className="hero-stage">
-      <div className="relative z-30 mx-auto flex w-full max-w-6xl flex-col items-center px-5 pb-16 pt-10 text-center sm:px-8 sm:pb-20 sm:pt-14">
-        <p className="animate-rise text-xs font-medium uppercase tracking-[0.18em] text-[var(--muted)]">
+      <div className="relative z-30 mx-auto flex w-full max-w-6xl flex-col items-center px-4 pb-14 pt-8 text-center sm:px-8 sm:pb-20 sm:pt-14">
+        <p className="animate-rise text-[0.65rem] font-medium uppercase tracking-[0.16em] text-[var(--muted)] sm:text-xs sm:tracking-[0.18em]">
           An atlas of useful websites
         </p>
-        <h1 className="animate-rise-delay mt-5 max-w-4xl font-[family-name:var(--font-display)] text-[2.75rem] leading-[1.02] tracking-tight text-[var(--ink)] sm:text-6xl md:text-7xl">
+        <h1 className="animate-rise-delay mt-4 max-w-4xl break-words font-[family-name:var(--font-display)] text-[2.35rem] leading-[1.05] tracking-tight text-[var(--ink)] sm:mt-5 sm:text-6xl sm:leading-[1.02] md:text-7xl">
           ThereIsASiteForThat
         </h1>
         <p className="animate-rise-delay mt-5 max-w-lg text-base leading-relaxed text-[var(--muted)] sm:text-lg">

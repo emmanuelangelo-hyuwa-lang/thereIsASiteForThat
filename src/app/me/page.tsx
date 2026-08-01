@@ -25,11 +25,11 @@ export default async function MePage() {
 
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-5 pb-10 pt-2 sm:px-8">
-      <section className="panel px-6 py-10 sm:px-10">
+      <section className="panel px-5 py-8 sm:px-10 sm:py-10">
         <p className="text-xs font-medium uppercase tracking-[0.14em] text-[var(--muted)]">
           Your account
         </p>
-        <h1 className="mt-3 font-[family-name:var(--font-display)] text-4xl tracking-tight text-[var(--ink)] sm:text-5xl">
+        <h1 className="mt-3 break-words font-[family-name:var(--font-display)] text-3xl tracking-tight text-[var(--ink)] sm:text-5xl">
           {session?.user?.name ?? "Saved stuff"}
         </h1>
         <p className="mt-4 max-w-xl text-[var(--muted)]">
