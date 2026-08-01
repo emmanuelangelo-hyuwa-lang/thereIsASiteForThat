@@ -2,27 +2,27 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { SiteList } from "@/features/sites/SiteList";
-import { getCatalogCollectionBySlug } from "@/lib/services/catalog";
+import { listCatalogSitesByCategory } from "@/lib/services/catalog";
 
-type CollectionPageProps = {
+type CategoryPageProps = {
   params: Promise<{ slug: string }>;
 };
 
-export async function generateMetadata({ params }: CollectionPageProps) {
+export async function generateMetadata({ params }: CategoryPageProps) {
   const { slug } = await params;
-  const data = await getCatalogCollectionBySlug(slug);
+  const data = await listCatalogSitesByCategory(slug);
   if (!data) {
-    return { title: "Collection not found" };
+    return { title: "Category not found" };
   }
   return {
-    title: data.collection.name,
-    description: data.collection.description,
+    title: data.category.name,
+    description: data.category.description ?? `Best websites for ${data.category.name}.`,
   };
 }
 
-export default async function CollectionPage({ params }: CollectionPageProps) {
+export default async function CategoryPage({ params }: CategoryPageProps) {
   const { slug } = await params;
-  const data = await getCatalogCollectionBySlug(slug);
+  const data = await listCatalogSitesByCategory(slug);
   if (!data) {
     notFound();
   }
@@ -31,31 +31,27 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
     <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-5 pb-10 pt-2 sm:px-8">
       <section className="panel px-6 py-10 sm:px-10">
         <p className="text-xs font-medium uppercase tracking-[0.14em] text-[var(--muted)]">
-          Collection
+          Category
         </p>
         <h1 className="mt-3 font-[family-name:var(--font-display)] text-4xl tracking-tight text-[var(--ink)] sm:text-5xl">
-          {data.collection.name}
+          {data.category.name}
         </h1>
-        <p className="mt-4 max-w-xl text-[var(--muted)]">
-          {data.collection.description}
-        </p>
-        <p className="mt-3 text-sm text-[var(--muted)]">
-          {data.sites.length} curated sites
-        </p>
+        {data.category.description ? (
+          <p className="mt-4 max-w-xl text-[var(--muted)]">
+            {data.category.description}
+          </p>
+        ) : null}
       </section>
 
       <section className="panel overflow-hidden">
-        <SiteList
-          sites={data.sites}
-          emptyMessage="No published sites in this collection yet."
-        />
+        <SiteList sites={data.sites} showCategory={false} />
       </section>
 
       <Link
-        href="/collections"
+        href="/categories"
         className="text-sm font-medium text-[var(--accent)] transition hover:text-[var(--accent-strong)]"
       >
-        ← All collections
+        ← All categories
       </Link>
     </main>
   );

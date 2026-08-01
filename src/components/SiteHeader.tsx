@@ -17,6 +17,9 @@ export function SiteHeader() {
 
       <div className="flex items-center gap-3 sm:gap-5">
         <nav className="hidden items-center gap-5 text-sm text-[var(--muted)] sm:flex">
+          <Link href="/categories" className="transition hover:text-[var(--ink)]">
+            Categories
+          </Link>
           <Link href="/collections" className="transition hover:text-[var(--ink)]">
             Collections
           </Link>
