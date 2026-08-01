@@ -15,22 +15,25 @@ const STEPS = [
 
 export function HowItWorks() {
   return (
-    <section className="mx-auto w-full max-w-3xl px-5 pb-24 pt-8 sm:px-8">
-      <h2 className="font-[family-name:var(--font-display)] text-2xl font-semibold tracking-tight text-[var(--ink)]">
-        How it works
-      </h2>
-      <ol className="mt-8 space-y-6">
+    <section className="panel overflow-hidden">
+      <div className="border-b border-[var(--border)] px-6 py-5 sm:px-8">
+        <h2 className="font-[family-name:var(--font-display)] text-2xl tracking-tight text-[var(--ink)] sm:text-3xl">
+          How it works
+        </h2>
+      </div>
+      <ol className="grid sm:grid-cols-3">
         {STEPS.map((step, index) => (
-          <li key={step.title} className="grid gap-2 sm:grid-cols-[3rem_1fr] sm:gap-4">
-            <span className="font-[family-name:var(--font-display)] text-sm font-semibold text-[var(--accent)]">
+          <li
+            key={step.title}
+            className={`px-6 py-7 sm:px-8 ${
+              index < STEPS.length - 1 ? "border-b border-[var(--border)] sm:border-b-0 sm:border-r" : ""
+            }`}
+          >
+            <p className="text-xs font-medium uppercase tracking-[0.14em] text-[var(--muted)]">
               0{index + 1}
-            </span>
-            <div>
-              <h3 className="text-base font-semibold text-[var(--ink)]">{step.title}</h3>
-              <p className="mt-1 max-w-xl text-sm leading-relaxed text-[var(--muted)]">
-                {step.body}
-              </p>
-            </div>
+            </p>
+            <h3 className="mt-3 text-base font-semibold text-[var(--ink)]">{step.title}</h3>
+            <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">{step.body}</p>
           </li>
         ))}
       </ol>

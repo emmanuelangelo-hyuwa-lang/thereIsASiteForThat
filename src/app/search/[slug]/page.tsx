@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { SearchBox } from "@/features/search/SearchBox";
+
 type SearchPageProps = {
   params: Promise<{ slug: string }>;
 };
@@ -26,22 +28,31 @@ export default async function SearchPage({ params }: SearchPageProps) {
   const query = humanizeSlug(slug);
 
   return (
-    <main className="mx-auto w-full max-w-3xl flex-1 px-5 py-12 sm:px-8">
-      <p className="text-sm font-medium uppercase tracking-[0.12em] text-[var(--muted)]">
-        Search
-      </p>
-      <h1 className="mt-3 font-[family-name:var(--font-display)] text-4xl font-bold tracking-tight text-[var(--ink)]">
-        {query}
-      </h1>
-      <p className="mt-4 max-w-xl text-[var(--muted)]">
-        Search results will appear here once the directory is seeded and the
-        semantic search API is connected.
-      </p>
-      <Link
-        href="/"
-        className="mt-8 inline-block text-sm font-semibold text-[var(--accent)] underline-offset-4 hover:underline"
-      >
-        ← Back to search
+    <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-5 pb-10 pt-2 sm:px-8">
+      <section className="panel px-6 py-10 sm:px-10">
+        <p className="text-xs font-medium uppercase tracking-[0.14em] text-[var(--muted)]">Search</p>
+        <h1 className="mt-3 font-[family-name:var(--font-display)] text-4xl tracking-tight text-[var(--ink)] sm:text-5xl">
+          {query}
+        </h1>
+        <p className="mt-4 max-w-xl text-[var(--muted)]">
+          Ranked matches will land here once the catalog and semantic search are connected.
+        </p>
+        <div className="mt-8 max-w-xl">
+          <SearchBox autoFocus={false} />
+        </div>
+      </section>
+
+      <section className="panel overflow-hidden">
+        <div className="border-b border-[var(--border)] px-6 py-4 sm:px-8">
+          <p className="text-sm text-[var(--muted)]">Results</p>
+        </div>
+        <div className="px-6 py-10 text-sm text-[var(--muted)] sm:px-8">
+          No results yet — seed the directory to unlock curated matches with confidence scores.
+        </div>
+      </section>
+
+      <Link href="/" className="text-sm font-medium text-[var(--accent)] transition hover:text-[var(--accent-strong)]">
+        ← Back to home
       </Link>
     </main>
   );

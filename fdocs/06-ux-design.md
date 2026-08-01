@@ -1,151 +1,112 @@
 # UX Design
 
-Inspired by TAAFT's search-first clarity — but calmer, broader, and recommendation-oriented.
+Inspired by [Railway](https://railway.com/) (marketing + `/domains` utility) — architectural, product-grade, not “AI startup.”
+
+Search-first clarity from the PRD remains; the visual language is Railway-like.
 
 ---
 
 ## 1. Design Principles
 
 1. **Search is the product.** First viewport = brand + one line + search.
-2. **Brand first.** `ThereIsASiteForThat` must be hero-level, not a nav whisper.
+2. **Brand first.** `ThereIsASiteForThat` is hero-level (serif display).
 3. **One composition.** Homepage is not a dashboard or live feed.
-4. **Answer, don't scroll.** Ranked matches with confidence beat infinite lists.
+4. **Panel architecture.** Content lives in thin-bordered, large-radius panels on a calm canvas — like Railway’s main stage.
 5. **Honest AI.** Curated vs AI-inferred is always labeled.
-6. **Outbound is success.** Primary CTA is always "Visit site".
-7. **Reduce chrome.** No icon-rail mega-nav, no membership banners over the answer.
+6. **Outbound is success.** Primary CTA is always “Visit site.”
+7. **Light + dark.** First-class theme toggle; respect system preference; persist choice.
 
 ---
 
-## 2. Visual Direction
+## 2. Visual Direction (Railway-inspired)
 
-Avoid AI-default looks (purple gradients, cream+terracotta, broadsheet).
+Borrow Railway’s *feel*, not their brand assets:
 
-**Direction:** Clean utility-discovery — light atmospheric base, strong brand type, single accent for CTAs.
-
-| Token | Intent |
+| Trait | Application |
 |---|---|
-| `--bg` | Soft layered gradient / subtle pattern (not flat white) |
-| `--ink` | Near-black text |
-| `--muted` | Secondary copy |
-| `--accent` | One decisive CTA color (e.g. teal or electric blue — pick one) |
-| `--surface` | Occasional interactive surfaces only |
+| Deep canvas | Dark: `#13111c`-ish purple-black. Light: cool off-white `#f4f3f7` |
+| Panel stage | Large rounded container, 1px border, soft inner atmosphere |
+| Serif + sans | Display serif for headlines; sharp sans for UI |
+| Accent | Single violet/purple CTA (`#6e56cf` family) — decisive, not neon glow |
+| Borders | Hairline, low-contrast; grids over soft shadows |
+| Density | Generous padding, few elements, no pill clusters |
 
-**Typography:** Expressive pairing (e.g. display + sharp sans). No Inter/Roboto/Arial stacks.
+**Avoid:** teal “AI SaaS” gradients, cream+terracotta, broadsheet rules, glow stacks, emoji, rounded-full pill forests.
 
-**Motion (ship 2–3):**
+### Tokens
 
-1. Placeholder text rotate/fade in search box.
-2. Results list fade/slide in after search.
-3. Subtle brand wordmark entrance on first load.
+| Token | Light | Dark |
+|---|---|---|
+| `--bg` | `#f4f3f7` | `#13111c` |
+| `--panel` | `#ffffff` | `#1a1726` |
+| `--ink` | `#17141f` | `#f5f3ff` |
+| `--muted` | `#6b6578` | `#a39cb3` |
+| `--border` | `rgba(23,20,31,0.10)` | `rgba(245,243,255,0.10)` |
+| `--accent` | `#6e56cf` | `#8b7cf7` |
+| `--accent-strong` | `#5b45b5` | `#a594ff` |
+| `--surface` | `#ffffff` | `#201c2e` |
 
-**Cards:** Default none. Use list rows. Cards only when they wrap a real interaction (e.g. admin moderation actions).
+**Typography:** Instrument Serif (display) + IBM Plex Sans (UI).
+
+**Motion (2–3):**
+
+1. Placeholder rotate/fade in search.
+2. Soft panel/hero fade-in on load.
+3. Theme cross-fade via CSS color transitions on tokens.
+
+**Cards:** Prefer bordered list rows / panels. No decorative card grids.
 
 ---
 
 ## 3. Information Architecture
 
 ```
-/                         Homepage (search hero)
+/                         Homepage (search hero in panel)
 /search/[slug]            Indexable results page
 /site/[slug]              Website detail
 /collections              Collections index
 /collections/[slug]       Collection landing
 /submit                   Public submission form
 /admin                    Admin home (gated)
-/admin/submissions        Moderation queue
-/admin/sites              CRUD
 ```
 
-Minimal global nav: Logo · Collections · Submit · (Admin if logged in)
+Nav: Logo · Collections · Submit · Theme toggle
 
 ---
 
 ## 4. Page Specs
 
-### 4.1 Homepage (first viewport)
+### 4.1 Homepage
 
-Must contain only:
+Outer canvas → centered **stage panel**:
 
-1. Brand name (hero)
-2. One short supporting sentence (tagline)
-3. Search box (+ rotating placeholders)
-4. Optional tiny secondary link: "Browse collections" / "Submit a site"
+1. Brand name (serif, large)
+2. Tagline (one line)
+3. Domains-style search field (full width, bordered)
+4. Secondary text links: Collections / Submit
 
-No stats strips, category grids, news feeds, or ad banners in the first viewport.
+Below fold: example query links, then How it works as a bordered 3-column/row list.
 
-**Below fold (light):** 3–4 example queries as text links, then a short "How it works" (Search → Match → Visit). Not a tool dump.
+### 4.2–4.6
 
-### 4.2 Search results (`/search/[slug]`)
-
-- H1: humanized query ("Compress a PDF")
-- Mode badge: Curated match / AI-inferred
-- Ranked list:
-  - Best match (98%) — name, one-line description, pricing, rating, Visit
-  - Other good matches…
-- Empty / weak: clear AI summary + suggestions to refine query
-- Footer SEO blurb (1 short paragraph), not wall of text
-
-### 4.3 Site detail (`/site/[slug]`)
-
-- Name + rating + pricing
-- Description
-- Pros / Cons columns
-- Primary CTA: Visit site (new tab, `rel="noopener sponsored"` only if affiliate)
-- Alternatives section (same category / embedding neighbors)
-- Back to search / related queries
-
-### 4.4 Collections
-
-- Clean H1 + 1 sentence
-- Ordered list of sites (same row pattern as search)
-- No card grids unless necessary for mobile scan — prefer ranked list consistency
-
-### 4.5 Submit
-
-- Short form, clear expectations ("Reviewed before publish")
-- Success state with what happens next
-
-### 4.6 Admin
-
-- Functional, not pretty: queue, approve/reject, edit entry, re-embed button
+Unchanged in structure from PRD — restyle with panel borders, accent buttons, theme tokens. See previous sections for content requirements.
 
 ---
 
-## 5. Result Row Anatomy
+## 5. Theme Toggle
 
-```
-[Best match · 98%]
-Name                         Freemium · ★ 4.6
-One-line task-oriented description
-[Visit site]   [Details]
-```
-
-Secondary matches omit the "Best match" label but keep %.
+- Modes: `light` | `dark` | `system` (UI may expose light/dark cycle; system as default)
+- Persist in `localStorage`
+- FOUC-safe: inline script sets `class="dark"` before paint
+- Toggle lives in header (sun/moon)
 
 ---
 
-## 6. Mobile
+## 6. Explicit Anti-Patterns
 
-- Search box full width, large tap target
-- Sticky search on results page optional
-- Pros/cons stack vertically
-- Nav collapses to simple top bar
-
----
-
-## 7. Accessibility
-
-- Visible focus rings
-- Search results announced via polite live region
-- Contrast AA+
-- Escape closes command palette / search overlay if used
-
----
-
-## 8. Explicit Anti-Patterns (from TAAFT)
-
-- Live feed of unrelated news on home
+- Teal gradient “AI tool” look
+- Live news feed on home
 - Dense left icon rail
-- "Join for free" banners above search
-- Ads injected as fake result rows in v1
-- Dark mode as default (optional later; light first)
+- Membership banners above search
+- Ads as fake result rows (v1)
+- Flat single-color pages with no panel structure

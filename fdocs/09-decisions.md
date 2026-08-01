@@ -109,7 +109,6 @@ Avoid overusing the acronym in UI.
 
 ## 10. Still open (need founder call)
 
-- Exact accent color / type pairing (decide during Phase 1 UI)
 - Whether submitter email is required
 - Soft launch channel (PH, Twitter/X, HN, Indie Hackers)
 - Domain DNS / analytics (Plausible vs GA4)
@@ -124,3 +123,4 @@ Avoid overusing the acronym in UI.
 | 2026-08-01 | Stack: Next.js + Supabase + Drizzle + pgvector + OpenAI + Vercel | Proposed |
 | 2026-08-01 | Threshold default 0.78 | Proposed |
 | 2026-08-01 | No ads in v1 results | Proposed |
+| 2026-08-01 | Visual system: Railway-inspired panels, Instrument Serif + IBM Plex Sans, violet accent, light/dark toggle | Done |
