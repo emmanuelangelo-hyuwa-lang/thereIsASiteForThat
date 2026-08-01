@@ -85,16 +85,16 @@ src/
 
 | Env | Purpose |
 |---|---|
-| Local | Next.js + WSL Postgres |
-| Preview | Vercel preview + staging Postgres |
-| Production | Vercel prod + production Postgres |
+| Local | Next.js + Supabase Postgres (or optional WSL Postgres) |
+| Preview | Vercel preview + Supabase (or staging project) |
+| Production | Vercel prod + Supabase Postgres |
 
 ## 6. Env Vars (expected)
 
 ```bash
-DATABASE_URL=postgresql://...
-DATABASE_URL_DIRECT=              # optional, for migrations if pooled
-OPENAI_API_KEY=                   # fill later for embeddings/search
+DATABASE_URL=postgresql://...           # Supabase pooler (app runtime)
+DATABASE_URL_DIRECT=postgresql://...    # Supabase direct (migrations)
+OPENAI_API_KEY=                         # embeddings / semantic search
 OPENAI_EMBEDDING_MODEL=text-embedding-3-small
 ADMIN_PASSWORD=
 ADMIN_SESSION_SECRET=
@@ -116,4 +116,4 @@ SEARCH_CONFIDENCE_THRESHOLD=0.78
 - Kafka / queues (use Vercel background or simple cron later)
 - Multi-tenant org model
 - Real-time collaborative features
-- Supabase (or other BaaS) for DB/auth
+- Supabase Auth / BaaS client (Postgres hosting via connection string is fine)

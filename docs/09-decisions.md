@@ -78,7 +78,7 @@ Re-evaluate only if cost or quality becomes a problem; keep dimension stable onc
 
 ## 7. ORM / backend
 
-**Decision:** Drizzle + custom Postgres + pgvector (no Supabase).
+**Decision:** Drizzle + Postgres + pgvector. Hosted DB: **Supabase Postgres** (connection string only). No Supabase Auth / client SDK — admin is password + signed cookie.
 
 Services/repositories layer in TypeScript; no business logic in React components.
 
@@ -120,8 +120,9 @@ Avoid overusing the acronym in UI.
 | Date | Decision | Status |
 |---|---|---|
 | 2026-08-01 | Docs-first in `docs/` | Done |
-| 2026-08-01 | Stack: Next.js + custom Postgres + Drizzle + pgvector + OpenAI + Vercel | Done |
-| 2026-08-01 | Drop Supabase; admin password session instead of magic link | Done |
+| 2026-08-01 | Stack: Next.js + Postgres + Drizzle + pgvector + OpenAI + Vercel | Done |
+| 2026-08-01 | Drop Supabase Auth; admin password session instead of magic link | Done |
+| 2026-08-01 | Hosted DB: Supabase Postgres (pgvector); keep Drizzle + postgres.js | Done |
 | 2026-08-01 | Threshold default 0.78 | Proposed |
 | 2026-08-01 | No ads in v1 results | Proposed |
 | 2026-08-01 | Visual system: Railway-inspired panels, Instrument Serif + IBM Plex Sans, violet accent, light/dark toggle | Done |
