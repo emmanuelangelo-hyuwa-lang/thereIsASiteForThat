@@ -20,7 +20,7 @@ export default async function HomePage() {
 
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-5 pb-10 pt-2 sm:px-8 sm:pt-4">
-      <section className="panel animate-rise relative overflow-hidden px-6 py-14 text-center sm:px-12 sm:py-20">
+      <section className="panel animate-rise relative overflow-visible px-6 py-14 text-center sm:px-12 sm:py-20">
         <div className="relative mx-auto flex max-w-2xl flex-col items-center">
           <p className="text-xs font-medium uppercase tracking-[0.16em] text-[var(--muted)]">
             Directory for useful websites

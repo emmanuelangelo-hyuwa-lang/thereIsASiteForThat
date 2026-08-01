@@ -60,7 +60,11 @@ export function SearchResultsList({
           return (
             <li
               key={result.siteId}
-              className={compact ? "px-3 py-3" : "px-6 py-5 sm:px-8"}
+              className={
+                compact
+                  ? "bg-[var(--panel)] px-3 py-3"
+                  : "px-6 py-5 sm:px-8"
+              }
             >
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div className="min-w-0">

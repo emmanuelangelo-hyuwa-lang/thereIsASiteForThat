@@ -170,21 +170,23 @@ export function SearchBox({
       </form>
 
       {showInstantResults && open && query.trim().length >= 2 ? (
-        <div className="absolute z-20 mt-2 max-h-[28rem] w-full overflow-auto rounded-xl border border-[var(--border)] bg-[var(--panel)] shadow-lg shadow-black/5">
-          {loading && !instant ? (
-            <p className="px-4 py-4 text-sm text-[var(--muted)]">Searching…</p>
-          ) : instant ? (
-            <SearchResultsList
-              query={instant.query}
-              mode={instant.mode}
-              results={instant.results}
-              aiSummary={instant.aiSummary}
-              compact
-            />
-          ) : (
-            <p className="px-4 py-4 text-sm text-[var(--muted)]">No results.</p>
-          )}
-          <div className="border-t border-[var(--border)] px-3 py-2">
+        <div className="search-popover absolute left-0 right-0 z-50 mt-2 flex max-h-[min(28rem,70vh)] flex-col overflow-hidden rounded-xl border border-[var(--border)] text-left">
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+            {loading && !instant ? (
+              <p className="px-4 py-4 text-sm text-[var(--muted)]">Searching…</p>
+            ) : instant ? (
+              <SearchResultsList
+                query={instant.query}
+                mode={instant.mode}
+                results={instant.results}
+                aiSummary={instant.aiSummary}
+                compact
+              />
+            ) : (
+              <p className="px-4 py-4 text-sm text-[var(--muted)]">No results.</p>
+            )}
+          </div>
+          <div className="shrink-0 border-t border-[var(--border)] bg-[var(--panel)] px-3 py-2.5">
             <button
               type="button"
               className="text-xs font-medium text-[var(--accent)] hover:text-[var(--accent-strong)]"
