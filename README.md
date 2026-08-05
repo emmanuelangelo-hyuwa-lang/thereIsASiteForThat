@@ -1,83 +1,108 @@
-# ThereIsASiteForThat
+# thereisasiteforthat
 
-Need a website to do X? Here's the best one.
+**Need a website to do X? Here is the best one.**
 
-Searchable directory for useful websites — curated matches first, AI-inferred fallback when the catalog misses. Google sign-in unlocks bookmarks and saved searches (search stays public).
+A searchable directory of useful websites. Describe a task in plain language and get the site that does it, curated matches first, an AI-inferred answer when the catalog has no confident match.
 
-## Docs
+Live at [thereisasiteforthat.com](https://thereisasiteforthat.com).
 
-Product and engineering docs live in [`docs/`](./docs/README.md).
+![The home page: a large headline reading "There is a site for making a resume", a full width search field, and counts of sites, categories and collections](./docs/assets/home.png)
 
-| Doc | Purpose |
-|---|---|
-| [01-prd.md](./docs/01-prd.md) | Product requirements (v1 scope) |
-| [02-competitive-analysis.md](./docs/02-competitive-analysis.md) | TAAFT teardown + how we win |
-| [03-architecture.md](./docs/03-architecture.md) | Stack, services, folder structure |
-| [04-data-model.md](./docs/04-data-model.md) | Postgres schema, indexes, embeddings |
-| [05-search-pipeline.md](./docs/05-search-pipeline.md) | Semantic search + RAG fallback |
-| [06-ux-design.md](./docs/06-ux-design.md) | UX principles, pages, IA |
-| [07-seo-strategy.md](./docs/07-seo-strategy.md) | Long-tail pages, URL design, content |
-| [08-roadmap.md](./docs/08-roadmap.md) | Phased build plan |
-| [09-decisions.md](./docs/09-decisions.md) | Decisions + defaults |
-| [10-setup.md](./docs/10-setup.md) | Env, Supabase, seed, Google OAuth |
-| [11-user-accounts-features.md](./docs/11-user-accounts-features.md) | Google auth, bookmarks, saved searches |
+## What makes it different
 
-## Stack (what we actually use)
+**One answer, not fifty.** A search returns a best match with a confidence score, and the rest stays behind one press.
 
-- **Next.js** App Router + TypeScript + Tailwind
-- **Supabase Postgres** + **pgvector** + **pg_trgm** (connection string only — not Supabase Auth)
-- **Drizzle ORM** + `postgres.js`
-- **OpenAI** `text-embedding-3-small` + `gpt-4o-mini` (RAG on weak matches)
-- **Auth.js (NextAuth v5)** Google OAuth for end users
-- Admin: password + signed cookie (separate from Google)
-- Hosting target: **Vercel** (domain: thereisasiteforthat.com)
+**Sites are judged by people who used them.** After you click through, the site asks a single question: *did it solve it?* No account, no email. The right to vote is earned by actually visiting, which is far harder to farm than an open star widget. Under three verdicts, an editor score stands in.
 
-## Getting started
+![A site page for ILovePDF showing the editor score of 4.7 with a filled meter, and a panel headed "Votes are earned" explaining that the question appears after you visit the site](./docs/assets/site-detail.png)
+
+**It looks like itself.** A black canvas, one saturated colour per category and collection, and numbers set large. The rules are written down in [docs/06-ux-design.md](./docs/06-ux-design.md) so they survive the next feature.
+
+![The collections page showing seven cards, each with a count in its own colour: violet, blue, cyan, lime, orange, pink and green](./docs/assets/collections.png)
+
+## Run it
 
 ```bash
 npm install
 cp .env.example .env
-# fill DATABASE_URL, ADMIN_*, OPENAI_*, AUTH_* — see docs/10-setup.md
+```
+
+Fill in `DATABASE_URL`, `ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET` and `OPENAI_API_KEY`. Full walkthrough in [docs/10-setup.md](./docs/10-setup.md).
+
+```bash
 npm run db:migrate
 npm run db:seed
 npm run db:embed
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Open [localhost:3000](http://localhost:3000). Admin lives at `/admin/login`.
 
-Admin: [http://localhost:3000/admin/login](http://localhost:3000/admin/login)  
-Account: Sign in (header) → bookmarks / saved searches under `/me`
+> **Upgrading a deployment that predates verdicts:** one additive migration creates `site_votes`. Run `npm run db:migrate`. Safe to deploy the code first, since every vote read is wrapped and falls back to editor scores.
+
+## Docs
+
+Start with [`docs/`](./docs/README.md). It has a map, the current state of every area, and reading paths depending on why you are there.
+
+| If you want to | Read |
+|---|---|
+| Understand the product | [01-prd.md](./docs/01-prd.md) |
+| Change the interface | [06-ux-design.md](./docs/06-ux-design.md) |
+| Know why something is the way it is | [09-decisions.md](./docs/09-decisions.md) |
+| Get it running | [10-setup.md](./docs/10-setup.md) |
+
+## Stack
+
+| Layer | Choice |
+|---|---|
+| Framework | Next.js App Router, TypeScript, Tailwind |
+| Database | Supabase Postgres with pgvector and pg_trgm, connection string only |
+| ORM | Drizzle with `postgres.js` |
+| AI | OpenAI `text-embedding-3-small` for ranking, `gpt-4o-mini` for weak matches |
+| Voting | Anonymous signed cookie, no third party |
+| Admin auth | Password with a signed cookie |
+| Accounts | Auth.js with Google, built and switched off. See [11](./docs/11-user-accounts-features.md) |
+| Hosting | Vercel |
 
 ## Scripts
 
-| Command | Purpose |
+| Command | Does |
 |---|---|
-| `npm run dev` | Local Next.js server |
+| `npm run dev` | Local server |
 | `npm run build` | Production build |
 | `npm run lint` | ESLint |
-| `npm run typecheck` | TypeScript check |
-| `npm run db:generate` | Generate Drizzle migrations |
+| `npm run typecheck` | TypeScript, no emit |
 | `npm run db:migrate` | Apply migrations |
-| `npm run db:push` | Push schema without migration files |
 | `npm run db:seed` | Seed categories, sites, collections, search pages |
 | `npm run db:embed` | Embed published sites missing vectors |
+| `npm run db:generate` | Generate a migration from schema changes |
+| `npm run db:push` | Push schema without migration files |
 | `npm run db:studio` | Drizzle Studio |
 
-## Project layout
+## Layout
 
 ```
 src/
-  app/           # Routes + API handlers (/me, /api/auth, …)
-  auth.ts        # Auth.js config (Google)
-  components/    # Shared UI (home atlas, header, …)
-  features/      # Feature UI (search, bookmarks, auth, …)
+  app/            Routes, API handlers, loading skeletons
+  components/     Chrome, home sections, theme, ui primitives
+  features/       Search, sites, votes, submissions, admin
   lib/
-    db/          # Drizzle client + schema
-    repositories/
-    services/
-    validators/
-    utils/
-docs/            # Product & engineering docs
-drizzle/         # SQL migrations
+    db/           Drizzle client and schema
+    design/       Accent palette, per-entity colour
+    votes/        Anonymous voter identity
+    repositories/ Data access only
+    services/     Business logic
+    validators/   Zod schemas
+    utils/        Pure helpers
+    seo/          JSON-LD and absolute URLs
+  data/seed/      Catalog seed content
+docs/             Product and engineering docs
+drizzle/          SQL migrations
+scripts/          Seed and embed runners
 ```
+
+## Conventions
+
+Read [AGENTS.md](./AGENTS.md) before writing code. This Next.js version differs from what most tooling assumes, so check `node_modules/next/dist/docs/` rather than guessing.
+
+Copy has one hard rule: **no dashes**, not em, not en, not as separators. Use a full stop, a comma or a slash.

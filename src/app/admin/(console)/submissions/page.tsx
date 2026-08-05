@@ -1,12 +1,17 @@
-import Link from "next/link";
-
 import {
   approveSubmissionAction,
   rejectSubmissionAction,
 } from "@/app/admin/actions";
 import { listSubmissionsForAdmin } from "@/lib/services/submissions";
 
-export default async function AdminSubmissionsPage() {
+type AdminSubmissionsPageProps = {
+  searchParams: Promise<{ error?: string }>;
+};
+
+export default async function AdminSubmissionsPage({
+  searchParams,
+}: AdminSubmissionsPageProps) {
+  const params = await searchParams;
   let rows: Awaited<ReturnType<typeof listSubmissionsForAdmin>> = [];
   let dbReady = true;
 
@@ -19,17 +24,24 @@ export default async function AdminSubmissionsPage() {
   return (
     <section className="panel overflow-hidden">
       <div className="border-b border-[var(--border)] px-6 py-5 sm:px-8">
-        <h1 className="font-[family-name:var(--font-display)] text-3xl tracking-tight text-[var(--ink)]">
+        <h1 className="headline text-3xl text-[var(--ink)]">
           Submissions
         </h1>
         <p className="mt-2 text-sm text-[var(--muted)]">
-          Pending public suggestions. Approve marks the queue; create the site from Sites if needed.
+          Pending public suggestions. Approve builds a draft site from the
+          submission and drops you on its edit page to finish and publish.
         </p>
       </div>
 
+      {params.error ? (
+        <p className="mx-6 mt-5 rounded-[var(--r-s)] border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-700 sm:mx-8 dark:text-red-300">
+          {params.error}
+        </p>
+      ) : null}
+
       {!dbReady ? (
         <p className="px-6 py-8 text-sm text-[var(--muted)] sm:px-8">
-          Database not ready — run migrate before moderating submissions.
+          Database not ready. Run migrate before moderating submissions.
         </p>
       ) : rows.length === 0 ? (
         <p className="px-6 py-8 text-sm text-[var(--muted)] sm:px-8">
@@ -66,17 +78,11 @@ export default async function AdminSubmissionsPage() {
                   </p>
                 </div>
                 <div className="flex shrink-0 flex-wrap gap-2">
-                  <Link
-                    href={`/admin/sites/new?name=${encodeURIComponent(submission.name)}&url=${encodeURIComponent(submission.url)}`}
-                    className="rounded-lg border border-[var(--border)] px-3 py-1.5 text-sm text-[var(--ink)]"
-                  >
-                    Open new site
-                  </Link>
                   <form action={approveSubmissionAction}>
                     <input type="hidden" name="id" value={submission.id} />
                     <button
                       type="submit"
-                      className="rounded-lg bg-[var(--accent)] px-3 py-1.5 text-sm font-semibold text-white"
+                      className="rounded-[var(--r-s)] bg-[var(--accent)] px-3 py-1.5 text-sm font-semibold text-[var(--on-accent)]"
                     >
                       Approve
                     </button>
@@ -85,7 +91,7 @@ export default async function AdminSubmissionsPage() {
                     <input type="hidden" name="id" value={submission.id} />
                     <button
                       type="submit"
-                      className="rounded-lg border border-[var(--border)] px-3 py-1.5 text-sm text-[var(--muted)]"
+                      className="rounded-[var(--r-s)] border border-[var(--border)] px-3 py-1.5 text-sm text-[var(--muted)]"
                     >
                       Reject
                     </button>

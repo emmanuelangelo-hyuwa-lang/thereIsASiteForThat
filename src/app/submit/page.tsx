@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { PageHead } from "@/components/ui/PageHead";
 import { SubmitForm } from "@/features/submissions/SubmitForm";
 import { listCatalogCategories } from "@/lib/services/catalog";
 
@@ -12,22 +13,22 @@ export default async function SubmitPage() {
   const categories = await listCatalogCategories();
 
   return (
-    <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-5 pb-10 pt-2 sm:px-8">
-      <section className="panel mx-auto w-full max-w-2xl px-5 py-8 sm:px-10 sm:py-10">
-        <h1 className="font-[family-name:var(--font-display)] text-3xl tracking-tight text-[var(--ink)] sm:text-5xl">
-          Submit a site
-        </h1>
-        <p className="mt-4 text-[var(--muted)]">
-          Suggest a website for the directory. Submissions are reviewed before
-          publishing — quality over volume.
-        </p>
+    <main className="shell flex flex-1 flex-col pb-10">
+      <PageHead
+        label="Open catalog"
+        labelHref="/"
+        title="Submit a site"
+        lead="Every submission is reviewed by hand. Quality over volume. One great site beats ten passable ones."
+      />
+
+      <div className="max-w-2xl border-t border-[var(--hair)] pt-12">
         <SubmitForm
           categories={categories.map((category) => ({
             slug: category.slug,
             name: category.name,
           }))}
         />
-      </section>
+      </div>
     </main>
   );
 }

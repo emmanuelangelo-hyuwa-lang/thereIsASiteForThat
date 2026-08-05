@@ -2,19 +2,19 @@ import Link from "next/link";
 
 export function SubmitBand() {
   return (
-    <section className="mx-auto w-full max-w-6xl px-5 pb-4 sm:px-8">
-      <div className="section-rule flex flex-col items-start justify-between gap-4 py-12 sm:flex-row sm:items-center">
-        <div>
-          <h2 className="font-[family-name:var(--font-display)] text-2xl tracking-tight text-[var(--ink)] sm:text-3xl">
-            Know a great site?
+    <section id="submit" className="shell reveal">
+      <div className="slab-accent flex flex-col justify-between gap-10 p-8 sm:p-14 lg:flex-row lg:items-end">
+        <div className="max-w-2xl">
+          <p className="label text-[var(--on-accent)]/75">Open catalog</p>
+          <h2 className="display mt-6 text-[clamp(2.25rem,7vw,5rem)] text-[var(--on-accent)]">
+            Know a
+            <br />
+            better site?
           </h2>
-          <p className="mt-2 max-w-md text-sm leading-relaxed text-[var(--muted)]">
-            Suggest something useful. We review submissions and add the keepers to the catalog.
-          </p>
         </div>
         <Link
           href="/submit"
-          className="inline-flex shrink-0 rounded-lg bg-[var(--accent)] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--accent-strong)]"
+          className="btn h-16 shrink-0 bg-[var(--on-accent)] px-10 text-base text-[var(--accent)] hover:bg-[var(--on-accent)]/85"
         >
           Submit a site
         </Link>

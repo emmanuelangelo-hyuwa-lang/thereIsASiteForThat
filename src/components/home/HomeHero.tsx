@@ -1,41 +1,59 @@
 import Link from "next/link";
 
+import { KineticHeadline } from "@/components/home/KineticHeadline";
 import { EXAMPLE_QUERIES } from "@/features/search/constants";
 import { SearchBox } from "@/features/search/SearchBox";
 import { slugify } from "@/lib/utils/slugify";
 
-export function HomeHero() {
+type HomeHeroProps = {
+  siteCount: number;
+  categoryCount: number;
+  collectionCount: number;
+};
+
+export function HomeHero({
+  siteCount,
+  categoryCount,
+  collectionCount,
+}: HomeHeroProps) {
   return (
-    <section className="hero-stage">
-      <div className="relative z-30 mx-auto flex w-full max-w-6xl flex-col items-center px-4 pb-14 pt-8 text-center sm:px-8 sm:pb-20 sm:pt-14">
-        <p className="animate-rise text-[0.65rem] font-medium uppercase tracking-[0.16em] text-[var(--muted)] sm:text-xs sm:tracking-[0.18em]">
-          An atlas of useful websites
-        </p>
-        <h1 className="animate-rise-delay mt-4 max-w-4xl break-words font-[family-name:var(--font-display)] text-[2.35rem] leading-[1.05] tracking-tight text-[var(--ink)] sm:mt-5 sm:text-6xl sm:leading-[1.02] md:text-7xl">
-          ThereIsASiteForThat
-        </h1>
-        <p className="animate-rise-delay mt-5 max-w-lg text-base leading-relaxed text-[var(--muted)] sm:text-lg">
-          Need a website to do X? Here&apos;s the best one.
-        </p>
-        <div className="relative z-30 mt-10 w-full max-w-xl">
-          <SearchBox />
-        </div>
-        <p className="animate-rise-delay-2 mt-6 text-xs uppercase tracking-[0.14em] text-[var(--muted)]">
-          Try searching
-        </p>
-        <ul className="animate-rise-delay-2 mt-3 flex max-w-2xl flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm">
-          {EXAMPLE_QUERIES.map((query) => (
-            <li key={query}>
-              <Link
-                href={`/search/${slugify(query)}`}
-                className="text-[var(--muted)] underline decoration-[var(--border)] underline-offset-4 transition hover:text-[var(--ink)] hover:decoration-[var(--accent)]"
-              >
-                {query}
-              </Link>
-            </li>
-          ))}
-        </ul>
+    <section id="search" className="shell pt-6 sm:pt-10">
+      <p className="label enter">The answer is one site</p>
+
+      <div className="enter enter-1 mt-6">
+        <KineticHeadline />
       </div>
+
+      <div className="enter enter-2 mt-12 sm:mt-16">
+        <SearchBox />
+      </div>
+
+      <ul className="stagger enter-3 mt-6 flex flex-wrap gap-2">
+        {EXAMPLE_QUERIES.slice(0, 6).map((query, index) => (
+          <li key={query} style={{ ["--i" as string]: index }}>
+            <Link href={`/search/${slugify(query)}`} className="chip">
+              {query}
+            </Link>
+          </li>
+        ))}
+      </ul>
+
+      <dl className="mt-20 grid grid-cols-3 gap-6 border-t border-[var(--hair)] pt-8">
+        <Stat label="Sites" value={siteCount} />
+        <Stat label="Categories" value={categoryCount} />
+        <Stat label="Collections" value={collectionCount} />
+      </dl>
     </section>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: number }) {
+  return (
+    <div>
+      <dd className="numeral text-5xl text-[var(--ink)] sm:text-7xl">
+        {String(value).padStart(2, "0")}
+      </dd>
+      <dt className="label mt-4">{label}</dt>
+    </div>
   );
 }

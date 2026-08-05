@@ -2,7 +2,7 @@ export const SEED_COLLECTIONS = [
   {
     name: "Best AI Websites",
     slug: "best-ai-websites",
-    description: "AI tools that are actually useful day to day — not just launch hype.",
+    description: "AI tools that are actually useful day to day, not just launch hype.",
     siteSlugs: ["chatgpt", "claude", "perplexity", "cursor", "v0", "futurepedia"],
   },
   {
@@ -28,7 +28,7 @@ export const SEED_COLLECTIONS = [
   {
     name: "Best Free Websites",
     slug: "best-free-websites",
-    description: "High-signal tools you can use without paying on day one.",
+    description: "High signal tools you can use without paying on day one.",
     siteSlugs: [
       "pdf24",
       "squoosh",

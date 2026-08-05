@@ -1,38 +1,89 @@
 import Link from "next/link";
+import { ViewTransition } from "react";
+
 
 import type { CatalogSite } from "@/lib/catalog/types";
+import { solveRateOf } from "@/lib/services/votes";
+import type { VerdictTally } from "@/lib/repositories/votes";
 import { pricingLabel } from "@/lib/utils/pricing";
 
 type SiteCardProps = {
   site: CatalogSite;
   showCategory?: boolean;
+  index?: number;
+  position?: number;
+  tally?: VerdictTally;
 };
 
-export function SiteCard({ site, showCategory = true }: SiteCardProps) {
+export function SiteCard({
+  site,
+  showCategory = true,
+  index,
+  position = 0,
+  tally,
+}: SiteCardProps) {
+  const solveRate = tally ? solveRateOf(tally) : null;
+
   return (
-    <li>
+    <li
+      className="border-t border-[var(--hair)]"
+      style={{ ["--i" as string]: position }}
+    >
       <Link
         href={`/site/${site.slug}`}
-        className="flex flex-col gap-2 px-6 py-5 transition hover:bg-[var(--surface)] sm:flex-row sm:items-start sm:justify-between sm:px-8"
+        className="row flex items-start gap-5 rounded-[var(--r-m)] px-3 py-6 sm:gap-8 sm:px-4"
       >
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-            <span className="text-base font-semibold text-[var(--ink)]">{site.name}</span>
-            <span className="text-xs text-[var(--muted)]">
-              {pricingLabel(site.pricing)}
-              {Number.isFinite(site.rating) ? ` · ${site.rating.toFixed(1)}★` : null}
+        {typeof index === "number" ? (
+          <span className="numeral row-index mt-1 w-8 shrink-0 text-base text-[var(--muted)]">
+            {String(index + 1).padStart(2, "0")}
+          </span>
+        ) : null}
+
+        <span className="min-w-0 flex-1">
+          <ViewTransition name={`site-${site.slug}`}>
+            <span className="headline block text-2xl text-[var(--ink)] sm:text-3xl">
+              {site.name}
             </span>
-          </div>
-          <p className="mt-1 text-sm leading-relaxed text-[var(--muted)]">
+          </ViewTransition>
+          <span className="copy mt-2.5 block max-w-2xl text-[var(--muted)]">
             {site.description}
-          </p>
-          <p className="mt-2 text-xs text-[var(--muted)]">
-            {showCategory ? `${site.categoryName} · ` : null}
-            {site.tags.slice(0, 4).join(" · ")}
-          </p>
-        </div>
-        <span className="shrink-0 text-sm font-medium text-[var(--accent)]">
-          Details →
+          </span>
+          <span className="label mt-3 block">
+            {pricingLabel(site.pricing)}
+            {showCategory ? ` / ${site.categoryName}` : null}
+          </span>
+        </span>
+
+        <span className="flex shrink-0 items-center gap-4">
+          <span className="text-right">
+            <span className="numeral block text-3xl text-[var(--ink)] sm:text-4xl">
+              {solveRate !== null ? (
+                <>
+                  {solveRate}
+                  <span className="align-super text-[0.5em]">%</span>
+                </>
+              ) : (
+                site.rating.toFixed(1)
+              )}
+            </span>
+            <span className="label mt-2 block text-[0.5625rem]">
+              {solveRate !== null ? "Solved" : "Editor"}
+            </span>
+          </span>
+          <span
+            aria-hidden="true"
+            className="row-arrow hidden text-[var(--muted)] sm:block"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M4 12h15M13 6l6 6-6 6"
+                stroke="currentColor"
+                strokeWidth="1.75"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </span>
         </span>
       </Link>
     </li>

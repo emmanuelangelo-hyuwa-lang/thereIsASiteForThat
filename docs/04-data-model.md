@@ -1,6 +1,6 @@
 # Data Model
 
-**Supabase Postgres** (hosted). ORM: Drizzle. Vectors: pgvector. Auth users are app tables — not Supabase Auth.
+**Supabase Postgres** (hosted). ORM: Drizzle. Vectors: pgvector. Auth users are app tables, not Supabase Auth.
 
 ---
 
@@ -38,7 +38,7 @@ create extension if not exists pg_trgm; -- optional keyword assist
 | pricing | enum | `free` \| `freemium` \| `paid` \| `free_trial` |
 | pros | text[] | |
 | cons | text[] | |
-| rating | numeric(2,1) | 1.0–5.0 editor score |
+| rating | numeric(2,1) | 1.0-5.0 editor score |
 | tags | text[] | |
 | screenshot_url | text | nullable |
 | status | enum | `draft` \| `published` \| `archived` |
@@ -128,6 +128,26 @@ Durable SEO pages for popular / unique queries.
 | confidence | numeric | nullable |
 | created_at | timestamptz | |
 
+### `site_votes` (community verdicts)
+
+One row per (site, anonymous voter). No account required, see
+[06-ux-design.md](./06-ux-design.md) for the earned-vote rule.
+
+| Column | Type | Notes |
+|---|---|---|
+| id | uuid PK | |
+| site_id | uuid FK → sites | cascade delete |
+| voter_hash | text | `HMAC(secret, deviceToken + site_id)`, per-site, not reversible |
+| solved | boolean | `true` = "this solved it" |
+| created_at | timestamptz | |
+| updated_at | timestamptz | bumped when a voter changes their answer |
+
+Indexes: unique `(site_id, voter_hash)` so a device votes once per site and can
+revise; `(site_id)` for tallies.
+
+**Reads are best-effort.** Every query is wrapped so a deployment that has not
+run `db:migrate` yet keeps rendering the catalog on the editor score.
+
 ### `users` (Google OAuth / Auth.js)
 
 | Column | Type | Notes |
@@ -197,14 +217,14 @@ Convert distance → confidence % in the service layer (see [05-search-pipeline.
 - Public reads go through Next.js server code (published `sites` / collections / indexable search pages).
 - Catalog admin writes require password session (`ADMIN_PASSWORD` + signed cookie).
 - End-user bookmarks / saved searches require Auth.js Google session; `/me/*` gated in layout.
-- No Supabase RLS — enforce access in the app layer.
+- No Supabase RLS, enforce access in the app layer.
 
 ---
 
 ## 6. Seed Strategy
 
 1. Seed ~12 categories (shipped).
-2. Curate ~70+ sites with pros/cons; grow toward 150–300.
+2. Curate ~70+ sites with pros/cons; grow toward 150-300.
 3. Embed in batch (`npm run db:embed`).
 4. Seven launch collections.
 5. ~30 high-intent indexable `search_pages`.

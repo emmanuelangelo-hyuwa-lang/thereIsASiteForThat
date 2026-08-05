@@ -4,7 +4,7 @@ Solo-developer phases. Status reflects what is **in the repo / wired to Supabase
 
 ---
 
-## Phase 0 — Docs & Foundations
+## Phase 0, Docs & Foundations
 
 - [x] PRD, competitive analysis, architecture, data model, search, UX, SEO
 - [x] Repo scaffolding locked
@@ -13,18 +13,18 @@ Solo-developer phases. Status reflects what is **in the repo / wired to Supabase
 
 ---
 
-## Phase 1 — Skeleton App
+## Phase 1, Skeleton App
 
 - [x] Next.js App Router + Tailwind + TypeScript
 - [x] Drizzle + Postgres schema + pgvector
 - [x] Base layout, design tokens, homepage shell → editorial atlas home
-- [ ] Deploy to Vercel with production env (**ops** — see [10-setup.md](./10-setup.md))
+- [ ] Deploy to Vercel with production env (**ops**, see [10-setup.md](./10-setup.md))
 
 **Exit:** Live homepage on preview/prod URL.
 
 ---
 
-## Phase 2 — Directory CRUD + Seed
+## Phase 2, Directory CRUD + Seed
 
 - [x] Schema migrations (`sites`, `categories`, `collections`, …)
 - [x] Admin auth (password + signed session cookie)
@@ -37,7 +37,7 @@ Solo-developer phases. Status reflects what is **in the repo / wired to Supabase
 
 ---
 
-## Phase 3 — Search v1
+## Phase 3, Search v1
 
 - [x] `/api/search` embedding + pgvector (keyword fallback if needed)
 - [x] Confidence scores + instant homepage search
@@ -49,7 +49,7 @@ Solo-developer phases. Status reflects what is **in the repo / wired to Supabase
 
 ---
 
-## Phase 4 — Detail, Collections, Submit
+## Phase 4, Detail, Collections, Submit
 
 - [x] `/site/[slug]` with pros/cons/alternatives
 - [x] Collection + category browse
@@ -61,7 +61,7 @@ Solo-developer phases. Status reflects what is **in the repo / wired to Supabase
 
 ---
 
-## Phase 5 — RAG Fallback + SEO Hardening
+## Phase 5, RAG Fallback + SEO Hardening
 
 - [x] LLM fallback + AI-inferred labeling (`OPENAI_CHAT_MODEL`)
 - [x] Sitemap, robots, metadata, JSON-LD
@@ -73,7 +73,23 @@ Solo-developer phases. Status reflects what is **in the repo / wired to Supabase
 
 ---
 
-## Phase 6 — Post-v1 (backlog)
+## Phase 6, Design system and community verdicts
+
+Shipped after the first working loop, in response to the interface feeling generic.
+
+- [x] Monolith design system: black canvas, per-entity accent colour, one radius scale, see [06](./06-ux-design.md)
+- [x] Typography: Geist for the interface, Instrument Serif for lead lines
+- [x] Motion: staggered reveals, sliding nav pill, colour cross-fade between themes, shared-element page transitions
+- [x] Progressive disclosure pass: home page cut from roughly 4,460px to 3,460px, search tail and alternatives behind one press
+- [x] Community verdicts: vote earned by clicking through, no account, `site_votes` table
+- [x] Approve on a submission now creates a prefilled draft site
+- [ ] Run `npm run db:migrate` on production for `site_votes` (**ops**)
+
+**Exit:** The product looks like itself, and sites are judged by people who used them.
+
+---
+
+## Phase 7, Post-v1 (backlog)
 
 1. "X alternatives" pages  
 2. Hybrid keyword + vector search  
@@ -84,13 +100,17 @@ Solo-developer phases. Status reflects what is **in the repo / wired to Supabase
 
 ---
 
-## Phase 7 — Accounts & personal features (Google OAuth)
+## Phase 8, Accounts, currently switched off
 
 **Docs:** [11-user-accounts-features.md](./11-user-accounts-features.md)
 
-- [x] Google sign-in (Auth.js) + `users` table — guest search ungated
+Blocked on transactional email for confirmation and recovery. The backend is done; turning it on is a UI job.
+
+- [x] Google sign-in (Auth.js) + `users` table, guest search ungated
 - [x] Bookmarks + `/me/bookmarks` + `/me` hub
-- [x] Saved searches + `/me/searches` + save on search pages
+- [x] Saved searches + `/me/searches`
+- [ ] Transactional email provider (**blocker**)
+- [ ] Restore the header entry point and the save-search button
 - [ ] Submission history on `/me`
 - [ ] Personal lists → optional share links
 - [ ] Notes, compare shortlist, preferences
@@ -100,13 +120,13 @@ Admin password auth stays separate from Google user sessions.
 
 ---
 
-## Suggested Timeline (aggressive solo)
+## What is actually left
 
-| Week | Focus |
-|---|---|
-| 1 | Phase 1–2 scaffolding + schema + admin |
-| 2 | Seed + embeddings + search API |
-| 3 | Detail, collections, submit, polish UX |
-| 4 | RAG, SEO, accounts MVP, soft launch |
+| Item | Type | Notes |
+|---|---|---|
+| Production deploy with env vars | Ops | See [10-setup.md](./10-setup.md) |
+| `db:migrate` for `site_votes` | Ops | Safe to deploy before running it; reads are wrapped |
+| Threshold tuning with an eval set | Product | Needs real query logs first |
+| Transactional email | Blocker | Gates accounts entirely |
 
-Adjust if seed curation takes longer — quality of the first 200 entries matters more than shipping date.
+Quality of the first 200 catalog entries matters more than shipping date.

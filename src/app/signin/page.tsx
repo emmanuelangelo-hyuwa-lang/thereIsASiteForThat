@@ -1,55 +1,70 @@
+import type { Metadata } from "next";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 
-import { signInWithGoogle } from "@/app/actions/auth";
-import { auth } from "@/auth";
-
-type SignInPageProps = {
-  searchParams: Promise<{ callbackUrl?: string }>;
+export const metadata: Metadata = {
+  title: "Accounts",
+  description:
+    "Accounts are coming to ThereIsASiteForThat. Search, browsing, and voting work without one.",
 };
 
-export default async function SignInPage({ searchParams }: SignInPageProps) {
-  const session = await auth();
-  const params = await searchParams;
-  const callbackUrl = params.callbackUrl ?? "/me";
+const LATER = [
+  { label: "Bookmarks", note: "Keep the sites you actually come back to" },
+  { label: "Saved searches", note: "Reopen a question you already asked" },
+  { label: "Vote history", note: "See every verdict you have cast" },
+] as const;
 
-  if (session?.user?.id) {
-    redirect(callbackUrl);
-  }
-
+/**
+ * Accounts are deliberately not shipped yet, there is no transactional email
+ * for confirmation or password recovery. Everything the product promises today
+ * works without one, so this page says so plainly rather than pretending.
+ */
+export default function SignInPage() {
   return (
-    <main className="mx-auto flex w-full max-w-lg flex-1 flex-col justify-center px-5 py-16 sm:px-8">
-      <section className="panel px-6 py-10 sm:px-10">
-        <p className="text-xs font-medium uppercase tracking-[0.14em] text-[var(--muted)]">
-          Account
-        </p>
-        <h1 className="mt-3 font-[family-name:var(--font-display)] text-4xl tracking-tight text-[var(--ink)]">
-          Save sites you like
-        </h1>
-        <p className="mt-4 text-sm leading-relaxed text-[var(--muted)]">
-          Sign in with Google to bookmark sites across devices. Search and browse
-          stay free — no account required.
-        </p>
-        <form
-          className="mt-8"
-          action={async () => {
-            "use server";
-            await signInWithGoogle(callbackUrl);
-          }}
-        >
-          <button
-            type="submit"
-            className="inline-flex w-full items-center justify-center rounded-lg bg-[var(--accent)] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--accent-strong)]"
+    <main className="shell flex flex-1 flex-col pb-10 pt-4">
+      <p className="label enter">Accounts</p>
+
+      <h1 className="display enter enter-1 mt-6 max-w-4xl text-[clamp(2.5rem,8vw,6.5rem)] text-[var(--ink)]">
+        Not yet.
+        <br />
+        <span className="ink-accent">Soon.</span>
+      </h1>
+
+      <p className="lede enter enter-2 mt-8 max-w-xl text-[var(--muted)]">
+        Signing in is coming once we can send confirmation and recovery mail. Until
+        then nothing here is behind a login. Search, browse, and vote on any
+        site without handing over an address.
+      </p>
+
+      <ul className="enter enter-3 mt-16 max-w-3xl">
+        {LATER.map((item, index) => (
+          <li
+            key={item.label}
+            className="flex items-baseline gap-5 border-t border-[var(--hair)] py-6 sm:gap-8"
           >
-            Continue with Google
-          </button>
-        </form>
-        <p className="mt-6 text-center text-sm text-[var(--muted)]">
-          <Link href="/" className="text-[var(--accent)] hover:text-[var(--accent-strong)]">
-            ← Back to search
-          </Link>
-        </p>
-      </section>
+            <span className="numeral w-8 shrink-0 text-base text-[var(--muted)]">
+              {String(index + 1).padStart(2, "0")}
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="headline block text-2xl text-[var(--ink)] sm:text-3xl">
+                {item.label}
+              </span>
+              <span className="copy mt-2 block text-[var(--muted)]">
+                {item.note}
+              </span>
+            </span>
+            <span className="label shrink-0">Soon</span>
+          </li>
+        ))}
+      </ul>
+
+      <div className="mt-16 flex flex-wrap gap-3">
+        <Link href="/" className="btn btn-accent h-14 px-8">
+          Search something instead
+        </Link>
+        <Link href="/submit" className="btn btn-line h-14 px-8">
+          Submit a site
+        </Link>
+      </div>
     </main>
   );
 }

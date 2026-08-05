@@ -1,7 +1,9 @@
 import Link from "next/link";
 
+import { RevealList } from "@/components/ui/RevealList";
 import { VisitSiteLink } from "@/features/search/VisitSiteLink";
 import type { SearchMode, SearchResultItem } from "@/features/search/types";
+import { accentStyle } from "@/lib/design/accent";
 import { pricingLabel } from "@/lib/utils/pricing";
 
 type SearchResultsListProps = {
@@ -10,22 +12,24 @@ type SearchResultsListProps = {
   results: SearchResultItem[];
   aiSummary?: string | null;
   compact?: boolean;
+  /** Row the keyboard is currently on, in compact (popover) mode. */
+  activeIndex?: number;
 };
 
 function modeLabel(mode: SearchMode): string {
   switch (mode) {
     case "curated":
-      return "Curated matches";
+      return "Curated";
     case "soft":
-      return "Closest matches";
+      return "Closest";
     case "keyword":
-      return "Catalog matches";
+      return "Catalog";
     case "ai_inferred":
-      return "AI-suggested matches";
+      return "AI inferred";
     case "empty":
       return "No matches";
     case "unavailable":
-      return "Search unavailable";
+      return "Unavailable";
   }
 }
 
@@ -35,94 +39,186 @@ export function SearchResultsList({
   results,
   aiSummary,
   compact = false,
+  activeIndex = -1,
 }: SearchResultsListProps) {
   if (results.length === 0) {
     return (
-      <div className={compact ? "px-1 py-3" : "px-6 py-10 sm:px-8"}>
-        <p className="text-sm text-[var(--muted)]">
-          {aiSummary ?? "No results yet. Try a shorter task phrase."}
+      <div className={compact ? "px-6 py-6" : "py-16"}>
+        <p className="label">{modeLabel(mode)}</p>
+        <p className="copy mt-3 max-w-md text-[var(--muted)]">
+          {aiSummary ?? "Nothing yet. Try a shorter task phrase."}
         </p>
       </div>
     );
   }
 
+  /* ---------------------------------------------------------------- compact */
+  if (compact) {
+    return (
+      <div>
+        {aiSummary ? (
+          <div className="px-6 pb-1 pt-5">
+            <p className="label label-accent">{modeLabel(mode)}</p>
+            <p className="copy mt-2 text-sm text-[var(--muted)]">
+              {aiSummary}
+            </p>
+          </div>
+        ) : null}
+        <ul className="p-2">
+          {results.map((result, index) => (
+            <li key={result.siteId}>
+              <Link
+                href={`/site/${result.slug}`}
+                data-active={index === activeIndex ? "" : undefined}
+                aria-current={index === activeIndex ? "true" : undefined}
+                className="row flex items-center gap-4 rounded-[var(--r-m)] px-4 py-3.5 data-active:bg-[var(--layer-2)]"
+              >
+                <span className="numeral row-index w-6 shrink-0 text-sm text-[var(--muted)]">
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate font-medium text-[var(--ink)]">
+                    {result.name}
+                  </span>
+                  <span className="copy block truncate text-sm text-[var(--muted)]">
+                    {result.description}
+                  </span>
+                </span>
+                <span className="numeral shrink-0 text-lg text-[var(--ink)]">
+                  {result.confidencePercent}
+                  <span className="text-[var(--muted)]">%</span>
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  }
+
+  /* ------------------------------------------------------------------- full */
+  const [best, ...rest] = results;
+
   return (
     <div>
-      {compact && aiSummary ? (
-        <div className="border-b border-[var(--border)] px-3 py-2.5">
-          <p className="text-xs font-medium text-[var(--muted)]">{modeLabel(mode)}</p>
-          <p className="mt-0.5 text-xs leading-relaxed text-[var(--ink)]/80">
-            {aiSummary}
-          </p>
-        </div>
-      ) : null}
-      {!compact && (
-        <div className="border-b border-[var(--border)] px-6 py-4 sm:px-8">
-          <p className="text-sm text-[var(--muted)]">{modeLabel(mode)}</p>
-          {aiSummary ? (
-            <p className="mt-1 text-sm text-[var(--ink)]/80">{aiSummary}</p>
-          ) : null}
-        </div>
-      )}
-      <ul className="divide-y divide-[var(--border)]">
-        {results.map((result, index) => {
-          const isBest = index === 0 && mode !== "empty" && mode !== "unavailable";
-          return (
-            <li
-              key={result.siteId}
-              className={compact ? "px-3 py-3" : "px-6 py-5 sm:px-8"}
-            >
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                <div className="min-w-0">
-                  <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+      <BestMatch query={query} result={best} mode={mode} summary={aiSummary} />
+
+      {rest.length > 0 ? (
+        <section className="mt-20">
+          <div className="flex items-baseline justify-between gap-4">
+            <p className="label">Also worth it</p>
+            <p className="label">{rest.length} more</p>
+          </div>
+          <RevealList className="mt-6" initial={3} label="more matches">
+            {rest.map((result, index) => (
+              <li key={result.siteId} className="border-t border-[var(--hair)]">
+                <div className="row group flex flex-col gap-4 rounded-[var(--r-m)] px-3 py-6 sm:flex-row sm:items-center sm:gap-8 sm:px-4">
+                  <span className="numeral w-8 shrink-0 text-base text-[var(--muted)]">
+                    {String(index + 2).padStart(2, "0")}
+                  </span>
+                  <div className="min-w-0 flex-1">
                     <Link
                       href={`/site/${result.slug}`}
-                      className="text-base font-semibold text-[var(--ink)] transition hover:text-[var(--accent)] sm:text-lg"
+                      className="headline text-2xl text-[var(--ink)] hover-ink-accent sm:text-3xl"
                     >
                       {result.name}
                     </Link>
-                    <span className="text-xs font-medium text-[var(--accent)]">
-                      {isBest
-                        ? `Best match (${result.confidencePercent}%)`
-                        : `${result.confidencePercent}%`}
-                    </span>
+                    <p className="copy mt-2 max-w-2xl">{result.description}</p>
+                    <p className="label mt-3">{pricingLabel(result.pricing)}</p>
                   </div>
-                  <p className="mt-1 text-sm leading-relaxed text-[var(--muted)]">
-                    {result.description}
-                  </p>
-                  <p className="mt-2 text-xs text-[var(--muted)]">
-                    {pricingLabel(result.pricing)}
-                    {Number.isFinite(result.rating)
-                      ? ` · ${result.rating.toFixed(1)}★`
-                      : null}
-                    {result.tags.length > 0
-                      ? ` · ${result.tags.slice(0, 3).join(", ")}`
-                      : null}
-                  </p>
-                  {!compact ? (
-                    <Link
-                      href={`/site/${result.slug}`}
-                      className="mt-2 inline-block text-xs font-medium text-[var(--accent)] hover:text-[var(--accent-strong)]"
+                  <div className="flex shrink-0 items-center gap-5">
+                    <span className="numeral text-3xl text-[var(--ink)] sm:text-4xl">
+                      {result.confidencePercent}
+                      <span className="text-[var(--muted)]">%</span>
+                    </span>
+                    <VisitSiteLink
+                      href={result.url}
+                      siteId={result.siteId}
+                      query={query}
+                      source={
+                        result.source === "ai_inferred" ? "ai_inferred" : "search"
+                      }
+                      confidence={result.confidence}
+                      className="btn btn-quiet h-11"
                     >
-                      Pros, cons & alternatives →
-                    </Link>
-                  ) : null}
+                      Visit
+                    </VisitSiteLink>
+                  </div>
                 </div>
-                <VisitSiteLink
-                  href={result.url}
-                  siteId={result.siteId}
-                  query={query}
-                  source={result.source === "ai_inferred" ? "ai_inferred" : "search"}
-                  confidence={result.confidence}
-                  className="inline-flex w-full shrink-0 items-center justify-center rounded-lg bg-[var(--accent)] px-3.5 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--accent-strong)] sm:w-auto"
-                >
-                  Visit site
-                </VisitSiteLink>
-              </div>
-            </li>
-          );
-        })}
-      </ul>
+              </li>
+            ))}
+          </RevealList>
+        </section>
+      ) : null}
     </div>
+  );
+}
+
+function BestMatch({
+  query,
+  result,
+  mode,
+  summary,
+}: {
+  query: string;
+  result: SearchResultItem;
+  mode: SearchMode;
+  summary?: string | null;
+}) {
+  return (
+    <section
+      style={accentStyle(result.slug)}
+      className="slab-accent enter overflow-hidden p-7 sm:p-12"
+    >
+      <div className="flex flex-wrap items-baseline justify-between gap-4">
+        <p className="label text-[var(--on-accent)]/75">
+          {modeLabel(mode)} best match
+        </p>
+        <p className="label text-[var(--on-accent)]/75">
+          {pricingLabel(result.pricing)}
+        </p>
+      </div>
+
+      <div className="mt-10 flex flex-col gap-10 lg:flex-row lg:items-end lg:justify-between">
+        <div className="min-w-0">
+          <Link
+            href={`/site/${result.slug}`}
+            className="display block break-words text-[3.25rem] leading-[0.85] text-[var(--on-accent)] sm:text-8xl"
+          >
+            {result.name}
+          </Link>
+          <p className="lede mt-6 max-w-xl text-[var(--on-accent)]/85">
+            {summary ?? result.description}
+          </p>
+        </div>
+
+        <div className="shrink-0 lg:text-right">
+          <p className="numeral text-[5.5rem] leading-[0.75] text-[var(--on-accent)] sm:text-[9rem]">
+            {result.confidencePercent}
+            <span className="text-[0.4em] align-super">%</span>
+          </p>
+          <p className="label mt-3 text-[var(--on-accent)]/75">Confidence</p>
+        </div>
+      </div>
+
+      <div className="mt-12 flex flex-wrap items-center gap-3">
+        <VisitSiteLink
+          href={result.url}
+          siteId={result.siteId}
+          query={query}
+          source={result.source === "ai_inferred" ? "ai_inferred" : "search"}
+          confidence={result.confidence}
+          className="btn h-14 bg-[var(--on-accent)] px-8 text-[var(--accent)] hover:bg-[var(--on-accent)]/85"
+        >
+          Visit {result.name}
+        </VisitSiteLink>
+        <Link
+          href={`/site/${result.slug}`}
+          className="btn h-14 px-8 text-[var(--on-accent)] shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--on-accent)_30%,transparent)] hover:bg-[var(--on-accent)] hover:text-[var(--accent)]"
+        >
+          Pros &amp; cons
+        </Link>
+      </div>
+    </section>
   );
 }

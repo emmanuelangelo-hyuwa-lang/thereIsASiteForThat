@@ -3,7 +3,7 @@ export type SeedSearchPage = {
   intro: string;
 };
 
-/** High-intent launch pages — seeded as indexable for sitemap/SEO. */
+/** High intent launch pages, seeded as indexable for sitemap/SEO. */
 export const SEED_SEARCH_PAGES: SeedSearchPage[] = [
   {
     query: "compress a pdf",
@@ -28,7 +28,7 @@ export const SEED_SEARCH_PAGES: SeedSearchPage[] = [
   {
     query: "qr code generator",
     intro:
-      "Want a free QR code for a link, Wi‑Fi, or contact card? These generators create downloadable codes in seconds.",
+      "Want a free QR code for a link, WiFi, or contact card? These generators create downloadable codes in seconds.",
   },
   {
     query: "youtube downloader",
@@ -38,7 +38,7 @@ export const SEED_SEARCH_PAGES: SeedSearchPage[] = [
   {
     query: "logo maker",
     intro:
-      "Need a quick logo without hiring a designer? These makers walk you from idea to export-ready mark.",
+      "Need a quick logo without hiring a designer? These makers walk you from idea to export ready mark.",
   },
   {
     query: "find internships",
@@ -58,7 +58,7 @@ export const SEED_SEARCH_PAGES: SeedSearchPage[] = [
   {
     query: "edit pdf online",
     intro:
-      "Want to annotate, fill, or tweak a PDF in the browser? These online editors cover the common day-to-day fixes.",
+      "Want to annotate, fill, or tweak a PDF in the browser? These online editors cover the common day to day fixes.",
   },
   {
     query: "remove watermark",
@@ -88,7 +88,7 @@ export const SEED_SEARCH_PAGES: SeedSearchPage[] = [
   {
     query: "password generator",
     intro:
-      "Creating a strong unique password? These generators produce high-entropy strings you can copy safely.",
+      "Creating a strong unique password? These generators produce high entropy strings you can copy safely.",
   },
   {
     query: "url shortener",
@@ -118,7 +118,7 @@ export const SEED_SEARCH_PAGES: SeedSearchPage[] = [
   {
     query: "mind map",
     intro:
-      "Brainstorming visually? These mind-map tools help you organize ideas into connected boards.",
+      "Brainstorming visually? These mind map tools help you organize ideas into connected boards.",
   },
   {
     query: "habit tracker",
@@ -138,7 +138,7 @@ export const SEED_SEARCH_PAGES: SeedSearchPage[] = [
   {
     query: "white noise",
     intro:
-      "Blocking distractions with ambient sound? These white-noise and focus-audio sites are ready in one click.",
+      "Blocking distractions with ambient sound? These white noise and focus audio sites are ready in one click.",
   },
   {
     query: "timezone converter",
@@ -153,6 +153,6 @@ export const SEED_SEARCH_PAGES: SeedSearchPage[] = [
   {
     query: "json formatter",
     intro:
-      "Pretty-printing or validating JSON? These formatters clean payloads for reading and debugging.",
+      "Pretty printing or validating JSON? These formatters clean payloads for reading and debugging.",
   },
 ];

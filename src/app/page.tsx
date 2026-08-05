@@ -16,16 +16,22 @@ export default async function HomePage() {
     listCatalogCollections(),
   ]);
 
-  return (
-    <main className="flex flex-1 flex-col">
-      <HomeHero />
+  const siteCount = categories.reduce(
+    (total, category) => total + category.siteCount,
+    0,
+  );
 
-      <div className="flex flex-col gap-16 py-14 sm:gap-20 sm:py-20">
-        <CollectionDestinations collections={collections} />
-        <FeaturedPicks sites={featured} />
-        <CategoryMap categories={categories} />
-        <SubmitBand />
-      </div>
+  return (
+    <main className="flex flex-1 flex-col gap-24 sm:gap-32">
+      <HomeHero
+        siteCount={siteCount}
+        categoryCount={categories.length}
+        collectionCount={collections.length}
+      />
+      <CollectionDestinations collections={collections} />
+      <FeaturedPicks sites={featured} />
+      <CategoryMap categories={categories} />
+      <SubmitBand />
     </main>
   );
 }

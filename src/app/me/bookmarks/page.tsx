@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { PageHead } from "@/components/ui/PageHead";
 import { listCurrentUserBookmarks } from "@/lib/services/bookmarks";
 import { pricingLabel } from "@/lib/utils/pricing";
 
@@ -7,71 +8,62 @@ export default async function MeBookmarksPage() {
   const bookmarks = await listCurrentUserBookmarks();
 
   return (
-    <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-5 pb-10 pt-2 sm:px-8">
-      <section className="panel px-6 py-10 sm:px-10">
-        <p className="text-xs font-medium uppercase tracking-[0.14em] text-[var(--muted)]">
-          <Link href="/me" className="transition hover:text-[var(--ink)]">
-            Account
-          </Link>
-        </p>
-        <h1 className="mt-3 font-[family-name:var(--font-display)] text-4xl tracking-tight text-[var(--ink)] sm:text-5xl">
-          Bookmarks
-        </h1>
-        <p className="mt-4 max-w-xl text-[var(--muted)]">
-          {bookmarks.length === 0
-            ? "Sites you save will show up here."
-            : `${bookmarks.length} saved site${bookmarks.length === 1 ? "" : "s"}.`}
-        </p>
-      </section>
-
-      <section className="panel overflow-hidden">
+    <main className="shell flex flex-1 flex-col pb-10">
+      <PageHead
+        label="Account"
+        labelHref="/me"
+        title="Bookmarks"
+        lead={
+          bookmarks.length === 0
+            ? "Sites you save land here."
+            : "Everything you kept, newest first."
+        }
+        stat={{
+          value: String(bookmarks.length).padStart(2, "0"),
+          caption: "Saved sites",
+        }}
+      >
         {bookmarks.length === 0 ? (
-          <p className="px-6 py-10 text-sm text-[var(--muted)] sm:px-8">
-            Browse the{" "}
-            <Link href="/categories" className="text-[var(--accent)]">
-              catalog
-            </Link>{" "}
-            and bookmark anything useful.
-          </p>
-        ) : (
-          <ul className="divide-y divide-[var(--border)]">
-            {bookmarks.map((site) => (
-              <li key={site.id}>
-                <Link
-                  href={`/site/${site.slug}`}
-                  className="flex flex-col gap-2 px-6 py-5 transition hover:bg-[var(--surface)] sm:flex-row sm:items-start sm:justify-between sm:px-8"
-                >
-                  <div className="min-w-0">
-                    <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-                      <span className="text-base font-semibold text-[var(--ink)]">
-                        {site.name}
-                      </span>
-                      <span className="text-xs text-[var(--muted)]">
-                        {pricingLabel(site.pricing)}
-                        {Number.isFinite(site.rating)
-                          ? ` · ${site.rating.toFixed(1)}★`
-                          : null}
-                      </span>
-                    </div>
-                    <p className="mt-1 text-sm leading-relaxed text-[var(--muted)]">
-                      {site.description}
-                    </p>
-                    <p className="mt-2 text-xs text-[var(--muted)]">
-                      {site.categoryName}
-                      {site.tags.length > 0
-                        ? ` · ${site.tags.slice(0, 3).join(" · ")}`
-                        : null}
-                    </p>
-                  </div>
-                  <span className="shrink-0 text-sm font-medium text-[var(--accent)]">
-                    Open →
+          <Link href="/categories" className="btn btn-accent h-12 px-6">
+            Browse the catalog
+          </Link>
+        ) : null}
+      </PageHead>
+
+      {bookmarks.length === 0 ? (
+        <p className="border-t border-[var(--hair)] py-16 text-[var(--muted)]">
+          Nothing saved yet. Open any site page and tap Bookmark.
+        </p>
+      ) : (
+        <ul>
+          {bookmarks.map((site, index) => (
+            <li key={site.id} className="border-t border-[var(--hair)]">
+              <Link
+                href={`/site/${site.slug}`}
+                className="row flex items-start gap-5 rounded-[var(--r-m)] px-3 py-6 sm:gap-8 sm:px-4"
+              >
+                <span className="numeral row-index mt-1 w-8 shrink-0 text-base text-[var(--muted)]">
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="headline block text-2xl text-[var(--ink)] sm:text-3xl">
+                    {site.name}
                   </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+                  <span className="copy mt-2 block max-w-2xl text-[var(--muted)]">
+                    {site.description}
+                  </span>
+                  <span className="label mt-3 block">
+                    {pricingLabel(site.pricing)} / {site.categoryName}
+                  </span>
+                </span>
+                <span className="numeral shrink-0 text-3xl text-[var(--ink)] sm:text-4xl">
+                  {site.rating.toFixed(1)}
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
     </main>
   );
 }

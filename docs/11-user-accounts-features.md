@@ -1,8 +1,21 @@
-# User Accounts & Google Sign-In — Feature Spec
+# User Accounts & Google Sign-In, Feature Spec
 
-**Status:** MVP+ shipped — Google sign-in, bookmarks, saved searches, `/me` hub. Remaining features still backlog.  
+**Status:** **Deferred.** The server code (Auth.js, bookmarks, saved searches, `/me`) is built and still in the tree, but sign-in is not exposed in the UI, `/signin` says so plainly. It stays off until transactional email exists for confirmation and recovery. Community voting shipped *without* accounts instead; see [06-ux-design.md](./06-ux-design.md).  
 **Auth provider:** Auth.js (NextAuth v5) + Google (`AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET`, or `GOOGLE_CLIENT_*`)  
-**Principle:** Search and browse stay fully public. Sign-in unlocks *save, sync, and personalize* — never gates finding a site.
+**Principle:** Search and browse stay fully public. Sign-in unlocks *save, sync, and personalize*, never gates finding a site.
+
+## What to restore when email lands
+
+The backend is untouched and working. Two UI files were deleted when sign-in was switched off, recoverable from git history:
+
+| File | Was |
+|---|---|
+| `src/features/auth/AccountMenu.tsx` | Sign in button and avatar in the header |
+| `src/features/search/SaveSearchButton.tsx` | Save this search, on `/search/[slug]` |
+
+Still in the tree and ready: `src/auth.ts`, `src/app/actions/auth.ts`, `src/app/actions/bookmarks.ts`, `src/app/actions/saved-searches.ts`, `/me`, `/me/bookmarks`, `/me/searches`, and the `users`, `bookmarks`, `saved_searches` tables.
+
+`/signin` currently renders an explainer. Replace it with the real form.
 
 ---
 
@@ -27,7 +40,7 @@
 |---|---|
 | `users` | `id`, `google_sub` (unique), `email`, `name`, `avatar_url`, `created_at`, `last_seen_at` |
 | Session | Auth.js JWT session (no DB `sessions` table in MVP) |
-| Feature tables | FK → `users.id` — shipped: `bookmarks`, `saved_searches`; backlog: lists, notes, … |
+| Feature tables | FK → `users.id`, shipped: `bookmarks`, `saved_searches`; backlog: lists, notes, … |
 
 Anonymous usage continues unchanged. On first Google sign-in, upsert `users` by `google_sub`.
 
@@ -37,31 +50,31 @@ Anonymous usage continues unchanged. On first Google sign-in, upsert `users` by 
 
 Prioritized by user value × build cost × fit with "task → best site."
 
-### P0 — Must ship with accounts (MVP accounts)
+### P0, Must ship with accounts (MVP accounts)
 
 #### 3.1 Bookmarks (Favorites)
 
 Save a site for later. Primary reason to add Google Client ID.
 
 - Bookmark / unbookmark from site detail, search result row, collection cards
-- `/me/bookmarks` — list with search/filter (name, category, pricing)
+- `/me/bookmarks`, list with search/filter (name, category, pricing)
 - Sync across devices once signed in
 - Optional: folders or tags later; MVP = flat list + sort (recent / name / rating)
 
 **Data:** `bookmarks (user_id, site_id, created_at)` unique `(user_id, site_id)`
 
-#### 3.2 Saved searches — shipped
+#### 3.2 Saved searches, shipped
 
 Save a query ("compress a pdf", "notion alternatives") and reopen it later.
 
 - Save from `/search/[slug]` (signed-in)
-- `/me/searches` — reopen → current ranking (not a frozen snapshot)
+- `/me/searches`, reopen → current ranking (not a frozen snapshot)
 - Unique per user + slug
 - Optional later: email/push when catalog gets a stronger match
 
 **Data:** `saved_searches (id, user_id, query, slug, created_at)` unique `(user_id, slug)`
 
-#### 3.3 Account home (`/me`) — shipped (thin)
+#### 3.3 Account home (`/me`), shipped (thin)
 
 - Links to bookmarks + saved searches
 - Sign out
@@ -71,11 +84,11 @@ One job: "stuff I saved."
 
 ---
 
-### P1 — High value, ship soon after bookmarks
+### P1, High value, ship soon after bookmarks
 
 #### 3.4 Personal lists (private collections)
 
-User-owned lists ("Freelance stack", "Student freebies") — distinct from editorial collections.
+User-owned lists ("Freelance stack", "Student freebies"), distinct from editorial collections.
 
 - Create / rename / delete list
 - Add/remove sites
@@ -105,11 +118,11 @@ Signed-in submit pre-fills email; `/me/submissions` shows pending / approved / r
 
 ---
 
-### P2 — Personalization & power features
+### P2, Personalization & power features
 
 #### 3.8 Compare shortlist
 
-Pin 2–4 sites → `/me/compare` or overlay with pros/cons side by side.
+Pin 2-4 sites → `/me/compare` or overlay with pros/cons side by side.
 
 - Natural extension of bookmarks
 - Great for "Notion vs Coda vs Affine" decisions
@@ -139,7 +152,7 @@ Last N sites / searches (server-side if signed in; localStorage if anonymous).
 
 #### 3.12 Soft signals (votes / helpful)
 
-Signed-in upvote "this helped" on a result — feeds ranking later, never replaces editor score in v1.
+Signed-in upvote "this helped" on a result, feeds ranking later, never replaces editor score in v1.
 
 - Requires abuse controls
 - Ship only after we have enough traffic to learn from
@@ -153,12 +166,12 @@ Based on bookmarks + clicks: suggest related sites / collections.
 
 ---
 
-### P3 — Nice-to-have / later platform
+### P3, Nice-to-have / later platform
 
 | Feature | Notes |
 |---|---|
 | Browser extension sync | Extension uses same Google session / API token; bookmarks sync |
-| Public profile | Optional handle + public lists — easy to become social clutter; keep optional |
+| Public profile | Optional handle + public lists, easy to become social clutter; keep optional |
 | Import bookmarks from browser | CSV/HTML import into personal lists |
 | Team / shared workspace | Overkill until B2B demand |
 | "Replace my stack" wizard | Multi-step questionnaire → recommendations; needs solid catalog first |
@@ -182,7 +195,7 @@ Based on bookmarks + clicks: suggest related sites / collections.
 1. **Guest-first:** Full search, detail, collections, submit without login.
 2. **Sign-in at intent:** Bookmark icon → if guest, modal "Save with Google" then complete action.
 3. **No membership banners** competing with the answer.
-4. **One primary CTA after login:** "View bookmarks" / toast "Saved" — not a tour.
+4. **One primary CTA after login:** "View bookmarks" / toast "Saved", not a tour.
 5. **Account menu:** Avatar → Bookmarks, Saved searches, Lists, Submissions, Sign out.
 6. **Delete account:** Export optional later; hard delete of user row + cascades required for trust.
 
@@ -202,7 +215,7 @@ Based on bookmarks + clicks: suggest related sites / collections.
 | H | Follow / digest email | Email provider |
 | I | Soft votes + light personalization | Traffic + ranking pipeline |
 
-Map to roadmap as **Phase 7 — Accounts & personal features** (after soft launch / Phase 5–6), unless bookmarks are needed earlier for retention experiments.
+Map to roadmap as **Phase 7, Accounts & personal features** (after soft launch / Phase 5-6), unless bookmarks are needed earlier for retention experiments.
 
 ---
 

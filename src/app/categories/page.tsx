@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { PageHead } from "@/components/ui/PageHead";
+import { accentStyle } from "@/lib/design/accent";
 import { listCatalogCategories } from "@/lib/services/catalog";
 
 export const metadata: Metadata = {
@@ -10,44 +12,49 @@ export const metadata: Metadata = {
 
 export default async function CategoriesPage() {
   const categories = await listCatalogCategories();
+  const total = categories.reduce(
+    (sum, category) => sum + category.siteCount,
+    0,
+  );
 
   return (
-    <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-5 pb-10 pt-2 sm:px-8">
-      <section className="panel px-5 py-8 sm:px-10 sm:py-10">
-        <h1 className="font-[family-name:var(--font-display)] text-3xl tracking-tight text-[var(--ink)] sm:text-5xl">
-          Categories
-        </h1>
-        <p className="mt-3 max-w-xl text-[var(--muted)]">
-          Browse the directory by task area when you know the kind of tool you need.
-        </p>
-      </section>
+    <main className="shell flex flex-1 flex-col pb-10">
+      <PageHead
+        label="Catalog"
+        labelHref="/"
+        title="Categories"
+        lead="Browse by task area when you already know the kind of tool you need."
+        stat={{ value: String(total), caption: "Sites total" }}
+      />
 
-      <section className="panel overflow-hidden">
-        <ul className="divide-y divide-[var(--border)]">
-          {categories.map((category) => (
-            <li key={category.slug}>
-              <Link
-                href={`/categories/${category.slug}`}
-                className="flex flex-col gap-1 px-6 py-5 transition hover:bg-[var(--surface)] sm:flex-row sm:items-baseline sm:justify-between sm:px-8"
-              >
-                <span className="min-w-0">
-                  <span className="block text-base font-medium text-[var(--ink)]">
-                    {category.name}
+      <ul className="stagger stagger-scroll">
+        {categories.map((category, index) => (
+          <li
+            key={category.slug}
+            style={{ ...accentStyle(category.slug), ["--i" as string]: index }}
+            className="border-t border-[var(--hair)]"
+          >
+            <Link
+              href={`/categories/${category.slug}`}
+              className="row flex items-center gap-6 rounded-[var(--r-m)] px-3 py-7 sm:px-4"
+            >
+              <span className="min-w-0 flex-1">
+                <span className="headline block text-3xl text-[var(--ink)] sm:text-5xl">
+                  {category.name}
+                </span>
+                {category.description ? (
+                  <span className="copy mt-2 block max-w-xl text-[var(--muted)]">
+                    {category.description}
                   </span>
-                  {category.description ? (
-                    <span className="mt-1 block text-sm text-[var(--muted)]">
-                      {category.description}
-                    </span>
-                  ) : null}
-                </span>
-                <span className="shrink-0 text-sm text-[var(--muted)]">
-                  {category.siteCount} sites
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </section>
+                ) : null}
+              </span>
+              <span className="numeral row-index shrink-0 text-4xl text-[var(--muted)] sm:text-6xl">
+                {String(category.siteCount).padStart(2, "0")}
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
     </main>
   );
 }

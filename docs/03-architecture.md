@@ -11,7 +11,8 @@
 | ORM | Drizzle ORM + `postgres.js` | Thin, typed, migrations (`prepare: false` for pooler) |
 | Embeddings | OpenAI `text-embedding-3-small` (1536) | Semantic ranking |
 | LLM fallback | OpenAI `gpt-4o-mini` | RAG re-rank of catalog candidates on weak matches |
-| End-user auth | **Auth.js (NextAuth v5)** + Google | Bookmarks + saved searches; guest search ungated |
+| End-user auth | **Auth.js (NextAuth v5)** + Google | Built but switched off, see [11](./11-user-accounts-features.md) |
+| Community votes | Signed anonymous cookie, no third party | Verdicts without accounts, see [04](./04-data-model.md) |
 | Admin auth | Password + signed httpOnly cookie | Separate from Google users |
 | File storage | Cloudflare R2 (later) | Screenshots |
 | Hosting | Vercel | Preview + production |
@@ -38,21 +39,27 @@
 
 ```
 src/
-  app/                  # Routes + thin handlers (/me, /api/auth, …)
-  auth.ts               # Auth.js (Google) config
-  components/           # Presentational (home atlas, header, …)
+  app/                  # Routes, thin handlers, loading skeletons
+  auth.ts               # Auth.js (Google) config, currently unreachable
+  components/
+    home/               # Hero, collections, picks, category chips, submit band
+    theme/              # Provider and the light/dark switch
+    ui/                 # Disclosure, RevealList, PageHead, SectionHead
   features/
-    search/             # Search UI, SaveSearchButton
-    bookmarks/          # BookmarkButton
-    auth/               # AccountMenu
-    sites/              # Detail, cards, lists
+    search/             # Search box, results, outbound link tracking
+    sites/              # Cards and lists
+    votes/              # The community verdict band
+    bookmarks/          # BookmarkButton, dormant with accounts
     submissions/        # Public submit form
+    admin/              # Admin site form
   lib/
     db/                 # Drizzle client + schema
+    design/             # Accent palette and per-entity colour assignment
+    votes/              # Anonymous voter identity, cookies and hashing
     repositories/       # Data access only
-    services/           # Business logic (search, RAG, bookmarks, …)
+    services/           # Business logic (search, RAG, votes, catalog, …)
     validators/         # Zod schemas
-    utils/              # Pure helpers (rate-limit, slugify, …)
+    utils/              # Pure helpers (rate limit, slugify, …)
     seo/                # JSON-LD + absolute URLs
 ```
 
@@ -66,24 +73,29 @@ src/
 
 ### 4.1 Search
 
-1. Client debounces query (250–350ms); `POST /api/search` (rate-limited).
+1. Client debounces query (250-350ms); `POST /api/search` (rate-limited).
 2. Embed query → pgvector cosine similarity.
 3. Top ≥ `SEARCH_CONFIDENCE_THRESHOLD` (default 0.78) → curated results.
 4. Else → RAG (`gpt-4o-mini`) over loose candidates → `source: "ai_inferred"`.
 5. Upsert `search_pages` hit; auto-`is_indexable` after 5 solid hits.
 
-### 4.2 Accounts
+### 4.2 Community verdicts
 
-1. Google sign-in via Auth.js → upsert `users` by `google_sub`.
-2. Bookmark site → `bookmarks` row; list at `/me/bookmarks`.
-3. Save search → `saved_searches`; list at `/me/searches`.
-4. `/me/*` requires session; catalog/search stay public.
+1. Visitor clicks through to a site. `POST /api/click` logs it **and** issues two HttpOnly cookies: a signed voter token and a short list of visited site fingerprints.
+2. Back on the site page, the server reads those cookies. Only a device that actually visited sees the question.
+3. `POST /api/vote` re-checks eligibility, rate limits by IP, then upserts one row per (site, voter).
+4. Stored identity is `HMAC(secret, token + siteId)`, so rows cannot be joined into a browsing history.
+5. Under three verdicts the page shows the editor score instead. See [06](./06-ux-design.md) for the reasoning.
 
-### 4.3 Submission
+### 4.3 Accounts (built, switched off)
+
+Auth.js, `users`, `bookmarks`, `saved_searches` and `/me/*` all exist and work. The UI entry points are removed and `/signin` explains why. Turning it back on is a UI job, not a backend one.
+
+### 4.4 Submission
 
 1. Public form → validate → duplicate URL check (catalog + pending/approved) → insert `submissions`.
 2. Rate limit: 8 submissions / IP / hour.
-3. Admin reviews → approve/reject; create site via admin UI.
+3. Admin approves. That **creates a draft site** carrying everything the submitter typed, and lands the admin on its edit page to add pros, cons and a score before publishing. Approve is a publish step, not a status flag.
 
 ## 5. Environments
 
@@ -104,8 +116,9 @@ OPENAI_CHAT_MODEL=gpt-4o-mini
 ADMIN_PASSWORD=
 ADMIN_SESSION_SECRET=
 AUTH_SECRET=
-AUTH_GOOGLE_ID=
-AUTH_GOOGLE_SECRET=
+AUTH_GOOGLE_ID=                         # only needed when accounts are switched on
+AUTH_GOOGLE_SECRET=                     # only needed when accounts are switched on
+VOTE_SECRET=                            # optional; falls back to AUTH_SECRET, then ADMIN_SESSION_SECRET
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 SEARCH_CONFIDENCE_THRESHOLD=0.78
 ```
@@ -117,10 +130,21 @@ Google redirect: `{SITE_URL}/api/auth/callback/google`
 - Cache query embeddings in `query_cache`.
 - RAG only when top similarity &lt; threshold.
 - Debounce client search; min 2 chars.
-- Rate-limit `/api/search` (60/min/IP) and `/api/submit` (8/hour/IP).
+- Rate limit `/api/search` (60/min/IP), `/api/submit` (8/hour/IP), `/api/vote` (20/min/IP).
 - Duplicate URL rejection on submit.
 
-## 8. Non-Goals (still)
+## 8. Failure behaviour
+
+The catalog must render even when the parts around it are missing.
+
+| Missing | What happens |
+|---|---|
+| `DATABASE_URL` | Catalog falls back to the seed data in `src/data/seed`. Search returns nothing |
+| `site_votes` table (pre-migration) | Every vote read is wrapped and returns empty. Pages show editor scores |
+| `OPENAI_API_KEY` | No embeddings and no RAG. Curated and keyword paths still answer |
+| Click logging fails | Never blocks the outbound navigation |
+
+## 9. Non-Goals (still)
 
 - Separate vector DB (Pinecone/Weaviate)
 - Supabase Auth / BaaS client SDK

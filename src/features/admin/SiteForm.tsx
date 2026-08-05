@@ -114,7 +114,7 @@ export function SiteForm({
         </Field>
       </div>
 
-      <Field label="Rating (1–5)" htmlFor="rating">
+      <Field label="Rating (1 to 5)" htmlFor="rating">
         <input
           id="rating"
           name="rating"
@@ -161,7 +161,7 @@ export function SiteForm({
 
       <button
         type="submit"
-        className="rounded-lg bg-[var(--accent)] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--accent-strong)]"
+        className="rounded-[var(--r-s)] bg-[var(--accent)] px-5 py-2.5 text-sm font-semibold text-[var(--on-accent)] transition hover:opacity-90"
       >
         {submitLabel}
       </button>
@@ -170,7 +170,7 @@ export function SiteForm({
 }
 
 const inputClass =
-  "mt-2 w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2.5 text-[var(--ink)] outline-none focus:border-[var(--accent)]/55";
+  "mt-2 w-full rounded-[var(--r-s)] border border-[var(--border)] bg-[var(--surface)] px-3 py-2.5 text-[var(--ink)] outline-none focus:shadow-[inset_0_0_0_2px_var(--accent)]";
 
 function Field({
   label,

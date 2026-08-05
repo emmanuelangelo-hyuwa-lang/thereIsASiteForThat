@@ -1,45 +1,47 @@
 import Link from "next/link";
 
+import { SectionHead } from "@/components/ui/SectionHead";
 import type { CatalogCategory } from "@/lib/catalog/types";
+import { accentStyle } from "@/lib/design/accent";
 
 type CategoryMapProps = {
   categories: CatalogCategory[];
 };
 
+/**
+ * The home page only needs to prove the catalog is organised, not enumerate
+ * it. Six chips and a way through; the full index is its own page.
+ */
 export function CategoryMap({ categories }: CategoryMapProps) {
   if (categories.length === 0) {
     return null;
   }
 
-  return (
-    <section className="mx-auto w-full max-w-6xl px-5 sm:px-8">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
-        <div className="min-w-0">
-          <h2 className="font-[family-name:var(--font-display)] text-3xl tracking-tight text-[var(--ink)] sm:text-4xl">
-            Browse by territory
-          </h2>
-          <p className="mt-2 max-w-xl text-sm leading-relaxed text-[var(--muted)] sm:text-base">
-            A map of the catalog — PDF, design, writing, learning, and the rest of the useful web.
-          </p>
-        </div>
-        <Link
-          href="/categories"
-          className="shrink-0 text-sm font-medium text-[var(--accent)] transition hover:text-[var(--accent-strong)]"
-        >
-          All categories →
-        </Link>
-      </div>
+  const busiest = [...categories]
+    .sort((a, b) => b.siteCount - a.siteCount)
+    .slice(0, 6);
 
-      <ul className="mt-8 grid grid-cols-1 gap-x-6 gap-y-1 border-t border-[var(--border)] pt-2 min-[380px]:grid-cols-2 sm:grid-cols-3 md:grid-cols-4">
-        {categories.map((category) => (
-          <li key={category.slug} className="border-b border-[var(--border)]">
+  return (
+    <section id="categories" className="shell reveal">
+      <SectionHead
+        label="Territory"
+        title="Categories"
+        count={categories.length}
+        href="/categories"
+        hrefLabel="All categories"
+      />
+
+      <ul className="stagger stagger-scroll flex flex-wrap gap-2">
+        {busiest.map((category, index) => (
+          <li key={category.slug} style={{ ["--i" as string]: index }}>
             <Link
               href={`/categories/${category.slug}`}
-              className="flex items-baseline justify-between gap-3 py-3.5 text-sm transition hover:text-[var(--accent)]"
+              style={accentStyle(category.slug)}
+              className="chip h-11 gap-3 px-5 text-sm"
             >
-              <span className="min-w-0 text-[var(--ink)]">{category.name}</span>
-              <span className="shrink-0 tabular-nums text-[var(--muted)]">
-                {category.siteCount}
+              {category.name}
+              <span className="numeral text-xs opacity-60">
+                {String(category.siteCount).padStart(2, "0")}
               </span>
             </Link>
           </li>

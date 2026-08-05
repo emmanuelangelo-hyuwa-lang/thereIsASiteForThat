@@ -1,8 +1,10 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { PageHead } from "@/components/ui/PageHead";
 import { SiteList } from "@/features/sites/SiteList";
+import { accentStyle } from "@/lib/design/accent";
 import { listCatalogSitesByCategory } from "@/lib/services/catalog";
+import { listVerdicts } from "@/lib/services/votes";
 
 type CategoryPageProps = {
   params: Promise<{ slug: string }>;
@@ -27,32 +29,26 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     notFound();
   }
 
+  const verdicts = await listVerdicts(data.sites.map((site) => site.id));
+
   return (
-    <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-5 pb-10 pt-2 sm:px-8">
-      <section className="panel px-5 py-8 sm:px-10 sm:py-10">
-        <p className="text-xs font-medium uppercase tracking-[0.14em] text-[var(--muted)]">
-          Category
-        </p>
-        <h1 className="mt-3 break-words font-[family-name:var(--font-display)] text-3xl tracking-tight text-[var(--ink)] sm:text-5xl">
-          {data.category.name}
-        </h1>
-        {data.category.description ? (
-          <p className="mt-4 max-w-xl text-[var(--muted)]">
-            {data.category.description}
-          </p>
-        ) : null}
-      </section>
-
-      <section className="panel overflow-hidden">
-        <SiteList sites={data.sites} showCategory={false} />
-      </section>
-
-      <Link
-        href="/categories"
-        className="text-sm font-medium text-[var(--accent)] transition hover:text-[var(--accent-strong)]"
-      >
-        ← All categories
-      </Link>
+    <main style={accentStyle(slug)} className="shell flex flex-1 flex-col pb-10">
+      <PageHead
+        label="Categories"
+        labelHref="/categories"
+        title={data.category.name}
+        lead={data.category.description}
+        stat={{
+          value: String(data.sites.length).padStart(2, "0"),
+          caption: "Sites",
+        }}
+      />
+      <SiteList
+        sites={data.sites}
+        showCategory={false}
+        verdicts={verdicts}
+        emptyMessage="No published sites in this category yet."
+      />
     </main>
   );
 }

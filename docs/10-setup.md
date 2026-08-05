@@ -8,9 +8,10 @@ What to configure for the stack we **actually use**:
 | ORM | Drizzle + `postgres.js` |
 | AI | OpenAI embeddings + chat RAG |
 | Admin | Password + signed cookie |
-| End users | **Auth.js + Google OAuth** |
+| End users | **Auth.js + Google OAuth**, switched off, see [11](./11-user-accounts-features.md) |
+| Voters | Anonymous signed cookie, nothing to configure |
 
-We do **not** use Supabase Auth or the Supabase JS client — only the Postgres connection string.
+We do **not** use Supabase Auth or the Supabase JS client, only the Postgres connection string.
 
 ---
 
@@ -59,7 +60,7 @@ Only if you prefer local over Supabase (not required for this project):
 sudo apt update
 sudo apt install -y postgresql postgresql-contrib postgresql-16-pgvector
 sudo service postgresql start
-# create user/db + enable vector + pg_trgm — see earlier git history or Postgres docs
+# create user/db + enable vector + pg_trgm, see earlier git history or Postgres docs
 DATABASE_URL=postgresql://tias:tias@localhost:5432/thereisasiteforthat
 ```
 
@@ -79,8 +80,9 @@ OPENAI_API_KEY=sk-...
 OPENAI_EMBEDDING_MODEL=text-embedding-3-small
 OPENAI_CHAT_MODEL=gpt-4o-mini
 AUTH_SECRET=...                  # openssl rand -hex 32
-AUTH_GOOGLE_ID=...
-AUTH_GOOGLE_SECRET=...
+AUTH_GOOGLE_ID=...        # only when you switch accounts back on
+AUTH_GOOGLE_SECRET=...    # only when you switch accounts back on
+VOTE_SECRET=...           # optional; falls back to AUTH_SECRET, then ADMIN_SESSION_SECRET
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 SEARCH_CONFIDENCE_THRESHOLD=0.78
 ```
@@ -94,7 +96,7 @@ http://localhost:3000/api/auth/callback/google
 https://thereisasiteforthat.com/api/auth/callback/google
 ```
 
-Without Google credentials, the rest of the app (search, admin, browse) still works; Sign in / bookmarks / saved searches will not.
+Google credentials are **not needed right now**. Sign-in is switched off, so `/signin` is an explainer page. Search, browse, submit, admin and voting all work without them.
 
 ---
 
@@ -103,7 +105,7 @@ Without Google credentials, the rest of the app (search, admin, browse) still wo
 Migrations in repo: `drizzle/0000_*.sql`, `0001_*.sql` (users/bookmarks), `0002_*.sql` (saved_searches).
 
 ```bash
-npm run db:migrate
+npm run db:migrate    # includes site_votes, added for community verdicts
 npm run db:seed
 npm run db:embed      # needs OPENAI_API_KEY
 npm run dev
@@ -114,9 +116,21 @@ Smoke checks:
 1. Homepage instant search (≥2 chars) with confidence %  
 2. Enter → `/search/{slug}`  
 3. Visit site → `POST /api/click` then outbound  
-4. Google Sign in → bookmark a site → `/me/bookmarks`  
+4. Click through to a site, come back, and answer "Did it solve it?"  
 5. Save a search → `/me/searches`  
 6. `/admin/login` with `ADMIN_PASSWORD`
+
+---
+
+## 3b. Upgrading a deployment that predates verdicts
+
+One additive migration, `drizzle/0003_brown_blackheart.sql`, creates `site_votes`. Nothing existing is altered.
+
+```bash
+npm run db:migrate
+```
+
+You can deploy the code before running it. Every vote read is wrapped, so an un-migrated database renders the catalog on editor scores instead of crashing.
 
 ---
 
@@ -125,7 +139,8 @@ Smoke checks:
 | Path | Auth |
 |---|---|
 | `/admin/*` | Password cookie |
-| `/me/*`, bookmarks, saved searches | Google (Auth.js) |
+| `/me/*`, bookmarks, saved searches | Google (Auth.js), unreachable while sign-in is off |
+| Voting on a site | Nothing. A signed cookie issued when you click through |
 | Search, browse, submit | Public (submit rate-limited) |
 
 ---
@@ -134,7 +149,7 @@ Smoke checks:
 
 1. Push to GitHub → import project  
 2. Set env: `DATABASE_URL` (pooler), `OPENAI_*`, `ADMIN_*`, `AUTH_*`, `NEXT_PUBLIC_SITE_URL=https://thereisasiteforthat.com`  
-3. Add production Google redirect URI  
+3. Run `npm run db:migrate` against production so `site_votes` exists  
 4. Run migrate/seed/embed against the **prod** DB if it is not the same Supabase project as local  
 
 ---
@@ -142,9 +157,9 @@ Smoke checks:
 ## Done when
 
 - [ ] Supabase: `vector` + `pg_trgm` enabled  
-- [ ] `.env`: DB, admin, OpenAI, Auth.js Google  
+- [ ] `.env`: DB, admin, OpenAI  
 - [ ] `db:migrate` / `db:seed` / `db:embed` succeed  
 - [ ] Admin login works  
 - [ ] Search returns ranked results  
-- [ ] Google sign-in + bookmark + save search work  
-- [ ] (Prod) Vercel env + Google redirect + site URL set  
+- [ ] Voting works: visit a site, return, answer the question  
+- [ ] (Prod) Vercel env + site URL set  

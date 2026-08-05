@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { PageHead } from "@/components/ui/PageHead";
+import { accentStyle } from "@/lib/design/accent";
 import { listCatalogCollections } from "@/lib/services/catalog";
 
 export const metadata: Metadata = {
@@ -12,40 +14,40 @@ export default async function CollectionsPage() {
   const collections = await listCatalogCollections();
 
   return (
-    <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-5 pb-10 pt-2 sm:px-8">
-      <section className="panel px-5 py-8 sm:px-10 sm:py-10">
-        <h1 className="font-[family-name:var(--font-display)] text-3xl tracking-tight text-[var(--ink)] sm:text-5xl">
-          Collections
-        </h1>
-        <p className="mt-3 max-w-xl text-[var(--muted)]">
-          Hand-picked lists for common needs — scan, compare, then visit.
-        </p>
-      </section>
+    <main className="shell flex flex-1 flex-col pb-10">
+      <PageHead
+        label="Catalog"
+        labelHref="/"
+        title="Collections"
+        lead="Handpicked lists for common needs. Scan, compare, then visit."
+        stat={{
+          value: String(collections.length).padStart(2, "0"),
+          caption: "Collections",
+        }}
+      />
 
-      <section className="panel overflow-hidden">
-        <ul className="divide-y divide-[var(--border)]">
-          {collections.map((collection) => (
-            <li key={collection.slug}>
-              <Link
-                href={`/collections/${collection.slug}`}
-                className="flex flex-col gap-1 px-6 py-5 transition hover:bg-[var(--surface)] sm:flex-row sm:items-baseline sm:justify-between sm:px-8"
-              >
-                <span className="min-w-0">
-                  <span className="block text-base font-medium text-[var(--ink)]">
-                    {collection.name}
-                  </span>
-                  <span className="mt-1 block text-sm text-[var(--muted)]">
-                    {collection.description}
-                  </span>
-                </span>
-                <span className="shrink-0 text-sm text-[var(--muted)]">
-                  {collection.siteCount} sites
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </section>
+      <ul className="stagger-scroll stagger grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {collections.map((collection, index) => (
+          <li key={collection.slug} style={{ ["--i" as string]: index }}>
+            <Link
+              href={`/collections/${collection.slug}`}
+              style={accentStyle(collection.slug)}
+              className="flood press relative isolate flex h-full min-h-[15rem] flex-col justify-between overflow-hidden rounded-[var(--r-l)] p-7"
+            >
+              <span className="flood-wipe -z-10" aria-hidden="true" />
+              <span className="numeral flood-accent text-7xl">
+                {String(collection.siteCount).padStart(2, "0")}
+              </span>
+              <div>
+                <h2 className="headline text-3xl">{collection.name}</h2>
+                <p className="copy flood-muted mt-3 text-sm">
+                  {collection.description}
+                </p>
+              </div>
+            </Link>
+          </li>
+        ))}
+      </ul>
     </main>
   );
 }
