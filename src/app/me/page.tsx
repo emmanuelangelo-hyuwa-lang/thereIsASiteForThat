@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { signOutAction } from "@/app/actions/auth";
+import { PageHead } from "@/components/ui/PageHead";
 import { auth } from "@/auth";
 import {
   getCurrentUserBookmarkCount,
@@ -24,90 +25,97 @@ export default async function MePage() {
   const recentSearchThree = recentSearches.slice(0, 3);
 
   return (
-    <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-5 pb-10 pt-2 sm:px-8">
-      <section className="panel px-5 py-8 sm:px-10 sm:py-10">
-        <p className="text-xs font-medium uppercase tracking-[0.14em] text-[var(--muted)]">
-          Your account
-        </p>
-        <h1 className="mt-3 break-words font-[family-name:var(--font-display)] text-3xl tracking-tight text-[var(--ink)] sm:text-5xl">
-          {session?.user?.name ?? "Saved stuff"}
-        </h1>
-        <p className="mt-4 max-w-xl text-[var(--muted)]">
-          Bookmarks and saved searches sync across devices. Search stays public.
-        </p>
-        <div className="mt-8 flex flex-wrap gap-3">
-          <Link
-            href="/me/bookmarks"
-            className="inline-flex rounded-lg bg-[var(--accent)] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--accent-strong)]"
-          >
-            Bookmarks ({bookmarkCount})
-          </Link>
-          <Link
-            href="/me/searches"
-            className="inline-flex rounded-lg border border-[var(--border)] px-5 py-2.5 text-sm font-medium text-[var(--ink)] transition hover:border-[var(--accent)]/40"
-          >
-            Saved searches ({searchCount})
-          </Link>
-          <form action={signOutAction}>
-            <button
-              type="submit"
-              className="inline-flex rounded-lg border border-[var(--border)] px-5 py-2.5 text-sm font-medium text-[var(--ink)] transition hover:border-[var(--accent)]/40"
-            >
-              Sign out
-            </button>
-          </form>
-        </div>
-      </section>
+    <main className="shell flex flex-1 flex-col pb-10">
+      <PageHead
+        label="Account"
+        labelHref="/"
+        title={session?.user?.name ?? "Your shelf"}
+        lead="Bookmarks and saved searches sync across devices. Search stays public."
+      >
+        <form action={signOutAction}>
+          <button type="submit" className="btn btn-line h-12 px-6">
+            Sign out
+          </button>
+        </form>
+      </PageHead>
 
-      <section className="panel overflow-hidden">
-        <div className="border-b border-[var(--border)] px-6 py-4 sm:px-8">
-          <h2 className="text-sm font-medium text-[var(--ink)]">Recent bookmarks</h2>
-        </div>
-        {recentThree.length === 0 ? (
-          <p className="px-6 py-10 text-sm text-[var(--muted)] sm:px-8">
-            No bookmarks yet. Open any site page and tap Bookmark.
-          </p>
-        ) : (
-          <ul className="divide-y divide-[var(--border)]">
+      <div className="grid gap-3 sm:grid-cols-2">
+        <ShelfTile
+          href="/me/bookmarks"
+          label="Bookmarks"
+          value={bookmarkCount}
+          caption={
+            recentThree.length === 0
+              ? "Open any site and tap Bookmark"
+              : recentThree.map((site) => site.name).join(" / ")
+          }
+        />
+        <ShelfTile
+          href="/me/searches"
+          label="Saved searches"
+          value={searchCount}
+          caption={
+            recentSearchThree.length === 0
+              ? "Save a query from any results page"
+              : recentSearchThree.map((item) => item.query).join(" / ")
+          }
+        />
+      </div>
+
+      {recentThree.length > 0 ? (
+        <section className="mt-20">
+          <p className="label pb-6">Recently bookmarked</p>
+          <ul>
             {recentThree.map((site) => (
-              <li key={site.id}>
+              <li key={site.id} className="border-t border-[var(--hair)]">
                 <Link
                   href={`/site/${site.slug}`}
-                  className="flex flex-col gap-1 px-6 py-5 transition hover:bg-[var(--surface)] sm:px-8"
+                  className="row flex items-center justify-between gap-6 rounded-[var(--r-m)] px-3 py-6 sm:px-4"
                 >
-                  <span className="font-semibold text-[var(--ink)]">{site.name}</span>
-                  <span className="text-sm text-[var(--muted)]">{site.description}</span>
+                  <span className="min-w-0">
+                    <span className="headline block text-2xl text-[var(--ink)]">
+                      {site.name}
+                    </span>
+                    <span className="copy mt-1.5 block max-w-xl truncate text-[var(--muted)]">
+                      {site.description}
+                    </span>
+                  </span>
+                  <span className="numeral shrink-0 text-2xl text-[var(--ink)]">
+                    {site.rating.toFixed(1)}
+                  </span>
                 </Link>
               </li>
             ))}
           </ul>
-        )}
-      </section>
-
-      <section className="panel overflow-hidden">
-        <div className="border-b border-[var(--border)] px-6 py-4 sm:px-8">
-          <h2 className="text-sm font-medium text-[var(--ink)]">Recent saved searches</h2>
-        </div>
-        {recentSearchThree.length === 0 ? (
-          <p className="px-6 py-10 text-sm text-[var(--muted)] sm:px-8">
-            No saved searches yet. On a results page, tap Save search.
-          </p>
-        ) : (
-          <ul className="divide-y divide-[var(--border)]">
-            {recentSearchThree.map((item) => (
-              <li key={item.id}>
-                <Link
-                  href={`/search/${item.slug}`}
-                  className="flex items-center justify-between gap-4 px-6 py-5 transition hover:bg-[var(--surface)] sm:px-8"
-                >
-                  <span className="font-semibold text-[var(--ink)]">{item.query}</span>
-                  <span className="text-sm text-[var(--accent)]">Open →</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+        </section>
+      ) : null}
     </main>
+  );
+}
+
+function ShelfTile({
+  href,
+  label,
+  value,
+  caption,
+}: {
+  href: string;
+  label: string;
+  value: number;
+  caption: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className="flood press flex min-h-[15rem] flex-col justify-between rounded-[var(--r-l)] p-7"
+    >
+      <span className="numeral text-[4.5rem] leading-none">
+        {String(value).padStart(2, "0")}
+      </span>
+      <span>
+        <span className="headline block text-3xl">{label}</span>
+        <span className="flood-muted mt-2 block truncate text-sm">{caption}</span>
+      </span>
+    </Link>
   );
 }

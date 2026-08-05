@@ -33,7 +33,7 @@ pgvector similarity against published sites
    │
    └── top_score < THRESHOLD ───▶ RAG fallback
                                    │
-                                   ├─ retrieve top-k loose matches (k=8–12)
+                                   ├─ retrieve top-k loose matches (k=8-12)
                                    ├─ LLM ranks / explains / may suggest known gaps
                                    └─ return results with source: "ai_inferred"
 ```
@@ -48,7 +48,7 @@ Tune after seeding with a labeled eval set of ~50 queries.
 
 ## 3. Confidence Score Display
 
-Map cosine similarity `s` (0–1) to percentage:
+Map cosine similarity `s` (0-1) to percentage:
 
 ```
 confidence = round(s * 100)
@@ -59,7 +59,7 @@ UI grouping:
 | Band | Label |
 |---|---|
 | Highest result | **Best match (N%)** |
-| Next 2–4 above threshold | **Other good matches** |
+| Next 2-4 above threshold | **Other good matches** |
 | Below threshold but shown in RAG | **AI-suggested** |
 
 Never invent fake precision (e.g. avoid always showing 99%). Clamp display to real similarity.

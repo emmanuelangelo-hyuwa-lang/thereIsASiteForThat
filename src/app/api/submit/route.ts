@@ -39,7 +39,7 @@ export async function POST(request: Request) {
   } catch (error) {
     if (error instanceof ZodError) {
       return NextResponse.json(
-        fail("Check the form — description must be at least 40 characters and URL valid."),
+        fail("Check the form. The description needs at least 40 characters and the URL must be valid."),
         { status: 400 },
       );
     }

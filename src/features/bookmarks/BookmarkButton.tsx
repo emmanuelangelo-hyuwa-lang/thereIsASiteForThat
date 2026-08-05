@@ -47,10 +47,10 @@ export function BookmarkButton({
       }}
       className={
         className ??
-        "inline-flex rounded-lg border border-[var(--border)] px-5 py-2.5 text-sm font-medium text-[var(--ink)] transition hover:border-[var(--accent)]/40 disabled:opacity-60"
+        "btn btn-line h-14 px-8"
       }
     >
-      {pending ? "Saving…" : bookmarked ? "Bookmarked" : "Bookmark"}
+      {pending ? "Saving" : bookmarked ? "Bookmarked" : "Bookmark"}
     </button>
   );
 }

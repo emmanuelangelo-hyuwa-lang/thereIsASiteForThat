@@ -162,6 +162,39 @@ export const queryCache = pgTable("query_cache", {
     .notNull(),
 });
 
+/**
+ * Community verdicts, the answer to "was this actually the right site?".
+ *
+ * No account required. A voter is an anonymous device token (HMAC'd together
+ * with the site id, so a row cannot be traced back across sites), and a vote is
+ * only accepted from a device that has actually clicked through to the site.
+ * That makes the right to vote something you earn by using the link, which is
+ * far harder to farm than an open star widget.
+ */
+export const siteVotes = pgTable(
+  "site_votes",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    siteId: uuid("site_id")
+      .notNull()
+      .references(() => sites.id, { onDelete: "cascade" }),
+    /** HMAC(secret, deviceToken + siteId), opaque, per-site, not reversible. */
+    voterHash: text("voter_hash").notNull(),
+    /** true = "this solved it", false = "it did not". */
+    solved: boolean("solved").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("site_votes_site_voter_unique").on(table.siteId, table.voterHash),
+    index("site_votes_site_id_idx").on(table.siteId),
+  ],
+);
+
 export const clickEvents = pgTable("click_events", {
   id: uuid("id").defaultRandom().primaryKey(),
   query: text("query"),

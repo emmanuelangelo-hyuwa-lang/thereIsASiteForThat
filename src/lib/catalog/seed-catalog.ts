@@ -9,7 +9,7 @@ import type {
 import { normalizeUrl } from "@/lib/utils/url";
 
 function seedId(prefix: string, slug: string): string {
-  // Deterministic pseudo-ids for seed fallback (not valid UUIDs — click logging skipped).
+  // Deterministic pseudo-ids for seed fallback (not valid UUIDs, click logging skipped).
   return `seed_${prefix}_${slug}`;
 }
 

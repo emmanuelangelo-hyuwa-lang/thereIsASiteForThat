@@ -1,29 +1,41 @@
 import { SiteCard } from "@/features/sites/SiteCard";
 import type { CatalogSite } from "@/lib/catalog/types";
+import type { VerdictMap } from "@/lib/repositories/votes";
 
 type SiteListProps = {
   sites: CatalogSite[];
   emptyMessage?: string;
   showCategory?: boolean;
+  numbered?: boolean;
+  verdicts?: VerdictMap;
 };
 
 export function SiteList({
   sites,
-  emptyMessage = "No sites in this list yet.",
+  emptyMessage = "Nothing here yet.",
   showCategory = true,
+  numbered = true,
+  verdicts,
 }: SiteListProps) {
   if (sites.length === 0) {
     return (
-      <div className="px-6 py-10 text-sm text-[var(--muted)] sm:px-8">
+      <p className="copy border-t border-[var(--hair)] py-16 text-[var(--muted)]">
         {emptyMessage}
-      </div>
+      </p>
     );
   }
 
   return (
-    <ul className="divide-y divide-[var(--border)]">
-      {sites.map((site) => (
-        <SiteCard key={site.id} site={site} showCategory={showCategory} />
+    <ul className="stagger stagger-scroll">
+      {sites.map((site, index) => (
+        <SiteCard
+          key={site.id}
+          site={site}
+          showCategory={showCategory}
+          index={numbered ? index : undefined}
+          position={index}
+          tally={verdicts?.get(site.id)}
+        />
       ))}
     </ul>
   );

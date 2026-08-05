@@ -1,6 +1,6 @@
 # SEO Strategy
 
-Win long-tail intent: "website to do X" — not head terms against Google.
+Win long-tail intent: "website to do X", not head terms against Google.
 
 ---
 
@@ -46,18 +46,18 @@ TAAFT equivalent: `/s/compress-pdf/`. We use clearer `/search/compress-a-pdf`.
 ```
 Title: Best websites to {query} | ThereIsASiteForThat
 H1: {Humanized query}
-Intro: 40–80 words answering the intent
+Intro: 40-80 words answering the intent
 Results: ranked list (server-rendered)
-FAQ (optional later): 2–3 short Q&As
+FAQ (optional later): 2-3 short Q&As
 ```
 
-SSR/SSG required — do not hide results behind client-only fetch for indexable pages.
+SSR/SSG required, do not hide results behind client-only fetch for indexable pages.
 
 ---
 
 ## 5. Content Ops
 
-**Launch set (manual):** ~30 high-intent search pages + 7 collections + 150–300 site pages.
+**Launch set (manual):** ~30 high-intent search pages + 7 collections + 150-300 site pages.
 
 **Ongoing:**
 

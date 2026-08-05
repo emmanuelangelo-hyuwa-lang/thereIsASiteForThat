@@ -1,5 +1,5 @@
-import type { Metadata } from "next";
-import { IBM_Plex_Sans, Instrument_Serif } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Geist, Instrument_Serif } from "next/font/google";
 
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -7,16 +7,21 @@ import { ThemeProvider } from "@/components/theme/ThemeProvider";
 
 import "./globals.css";
 
-const display = Instrument_Serif({
+/**
+ * Two voices. Geist carries the whole interface: headlines, body, numbers and
+ * labels alike. Instrument Serif appears once per page, on the lead line, so a
+ * change of typeface always means a change of intent.
+ */
+const display = Geist({
   variable: "--font-display",
   subsets: ["latin"],
-  weight: ["400"],
 });
 
-const body = IBM_Plex_Sans({
-  variable: "--font-body",
+const text = Instrument_Serif({
+  variable: "--font-text",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400"],
+  style: ["normal", "italic"],
 });
 
 export const metadata: Metadata = {
@@ -28,17 +33,25 @@ export const metadata: Metadata = {
     "Need a website to do X? Here's the best one. Search a task and get the best matching site.",
 };
 
+export const viewport: Viewport = {
+  themeColor: "#08090a",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${display.variable} ${body.variable} h-full`} suppressHydrationWarning>
+    <html
+      lang="en"
+      className={`${display.variable} ${text.variable} h-full`}
+      suppressHydrationWarning
+    >
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{if(localStorage.getItem('theme')==='dark'){document.documentElement.classList.add('dark')}}catch(e){}})();`,
+            __html: `(function(){try{if(localStorage.getItem('theme')==='light'){document.documentElement.classList.add('light')}}catch(e){}})();`,
           }}
         />
       </head>

@@ -4,11 +4,9 @@ import Link from "next/link";
 import { useEffect, useId, useState } from "react";
 import { usePathname } from "next/navigation";
 
-const LINKS = [
-  { href: "/categories", label: "Categories" },
-  { href: "/collections", label: "Collections" },
-  { href: "/submit", label: "Submit" },
-] as const;
+import { accentFor } from "@/lib/design/accent";
+
+import { NAV } from "@/components/NavLinks";
 
 export function MobileNav() {
   const [open, setOpen] = useState(false);
@@ -35,62 +33,66 @@ export function MobileNav() {
   }, [open]);
 
   return (
-    <div className="relative sm:hidden">
+    <div className="md:hidden">
       <button
         type="button"
-        className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--border)] text-[var(--ink)] transition hover:border-[var(--accent)]/40"
+        className="press inline-flex h-11 w-11 items-center justify-center rounded-[var(--r-pill)] bg-[var(--layer)] text-[var(--ink)]"
         aria-expanded={open}
         aria-controls={panelId}
         aria-label={open ? "Close menu" : "Open menu"}
         onClick={() => setOpen((current) => !current)}
       >
-        {open ? <CloseIcon /> : <MenuIcon />}
+        <MenuGlyph open={open} />
       </button>
 
       {open ? (
-        <nav
-          id={panelId}
-          className="absolute right-0 top-[calc(100%+0.5rem)] z-50 w-48 overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--panel)] shadow-lg"
-        >
-          <ul className="divide-y divide-[var(--border)] py-1">
-            {LINKS.map((link) => (
-              <li key={link.href}>
-                <Link
-                  href={link.href}
-                  className="block px-4 py-3 text-sm text-[var(--ink)] transition hover:bg-[var(--surface)]"
-                  onClick={() => setOpen(false)}
-                >
-                  {link.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
+        <>
+          <button
+            type="button"
+            aria-hidden="true"
+            tabIndex={-1}
+            className="fixed inset-0 z-40 cursor-default bg-[var(--paper)]/70"
+            onClick={() => setOpen(false)}
+          />
+          <nav
+            id={panelId}
+            className="sheet slab fixed inset-x-5 top-[4.5rem] z-50 overflow-hidden p-2"
+          >
+            <ul className="stagger">
+              {NAV.map((link, index) => (
+                <li key={link.href} style={{ ["--i" as string]: index }}>
+                  <Link
+                    href={link.href}
+                    style={{ "--accent": accentFor(link.href) } as React.CSSProperties}
+                    className="flood flex items-center justify-between rounded-[var(--r-m)] px-5 py-5"
+                    onClick={() => setOpen(false)}
+                  >
+                    <span className="headline text-2xl">{link.label}</span>
+                    <span className="flood-mark h-3 w-3 rounded-[3px]" aria-hidden="true" />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </>
       ) : null}
     </div>
   );
 }
 
-function MenuIcon() {
+function MenuGlyph({ open }: { open: boolean }) {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
       <path
-        d="M4 7h16M4 12h16M4 17h16"
+        d={open ? "M3.5 3.5 14.5 14.5" : "M2 6h14"}
         stroke="currentColor"
-        strokeWidth="1.75"
+        strokeWidth="1.5"
         strokeLinecap="round"
       />
-    </svg>
-  );
-}
-
-function CloseIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <path
-        d="M6 6l12 12M18 6 6 18"
+        d={open ? "M14.5 3.5 3.5 14.5" : "M2 12h14"}
         stroke="currentColor"
-        strokeWidth="1.75"
+        strokeWidth="1.5"
         strokeLinecap="round"
       />
     </svg>

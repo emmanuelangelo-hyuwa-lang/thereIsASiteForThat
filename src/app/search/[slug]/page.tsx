@@ -1,14 +1,12 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 
-import { SaveSearchButton } from "@/features/search/SaveSearchButton";
+import { PageHead } from "@/components/ui/PageHead";
 import { SearchBox } from "@/features/search/SearchBox";
 import { SearchResultsList } from "@/features/search/SearchResultsList";
 import { getSiteUrl } from "@/lib/env";
 import { getSearchPageBySlug } from "@/lib/repositories/search-pages";
 import { JsonLd } from "@/lib/seo/json-ld";
 import { absoluteUrl } from "@/lib/seo/url";
-import { getSavedSearchState } from "@/lib/services/saved-searches";
 import {
   queryFromSearchSlug,
   searchSites,
@@ -51,7 +49,6 @@ export default async function SearchPage({ params }: SearchPageProps) {
     limit: 10,
     recordPageHit: true,
   });
-  const savedState = await getSavedSearchState(data.query);
 
   const heading =
     data.query.length > 0
@@ -79,43 +76,31 @@ export default async function SearchPage({ params }: SearchPageProps) {
   };
 
   return (
-    <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-5 pb-10 pt-2 sm:px-8">
+    <main className="shell flex flex-1 flex-col pb-10">
       <JsonLd data={itemList} />
-      <section className="panel px-5 py-8 sm:px-10 sm:py-10">
-        <p className="text-xs font-medium uppercase tracking-[0.14em] text-[var(--muted)]">
-          Search
-        </p>
-        <h1 className="mt-3 break-words font-[family-name:var(--font-display)] text-3xl tracking-tight text-[var(--ink)] sm:text-5xl">
-          {heading}
-        </h1>
-        <p className="mt-4 max-w-xl text-[var(--muted)]">{intro}</p>
-        <div className="mt-8 max-w-xl">
-          <SearchBox autoFocus={false} showInstantResults={false} />
-        </div>
-        <div className="mt-4">
-          <SaveSearchButton
-            query={data.query}
-            initialSaved={savedState.saved}
-            callbackPath={`/search/${slug}`}
-          />
-        </div>
-      </section>
 
-      <section className="panel overflow-hidden">
-        <SearchResultsList
-          query={data.query}
-          mode={data.mode}
-          results={data.results}
-          aiSummary={data.aiSummary}
-        />
-      </section>
+      <PageHead
+        label="Search"
+        labelHref="/"
+        title={heading}
+        lead={intro}
+        stat={{
+          value: String(data.results.length).padStart(2, "0"),
+          caption: "Matches",
+        }}
+      />
 
-      <Link
-        href="/"
-        className="text-sm font-medium text-[var(--accent)] transition hover:text-[var(--accent-strong)]"
-      >
-        ← Back to home
-      </Link>
+      <SearchResultsList
+        query={data.query}
+        mode={data.mode}
+        results={data.results}
+        aiSummary={data.aiSummary}
+      />
+
+      <section className="mt-24">
+        <p className="label pb-5">Search again</p>
+        <SearchBox autoFocus={false} showInstantResults={false} size="inline" />
+      </section>
     </main>
   );
 }

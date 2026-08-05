@@ -1,7 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  experimental: {
+    // Shared-element morphs between a list row and the page it opens.
+    viewTransition: true,
+  },
 };
 
 export default nextConfig;

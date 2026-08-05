@@ -124,7 +124,7 @@ async function applyRagFallback(
       };
     }
 
-    // Model judged candidates unhelpful — keep the explanation, avoid junk rows.
+    // Model judged candidates unhelpful, keep the explanation, avoid junk rows.
     return {
       hits: [],
       mode: "empty",
@@ -139,7 +139,7 @@ async function applyRagFallback(
       mode: "soft",
       source: "curated",
       aiSummary:
-        "No strong curated match yet — closest catalog sites below.",
+        "No strong curated match yet. Closest catalog sites below.",
     };
   }
 

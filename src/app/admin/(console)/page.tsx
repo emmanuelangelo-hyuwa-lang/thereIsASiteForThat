@@ -27,7 +27,7 @@ export default async function AdminDashboardPage() {
 
   return (
     <section className="panel px-6 py-8 sm:px-8">
-      <h1 className="font-[family-name:var(--font-display)] text-3xl tracking-tight text-[var(--ink)]">
+      <h1 className="headline text-3xl text-[var(--ink)]">
         Dashboard
       </h1>
       <p className="mt-2 text-sm text-[var(--muted)]">
@@ -35,7 +35,7 @@ export default async function AdminDashboardPage() {
       </p>
 
       {!dbReady ? (
-        <p className="mt-6 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-sm text-[var(--muted)]">
+        <p className="mt-6 rounded-[var(--r-s)] border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-sm text-[var(--muted)]">
           Database is not connected yet. Add <code>DATABASE_URL</code> and run migrations.
         </p>
       ) : (
@@ -50,19 +50,19 @@ export default async function AdminDashboardPage() {
       <div className="mt-8 flex flex-wrap gap-3 text-sm">
         <Link
           href="/admin/sites"
-          className="rounded-lg border border-[var(--border)] px-4 py-2 text-[var(--ink)] transition hover:border-[var(--accent)]/40"
+          className="rounded-[var(--r-s)] border border-[var(--border)] px-4 py-2 text-[var(--ink)] transition hover:bg-[var(--layer-2)]"
         >
           Browse sites
         </Link>
         <Link
           href="/admin/submissions"
-          className="rounded-lg border border-[var(--border)] px-4 py-2 text-[var(--ink)] transition hover:border-[var(--accent)]/40"
+          className="rounded-[var(--r-s)] border border-[var(--border)] px-4 py-2 text-[var(--ink)] transition hover:bg-[var(--layer-2)]"
         >
           Submissions
         </Link>
         <Link
           href="/admin/sites/new"
-          className="rounded-lg bg-[var(--accent)] px-4 py-2 font-semibold text-white transition hover:bg-[var(--accent-strong)]"
+          className="rounded-[var(--r-s)] bg-[var(--accent)] px-4 py-2 font-semibold text-[var(--on-accent)] transition hover:opacity-90"
         >
           Add site
         </Link>
@@ -73,9 +73,9 @@ export default async function AdminDashboardPage() {
 
 function Stat({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-4">
-      <dt className="text-xs uppercase tracking-[0.12em] text-[var(--muted)]">{label}</dt>
-      <dd className="mt-2 text-2xl font-semibold text-[var(--ink)]">{value}</dd>
+    <div className="rounded-[var(--r-m)] border border-[var(--border)] bg-[var(--surface)] px-4 py-4">
+      <dt className="label">{label}</dt>
+      <dd className="mt-2 numeral text-4xl text-[var(--ink)]">{value}</dd>
     </div>
   );
 }

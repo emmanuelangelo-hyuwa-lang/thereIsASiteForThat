@@ -12,11 +12,11 @@ export default async function NewSitePage({ searchParams }: NewSitePageProps) {
 
   return (
     <section className="panel px-6 py-8 sm:px-8">
-      <h1 className="font-[family-name:var(--font-display)] text-3xl tracking-tight text-[var(--ink)]">
+      <h1 className="headline text-3xl text-[var(--ink)]">
         New site
       </h1>
       {params.error ? (
-        <p className="mt-4 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-700 dark:text-red-300">
+        <p className="mt-4 rounded-[var(--r-s)] border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-700 dark:text-red-300">
           {params.error}
         </p>
       ) : null}

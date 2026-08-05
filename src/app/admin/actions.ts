@@ -104,9 +104,13 @@ export async function updateSiteAction(formData: FormData) {
 export async function approveSubmissionAction(formData: FormData) {
   const id = String(formData.get("id") ?? "");
   try {
-    await approveSubmissionAsAdmin(id);
+    const result = await approveSubmissionAsAdmin(id);
     revalidatePath("/admin/submissions");
-    redirect("/admin/submissions");
+    revalidatePath("/admin/sites");
+    // Land on the draft it just created, ready to finish and publish.
+    redirect(
+      `/admin/sites/${result.siteId}?${result.created ? "fromSubmission=1" : "exists=1"}`,
+    );
   } catch (error) {
     unstable_rethrow(error);
     const message =

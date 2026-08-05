@@ -9,14 +9,14 @@ export default async function AdminSitesPage() {
     <section className="panel overflow-hidden">
       <div className="flex items-center justify-between border-b border-[var(--border)] px-6 py-5 sm:px-8">
         <div>
-          <h1 className="font-[family-name:var(--font-display)] text-3xl tracking-tight text-[var(--ink)]">
+          <h1 className="headline text-3xl text-[var(--ink)]">
             Sites
           </h1>
           <p className="mt-1 text-sm text-[var(--muted)]">{sites.length} total</p>
         </div>
         <Link
           href="/admin/sites/new"
-          className="rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[var(--accent-strong)]"
+          className="rounded-[var(--r-s)] bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-[var(--on-accent)] transition hover:opacity-90"
         >
           New site
         </Link>
@@ -40,7 +40,7 @@ export default async function AdminSitesPage() {
                     {site.categoryName} · {site.pricing} · ★ {site.rating}
                   </p>
                 </div>
-                <div className="flex items-center gap-3 text-xs uppercase tracking-[0.1em] text-[var(--muted)]">
+                <div className="flex items-center gap-3 label">
                   <span>{site.status}</span>
                   <span>{site.hasEmbedding ? "embedded" : "no vector"}</span>
                 </div>

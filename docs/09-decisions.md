@@ -50,7 +50,8 @@ Locked choices for what we shipped. Revisit with data after soft launch.
 | Audience | Mechanism |
 |---|---|
 | Admin | `ADMIN_PASSWORD` + signed httpOnly cookie |
-| End users | **Auth.js (NextAuth v5) + Google OAuth** |
+| End users | **Auth.js (NextAuth v5) + Google OAuth**, built but switched off |
+| Voters | Anonymous signed cookie, no account at all |
 
 **Shipped:** bookmarks, saved searches, `/me` hub. Guest search/browse ungated.  
 **Not used:** Supabase Auth, Clerk, Auth0.  
@@ -100,7 +101,7 @@ No Supabase JS client / Auth SDK.
 | Hero | ThereIsASiteForThat |
 | Tagline | Need a website to do X? Here's the best one. |
 
-Visual: editorial atlas home — Instrument Serif + IBM Plex Sans, ink-teal accent, light/dark toggle.
+Visual: editorial atlas home, Instrument Serif + IBM Plex Sans, ink-teal accent, light/dark toggle.
 
 ---
 
@@ -128,3 +129,41 @@ Visual: editorial atlas home — Instrument Serif + IBM Plex Sans, ink-teal acce
 | 2026-08-01 | Editorial atlas home UI | Done |
 | 2026-08-01 | Auth.js Google + bookmarks + saved searches | Done |
 | 2026-08-01 | Submit duplicate URL checks + IP rate limits | Done |
+
+---
+
+## 10. Ratings come from people who used the site
+
+**Decided.** Editor stars are a placeholder, not the long term answer, and star ratings from anonymous strangers are noise we cannot police without accounts.
+
+So the product asks one question, **"Did it solve it?"**, and only asks people who clicked through to the site. The right to vote is earned by using the link.
+
+| Rule | Why |
+|---|---|
+| Vote only on a site you visited from here | Farming a verdict means actually visiting, which is the behaviour we want anyway |
+| Identity is a signed cookie, hashed per site | No account, no email, and rows cannot be joined into a browsing history |
+| One vote per device per site, revisable | Changing your mind is normal, ballot stuffing is not |
+| Under three verdicts, show the editor score | A percentage from one person is noise pretending to be data |
+
+Displayed as a **solve rate**, which suits a design built on large numerals better than five stars ever did.
+
+---
+
+## 11. Accounts wait for email
+
+**Decided.** No sign-in until we can send confirmation and recovery mail. A login that cannot recover an account is a trap.
+
+Everything the product promises today works without one. `/signin` says this in plain language rather than showing a dead button.
+
+---
+
+## 12. The interface has rules, and they are written down
+
+**Decided.** See [06-ux-design.md](./06-ux-design.md). The short version:
+
+| Rule | Effect |
+|---|---|
+| Black is home, colour is a destination | Each category, collection and site owns one accent colour |
+| Progressive disclosure by default | Hide what does not help the next decision |
+| No dashes in copy | Full stop, comma or slash instead |
+| Nothing performs for attention | No counters, odometers or cycling placeholders |
