@@ -4,6 +4,7 @@ import { Geist, Instrument_Serif } from "next/font/google";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
+import { getSiteUrl } from "@/lib/env";
 
 import "./globals.css";
 
@@ -24,13 +25,30 @@ const text = Instrument_Serif({
   style: ["normal", "italic"],
 });
 
+const description =
+  "Need a website to do X? Here is the best one. Describe a task in plain language and get the site that does it.";
+
 export const metadata: Metadata = {
+  // Without this, the social card URLs resolve against localhost and every
+  // share preview breaks in production.
+  metadataBase: new URL(getSiteUrl()),
   title: {
     default: "ThereIsASiteForThat",
     template: "%s | ThereIsASiteForThat",
   },
-  description:
-    "Need a website to do X? Here's the best one. Search a task and get the best matching site.",
+  description,
+  openGraph: {
+    type: "website",
+    siteName: "thereisasiteforthat",
+    title: "There is a site for that.",
+    description,
+    url: "/",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "There is a site for that.",
+    description,
+  },
 };
 
 export const viewport: Viewport = {
