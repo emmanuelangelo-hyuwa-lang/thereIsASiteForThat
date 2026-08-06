@@ -91,6 +91,40 @@ html.light {
   color-scheme: light;
 }
 
+/* --------------------------------------------------------------------------
+   Scrollbars are hidden, not disabled
+   --------------------------------------------------------------------------
+   The bar itself is a piece of interface nobody designed, so it goes. Scrolling
+   by wheel, trackpad, touch, keyboard, and dragging a text selection all still
+   work, because only the visual track is removed.
+
+   Overflow stays `auto` rather than `hidden`. Setting `overflow: hidden` would
+   remove scrolling entirely, and on the search popover it would also trap the
+   results that scroll inside it. */
+html {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* old Edge */
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
+/* Any inner scrolling region, such as the search results popover. */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
 body {
   background-color: var(--paper);
   color: var(--ink);

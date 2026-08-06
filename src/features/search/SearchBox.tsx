@@ -220,7 +220,7 @@ export function SearchBox({
 
       {showInstantResults && open && query.trim().length >= 2 ? (
         <div className="popover sheet absolute left-0 right-0 z-50 mt-3 flex max-h-[min(30rem,68vh)] flex-col overflow-hidden text-left">
-          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+          <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto overscroll-contain">
             {loading && !instant ? (
               <p className="label px-6 py-6">Searching</p>
             ) : instant ? (
