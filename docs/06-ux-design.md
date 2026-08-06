@@ -65,7 +65,7 @@ One engineered superfamily carries the interface, Geist is neutral enough to hol
 | `.chip` | Small pill (queries, tags) |
 | `.field` | Input, softer than a card, accent focus ring |
 | `.flood` | Tile that takes its accent on hover/press |
-| `.row` | List entry; index turns accent, arrow glides |
+| `.row` | List entry; index turns accent, arrow glides. Rows never carry a divider, see below |
 | `.press` | Compress-on-press for anything else |
 
 ### Mechanisms
@@ -82,6 +82,23 @@ Motion is part of the object, never applied to it. Six devices, reused everywher
 | `.theme-crossing` | Theme switch | Every colour on the page crosses to its counterpart over 1240ms, applied only for the duration of the switch |
 
 Loading is designed too: every dynamic route has a `loading.tsx` drawing the same geometry in `.ghost` blocks under a `.scanner` line, no spinners, no layout shift.
+
+### Rows separate with space, never with lines
+
+A list of like items gets no dividers. Space does the separating and a hover fill
+gives the row its edge. A rule is reserved for marking where one section ends and
+another begins, which is a different job.
+
+| Before | After |
+|---|---|
+| ![Rows divided by hairlines](./assets/rows-before.png) | ![Rows separated by space](./assets/rows-after.png) |
+
+The first version shipped with a hairline between every row, which contradicts
+two entries in the anti pattern list further down this document. It was the quick
+way to stop rows merging, and quick is how anti patterns get in.
+
+If a line free list ever reads as too loose, the fix is more space or larger index
+numerals carrying the rhythm. It is not bringing the rule back.
 
 **Motion.** Panels assemble (`.enter`, `.sheet`, `.wipe`); numbers count (`CountUp`); indicators glide; buttons compress. Nothing fades except things leaving forever. Sections arrive on approach through scroll-driven animation (`.reveal`, `animation-timeline: view()`) with no JS at all. Opening a site morphs its name from the list row into the page heading, React `<ViewTransition name="site-<slug>">`, enabled by `experimental.viewTransition`. All of it collapses under `prefers-reduced-motion`.
 
