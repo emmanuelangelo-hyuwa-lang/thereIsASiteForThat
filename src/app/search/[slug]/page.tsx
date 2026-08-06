@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 
 import { PageHead } from "@/components/ui/PageHead";
 import { SearchBox } from "@/features/search/SearchBox";
@@ -11,6 +12,10 @@ import {
   queryFromSearchSlug,
   searchSites,
 } from "@/lib/services/search";
+import {
+  checkRateLimit,
+  clientIpFromHeaders,
+} from "@/lib/utils/rate-limit";
 
 type SearchPageProps = {
   params: Promise<{ slug: string }>;
@@ -44,10 +49,23 @@ export default async function SearchPage({ params }: SearchPageProps) {
   const query = queryFromSearchSlug(slug, page?.query);
   const siteUrl = getSiteUrl();
 
+  /**
+   * A deliberate search is worth looking past the catalog for. These URLs are
+   * public and crawlable, though, so the same per-IP budget the API enforces
+   * applies here: over it, the page still renders, just from the catalog.
+   */
+  const ip = clientIpFromHeaders(await headers());
+  const allowDiscovery = checkRateLimit({
+    key: `discover:${ip}`,
+    limit: 10,
+    windowMs: 60 * 1000,
+  }).ok;
+
   const data = await searchSites({
     query,
     limit: 10,
     recordPageHit: true,
+    allowDiscovery,
   });
 
   const heading =

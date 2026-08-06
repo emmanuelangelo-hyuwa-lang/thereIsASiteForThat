@@ -57,3 +57,25 @@ export function getOpenAIChatModel(): string {
 export function hasOpenAIConfigured(): boolean {
   return Boolean(optional("OPENAI_API_KEY"));
 }
+
+/**
+ * Whether a weak catalog match may be answered with sites from outside the
+ * catalog. On by default wherever the model is configured: a search that finds
+ * nothing is the whole reason this exists. Set SEARCH_DISCOVERY=off to serve
+ * only what has already been curated.
+ */
+export function isDiscoveryEnabled(): boolean {
+  if (!hasOpenAIConfigured()) {
+    return false;
+  }
+  const raw = optional("SEARCH_DISCOVERY")?.toLowerCase();
+  return raw !== "off" && raw !== "false" && raw !== "0";
+}
+
+/** How long a query's discovery run is reused before the model is asked again. */
+export function getDiscoveryCacheTtlMs(): number {
+  const raw = optional("SEARCH_DISCOVERY_TTL_DAYS");
+  const parsed = raw ? Number.parseFloat(raw) : 7;
+  const days = Number.isFinite(parsed) && parsed > 0 ? parsed : 7;
+  return days * 24 * 60 * 60 * 1000;
+}

@@ -37,11 +37,25 @@ export async function POST(request: Request) {
     });
   }
 
+  /**
+   * Discovery spends a model call and writes new catalog rows, so it gets a
+   * far tighter budget than plain search. Exceeding it degrades to a
+   * catalog-only answer instead of failing the request.
+   */
+  const allowDiscovery =
+    parsed.data.discover &&
+    checkRateLimit({
+      key: `discover:${ip}`,
+      limit: 10,
+      windowMs: 60 * 1000,
+    }).ok;
+
   try {
     const data = await searchSites({
       query: parsed.data.query,
       limit: parsed.data.limit,
       recordPageHit: true,
+      allowDiscovery,
     });
     return NextResponse.json(ok(data));
   } catch (error) {

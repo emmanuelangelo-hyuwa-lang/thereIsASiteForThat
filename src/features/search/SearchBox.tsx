@@ -11,6 +11,7 @@ import {
 import { useRouter } from "next/navigation";
 
 import { SearchResultsList } from "./SearchResultsList";
+import { recordClick } from "./record-click";
 import type { SearchResponseData } from "./types";
 import { slugify } from "@/lib/utils/slugify";
 import type { ApiResponse } from "@/lib/utils/api-response";
@@ -137,6 +138,20 @@ export function SearchBox({
     const highlighted = instant?.results[activeIndex];
     if (open && highlighted) {
       setOpen(false);
+
+      // A discovered site has no detail page yet, so Enter goes to the site
+      // itself, and that click is what puts it in the catalog.
+      if (highlighted.source === "ai_discovered") {
+        void recordClick({
+          siteId: highlighted.siteId,
+          query: instant?.query ?? null,
+          source: "ai_discovered",
+          confidence: highlighted.confidence,
+        });
+        window.open(highlighted.url, "_blank", "noopener,noreferrer");
+        return;
+      }
+
       router.push(`/site/${highlighted.slug}`);
       return;
     }

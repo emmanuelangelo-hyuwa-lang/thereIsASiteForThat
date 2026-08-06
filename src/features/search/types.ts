@@ -9,7 +9,7 @@ export type SearchResultItem = {
   tags: string[];
   confidence: number;
   confidencePercent: number;
-  source: "curated" | "keyword" | "ai_inferred";
+  source: "curated" | "keyword" | "ai_inferred" | "ai_discovered";
 };
 
 export type SearchMode =
@@ -17,6 +17,7 @@ export type SearchMode =
   | "soft"
   | "keyword"
   | "ai_inferred"
+  | "discovered"
   | "empty"
   | "unavailable";
 

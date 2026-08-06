@@ -2,13 +2,17 @@
 
 import type { ReactNode } from "react";
 
+import { recordClick, type ClickSource } from "@/features/search/record-click";
+
 type VisitSiteLinkProps = {
   href: string;
   siteId: string;
   query?: string;
-  source: "search" | "detail" | "collection" | "ai_inferred";
+  source: ClickSource;
   confidence?: number;
   className?: string;
+  /** Keyboard highlight, for rows in the instant-results popover. */
+  active?: boolean;
   children: ReactNode;
 };
 
@@ -19,34 +23,24 @@ export function VisitSiteLink({
   source,
   confidence,
   className,
+  active,
   children,
 }: VisitSiteLinkProps) {
-  async function handleClick() {
-    try {
-      await fetch("/api/click", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          siteId,
-          query: query ?? null,
-          source,
-          confidence: confidence ?? null,
-        }),
-        keepalive: true,
-      });
-    } catch {
-      // Never block outbound navigation on analytics failure.
-    }
-  }
-
   return (
     <a
       href={href}
       target="_blank"
       rel="noopener noreferrer"
       className={className}
+      data-active={active ? "" : undefined}
+      aria-current={active ? "true" : undefined}
       onClick={() => {
-        void handleClick();
+        void recordClick({
+          siteId,
+          query: query ?? null,
+          source,
+          confidence: confidence ?? null,
+        });
       }}
     >
       {children}
