@@ -20,13 +20,18 @@ export function getDb(): Db {
     throw new Error("DATABASE_URL is not set");
   }
 
-  const client = postgres(connectionString, { prepare: false });
+  /**
+   * Each Cloudflare Worker isolate keeps its own pool, and many isolates run
+   * concurrently under load. Left at the default max of 10, enough isolates
+   * cold-starting at once exhausts Supabase's 200-connection pooler limit,
+   * which is what caused the EMAXCONN errors. Capping each isolate to a
+   * single connection keeps the total bounded regardless of isolate count.
+   */
+  const client = postgres(connectionString, { prepare: false, max: 1 });
   const db = drizzle(client, { schema });
 
-  if (process.env.NODE_ENV !== "production") {
-    globalForDb.dbClient = client;
-    globalForDb.db = db;
-  }
+  globalForDb.dbClient = client;
+  globalForDb.db = db;
 
   return db;
 }
