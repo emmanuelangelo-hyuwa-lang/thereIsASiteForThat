@@ -39,7 +39,20 @@ export const clickSourceEnum = pgEnum("click_source", [
   "detail",
   "collection",
   "ai_inferred",
+  "ai_discovered",
 ]);
+
+/**
+ * Where a site row came from.
+ *
+ * `curated` is everything a human put in the catalog. `ai_discovered` is a real
+ * website the model proposed for a query the catalog could not answer: it is
+ * parked as a draft, shown in results, and only becomes part of the published
+ * catalog once a person actually clicks through to it. That click is the
+ * signal that the suggestion was worth keeping, which is how the catalog grows
+ * itself instead of being capped by what was seeded.
+ */
+export const siteOriginEnum = pgEnum("site_origin", ["curated", "ai_discovered"]);
 
 export const categories = pgTable("categories", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -69,6 +82,9 @@ export const sites = pgTable(
     tags: text("tags").array().notNull().default(sql`'{}'::text[]`),
     screenshotUrl: text("screenshot_url"),
     status: siteStatusEnum("status").notNull().default("draft"),
+    origin: siteOriginEnum("origin").notNull().default("curated"),
+    /** The search that surfaced this site, for `ai_discovered` rows only. */
+    discoveredFromQuery: text("discovered_from_query"),
     embedding: vector("embedding", { dimensions: 1536 }),
     searchText: text("search_text"),
     createdAt: timestamp("created_at", { withTimezone: true })
@@ -86,8 +102,21 @@ export const sites = pgTable(
       "hnsw",
       table.embedding.op("vector_cosine_ops"),
     ),
+    index("sites_origin_idx").on(table.origin),
   ],
 );
+
+/**
+ * One discovery run per query, so a repeated miss costs one model call instead
+ * of one per search. Rows point at the draft sites that run produced.
+ */
+export const discoveryCache = pgTable("discovery_cache", {
+  queryNormalized: text("query_normalized").primaryKey(),
+  siteIds: uuid("site_ids").array().notNull().default(sql`'{}'::uuid[]`),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
 
 export const submissions = pgTable(
   "submissions",

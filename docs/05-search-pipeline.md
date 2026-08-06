@@ -31,12 +31,35 @@ pgvector similarity against published sites
    │
    ├── top_score >= THRESHOLD ──▶ Curated results + confidence %
    │
-   └── top_score < THRESHOLD ───▶ RAG fallback
+   └── top_score < THRESHOLD ───▶ RAG fallback + discovery
                                    │
                                    ├─ retrieve top-k loose matches (k=8-12)
-                                   ├─ LLM ranks / explains / may suggest known gaps
-                                   └─ return results with source: "ai_inferred"
+                                   ├─ LLM ranks candidates AND names real sites
+                                   │  missing from the catalog (one call)
+                                   ├─ new sites: validated, liveness-checked,
+                                   │  embedded, stored as drafts
+                                   └─ return "ai_inferred" + "ai_discovered"
 ```
+
+### Discovery: the catalog is not the answer space
+
+A query the catalog cannot serve is not a dead end. In the same fallback call
+the model also returns `discovered` — real websites that are not in the
+catalog. Each one is normalized (https only, no private hosts, no ports),
+checked against existing rows including the `www` variant, requested once to
+confirm it resolves, embedded, and inserted as a **draft**.
+
+Drafts are returned in search results but are invisible everywhere else: no
+browse, no category pages, no sitemap, no vector search. **The first click
+through publishes the site.** That click is the human signal the model cannot
+supply, and from then on the site is an ordinary catalog entry that future
+searches match semantically. The catalog therefore grows from real use rather
+than from seeding alone.
+
+Cost control: one run per normalized query, cached for `SEARCH_DISCOVERY_TTL_DAYS`
+(default 7); fresh runs only on the results page, never on as-you-type lookups
+(`allowDiscovery`), and capped at 10/min/IP on top of the 60/min search limit.
+`SEARCH_DISCOVERY=off` disables it entirely.
 
 ### Recommended default threshold
 

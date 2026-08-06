@@ -26,11 +26,27 @@ function modeLabel(mode: SearchMode): string {
       return "Catalog";
     case "ai_inferred":
       return "AI inferred";
+    case "discovered":
+      return "Found for you";
     case "empty":
       return "No matches";
     case "unavailable":
       return "Unavailable";
   }
+}
+
+/**
+ * A discovered site has no detail page yet: it only becomes a catalog entry
+ * once someone clicks through. Until then its name links straight out to the
+ * site, and that click is what files it away.
+ */
+function clickSource(
+  result: SearchResultItem,
+): "search" | "ai_inferred" | "ai_discovered" {
+  if (result.source === "ai_discovered") {
+    return "ai_discovered";
+  }
+  return result.source === "ai_inferred" ? "ai_inferred" : "search";
 }
 
 export function SearchResultsList({
@@ -65,14 +81,11 @@ export function SearchResultsList({
           </div>
         ) : null}
         <ul className="p-2">
-          {results.map((result, index) => (
-            <li key={result.siteId}>
-              <Link
-                href={`/site/${result.slug}`}
-                data-active={index === activeIndex ? "" : undefined}
-                aria-current={index === activeIndex ? "true" : undefined}
-                className="row flex items-center gap-4 rounded-[var(--r-m)] px-4 py-3.5 data-active:bg-[var(--layer-2)]"
-              >
+          {results.map((result, index) => {
+            const rowClass =
+              "row flex items-center gap-4 rounded-[var(--r-m)] px-4 py-3.5 data-active:bg-[var(--layer-2)]";
+            const body = (
+              <>
                 <span className="numeral row-index w-6 shrink-0 text-sm text-[var(--muted)]">
                   {String(index + 1).padStart(2, "0")}
                 </span>
@@ -88,9 +101,36 @@ export function SearchResultsList({
                   {result.confidencePercent}
                   <span className="text-[var(--muted)]">%</span>
                 </span>
-              </Link>
-            </li>
-          ))}
+              </>
+            );
+
+            return (
+              <li key={result.siteId}>
+                {result.source === "ai_discovered" ? (
+                  <VisitSiteLink
+                    href={result.url}
+                    siteId={result.siteId}
+                    query={query}
+                    source="ai_discovered"
+                    confidence={result.confidence}
+                    className={rowClass}
+                    active={index === activeIndex}
+                  >
+                    {body}
+                  </VisitSiteLink>
+                ) : (
+                  <Link
+                    href={`/site/${result.slug}`}
+                    data-active={index === activeIndex ? "" : undefined}
+                    aria-current={index === activeIndex ? "true" : undefined}
+                    className={rowClass}
+                  >
+                    {body}
+                  </Link>
+                )}
+              </li>
+            );
+          })}
         </ul>
       </div>
     );
@@ -117,14 +157,30 @@ export function SearchResultsList({
                     {String(index + 2).padStart(2, "0")}
                   </span>
                   <div className="min-w-0 flex-1">
-                    <Link
-                      href={`/site/${result.slug}`}
-                      className="headline text-2xl text-[var(--ink)] hover-ink-accent sm:text-3xl"
-                    >
-                      {result.name}
-                    </Link>
+                    {result.source === "ai_discovered" ? (
+                      <VisitSiteLink
+                        href={result.url}
+                        siteId={result.siteId}
+                        query={query}
+                        source="ai_discovered"
+                        confidence={result.confidence}
+                        className="headline text-2xl text-[var(--ink)] hover-ink-accent sm:text-3xl"
+                      >
+                        {result.name}
+                      </VisitSiteLink>
+                    ) : (
+                      <Link
+                        href={`/site/${result.slug}`}
+                        className="headline text-2xl text-[var(--ink)] hover-ink-accent sm:text-3xl"
+                      >
+                        {result.name}
+                      </Link>
+                    )}
                     <p className="copy mt-2 max-w-2xl">{result.description}</p>
-                    <p className="label mt-3">{pricingLabel(result.pricing)}</p>
+                    <p className="label mt-3">
+                      {pricingLabel(result.pricing)}
+                      {result.source === "ai_discovered" ? " · New find" : ""}
+                    </p>
                   </div>
                   <div className="flex shrink-0 items-center gap-5">
                     <span className="numeral text-3xl text-[var(--ink)] sm:text-4xl">
@@ -135,9 +191,7 @@ export function SearchResultsList({
                       href={result.url}
                       siteId={result.siteId}
                       query={query}
-                      source={
-                        result.source === "ai_inferred" ? "ai_inferred" : "search"
-                      }
+                      source={clickSource(result)}
                       confidence={result.confidence}
                       className="btn btn-quiet h-11"
                     >
@@ -165,6 +219,8 @@ function BestMatch({
   mode: SearchMode;
   summary?: string | null;
 }) {
+  const discovered = result.source === "ai_discovered";
+
   return (
     <section
       style={accentStyle(result.slug)}
@@ -181,12 +237,25 @@ function BestMatch({
 
       <div className="mt-10 flex flex-col gap-10 lg:flex-row lg:items-end lg:justify-between">
         <div className="min-w-0">
-          <Link
-            href={`/site/${result.slug}`}
-            className="display block break-words text-[3.25rem] leading-[0.85] text-[var(--on-accent)] sm:text-8xl"
-          >
-            {result.name}
-          </Link>
+          {discovered ? (
+            <VisitSiteLink
+              href={result.url}
+              siteId={result.siteId}
+              query={query}
+              source="ai_discovered"
+              confidence={result.confidence}
+              className="display block break-words text-[3.25rem] leading-[0.85] text-[var(--on-accent)] sm:text-8xl"
+            >
+              {result.name}
+            </VisitSiteLink>
+          ) : (
+            <Link
+              href={`/site/${result.slug}`}
+              className="display block break-words text-[3.25rem] leading-[0.85] text-[var(--on-accent)] sm:text-8xl"
+            >
+              {result.name}
+            </Link>
+          )}
           <p className="lede mt-6 max-w-xl text-[var(--on-accent)]/85">
             {summary ?? result.description}
           </p>
@@ -206,18 +275,24 @@ function BestMatch({
           href={result.url}
           siteId={result.siteId}
           query={query}
-          source={result.source === "ai_inferred" ? "ai_inferred" : "search"}
+          source={clickSource(result)}
           confidence={result.confidence}
           className="btn h-14 bg-[var(--on-accent)] px-8 text-[var(--accent)] hover:bg-[var(--on-accent)]/85"
         >
           Visit {result.name}
         </VisitSiteLink>
-        <Link
-          href={`/site/${result.slug}`}
-          className="btn h-14 px-8 text-[var(--on-accent)] shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--on-accent)_30%,transparent)] hover:bg-[var(--on-accent)] hover:text-[var(--accent)]"
-        >
-          Pros &amp; cons
-        </Link>
+        {discovered ? (
+          <p className="label text-[var(--on-accent)]/75">
+            New find · opening it adds it to the catalog
+          </p>
+        ) : (
+          <Link
+            href={`/site/${result.slug}`}
+            className="btn h-14 px-8 text-[var(--on-accent)] shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--on-accent)_30%,transparent)] hover:bg-[var(--on-accent)] hover:text-[var(--accent)]"
+          >
+            Pros &amp; cons
+          </Link>
+        )}
       </div>
     </section>
   );

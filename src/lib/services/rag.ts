@@ -3,24 +3,68 @@ import { z } from "zod";
 import type { SimilarityHit } from "@/lib/repositories/search";
 import { createChatCompletion } from "@/lib/services/openai-client";
 
+const discoveredSiteSchema = z.object({
+  name: z.string().min(1).max(80),
+  url: z.string().min(4).max(400),
+  description: z.string().min(1).max(400),
+  pricing: z.enum(["free", "freemium", "paid", "free_trial"]),
+  tags: z.array(z.string().min(1).max(40)).max(8).optional(),
+  categorySlug: z.string().max(80).optional(),
+  confidence: z.number().min(0).max(1).optional(),
+});
+
 const ragResponseSchema = z.object({
   summary: z.string().min(1),
   rankedSiteIds: z.array(z.string()),
+  discovered: z.array(discoveredSiteSchema).optional(),
   notes: z.array(z.string()).optional(),
 });
+
+export type DiscoveredSite = z.infer<typeof discoveredSiteSchema>;
 
 export type RagRecommendation = {
   summary: string;
   rankedSiteIds: string[];
+  discovered: DiscoveredSite[];
   notes: string[];
 };
 
-const SYSTEM_PROMPT = `You recommend websites for a user task. Only use provided candidates. Prefer free/freemium when quality is equal. Be concise. Never pretend a site is curated if it isn't in the candidate list. If nothing fits, say so and suggest how to rephrase.
+/**
+ * The catalog is not the limit of what the model may answer with.
+ *
+ * Candidates get re-ranked as before, but the model is also asked for real
+ * websites that are missing from the catalog entirely. Those come back in
+ * `discovered` and are ingested as drafts, so a query nobody seeded still
+ * returns something useful and the catalog learns from it.
+ */
+const SYSTEM_PROMPT = `You recommend websites for a user task.
+
+You get catalog candidates. Rank the ones that genuinely help. Separately, name real websites that solve the task but are NOT among the candidates.
+
+Rules for "discovered" sites:
+- Only real, well-known, currently-live websites you are confident exist. Never invent a domain or guess a URL.
+- Use the canonical https homepage, no tracking parameters, no deep links.
+- Do not repeat anything already in the candidate list.
+- At most 5, best first. Return an empty array rather than padding with weak or uncertain entries.
+- Prefer free/freemium when quality is equal.
+
+Be concise. If nothing fits at all, say so and suggest how to rephrase.
 
 Respond with JSON only, no markdown:
 {
   "summary": "string",
   "rankedSiteIds": ["id1", "id2"],
+  "discovered": [
+    {
+      "name": "string",
+      "url": "https://example.com",
+      "description": "one sentence on what it does for this task",
+      "pricing": "free" | "freemium" | "paid" | "free_trial",
+      "tags": ["short", "keywords"],
+      "categorySlug": "one of the provided category slugs",
+      "confidence": 0.0
+    }
+  ],
   "notes": ["optional caveats"]
 }
 
@@ -40,11 +84,8 @@ function extractJsonObject(text: string): unknown {
 export async function recommendFromCandidates(
   query: string,
   candidates: SimilarityHit[],
+  categorySlugs: string[] = [],
 ): Promise<RagRecommendation | null> {
-  if (candidates.length === 0) {
-    return null;
-  }
-
   const candidatePayload = candidates.map((site) => ({
     id: site.id,
     name: site.name,
@@ -58,7 +99,12 @@ export async function recommendFromCandidates(
   try {
     const content = await createChatCompletion({
       system: SYSTEM_PROMPT,
-      user: JSON.stringify({ query, candidates: candidatePayload }),
+      user: JSON.stringify({
+        query,
+        candidates: candidatePayload,
+        categorySlugs,
+      }),
+      maxTokens: 900,
     });
     if (!content) {
       return null;
@@ -75,6 +121,7 @@ export async function recommendFromCandidates(
     return {
       summary: parsed.data.summary.trim(),
       rankedSiteIds,
+      discovered: parsed.data.discovered ?? [],
       notes: parsed.data.notes ?? [],
     };
   } catch (error) {

@@ -1,7 +1,12 @@
 import { getDb } from "@/lib/db";
 import { clickEvents } from "@/lib/db/schema";
 
-export type ClickSource = "search" | "detail" | "collection" | "ai_inferred";
+export type ClickSource =
+  | "search"
+  | "detail"
+  | "collection"
+  | "ai_inferred"
+  | "ai_discovered";
 
 export async function insertClickEvent(input: {
   query?: string | null;
