@@ -19,17 +19,28 @@ export function getSearchConfidenceThreshold(): number {
  * chat app. The domain is not a secret and it does not change per deploy, so
  * it lives in the code where it is version controlled and reviewable.
  */
-const PRODUCTION_SITE_URL = "https://thereisasiteforthat.com";
+/** The host that actually serves. The apex redirects here, so this is canonical. */
+const PRODUCTION_SITE_URL = "https://www.thereisasiteforthat.com";
+
+const LOCAL_HOST = /^https?:\/\/(localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\])(:\d+)?$/i;
 
 export function getSiteUrl(): string {
-  const explicit = optional("NEXT_PUBLIC_SITE_URL");
-  if (explicit) {
-    return explicit.replace(/\/+$/, "");
+  const explicit = optional("NEXT_PUBLIC_SITE_URL")?.replace(/\/+$/, "");
+
+  if (process.env.NODE_ENV === "development") {
+    return explicit ?? "http://localhost:3000";
   }
 
-  // Local work should stay local. Everything else is the real site.
-  if (process.env.NODE_ENV === "development") {
-    return "http://localhost:3000";
+  /**
+   * A production build must never advertise a local address, even when one is
+   * configured. The deployment platform had NEXT_PUBLIC_SITE_URL set to
+   * http://localhost:3000, copied out of .env.example, which meant every social
+   * card told scrapers to fetch the image from their own machine and no preview
+   * ever rendered. Trusting the variable blindly is what caused that, so a
+   * local value is now treated as a misconfiguration rather than an intent.
+   */
+  if (explicit && !LOCAL_HOST.test(explicit)) {
+    return explicit;
   }
 
   return PRODUCTION_SITE_URL;
