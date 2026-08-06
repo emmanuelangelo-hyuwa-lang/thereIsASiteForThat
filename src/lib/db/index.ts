@@ -23,10 +23,8 @@ export function getDb(): Db {
   const client = postgres(connectionString, { prepare: false });
   const db = drizzle(client, { schema });
 
-  if (process.env.NODE_ENV !== "production") {
-    globalForDb.dbClient = client;
-    globalForDb.db = db;
-  }
+  globalForDb.dbClient = client;
+  globalForDb.db = db;
 
   return db;
 }
