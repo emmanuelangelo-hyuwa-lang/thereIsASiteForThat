@@ -14,8 +14,8 @@ import { buildSearchText } from "@/lib/services/search-text";
 import { slugify } from "@/lib/utils/slugify";
 import { normalizePublicSiteUrl, urlVariants } from "@/lib/utils/url";
 
-const MAX_DISCOVERED = 5;
-const LIVENESS_TIMEOUT_MS = 2500;
+const MAX_DISCOVERED = 4;
+const LIVENESS_TIMEOUT_MS = 1500;
 /** Confidence a discovered result is shown with, before anyone has voted on it. */
 const DISCOVERED_CONFIDENCE = 0.6;
 const FALLBACK_CATEGORY_SLUG = "utilities";
@@ -28,9 +28,21 @@ const FALLBACK_CATEGORY_SLUG = "utilities";
  * candidate filters out the domains that were never real. Codes that mean
  * "reachable but not for you" (bot walls, method not allowed, rate limits)
  * count as alive, since plenty of real sites answer that way to a bare HEAD.
+ *
+ * A timeout is not evidence of death. Hopper answers nothing to a HEAD from a
+ * datacenter IP, and dropping it taught the lesson: only a name that does not
+ * resolve, or a host that refuses the connection, is treated as fake. Anything
+ * slow or silent is given the benefit of the doubt, which also caps this whole
+ * step at the timeout instead of letting one sulking host set the page's speed.
  */
 async function isReachable(url: string): Promise<boolean> {
   const tolerated = new Set([401, 403, 405, 406, 429]);
+  const fatal = new Set([
+    "ENOTFOUND",
+    "EAI_AGAIN",
+    "ECONNREFUSED",
+    "ERR_TLS_CERT_ALTNAME_INVALID",
+  ]);
 
   try {
     const response = await fetch(url, {
@@ -40,8 +52,9 @@ async function isReachable(url: string): Promise<boolean> {
       headers: { "User-Agent": "ThereIsASiteForThat/1.0 (+link-check)" },
     });
     return response.status < 400 || tolerated.has(response.status);
-  } catch {
-    return false;
+  } catch (error) {
+    const code = (error as { cause?: { code?: string } })?.cause?.code;
+    return !(code && fatal.has(code));
   }
 }
 
@@ -134,13 +147,7 @@ export async function ingestDiscoveredSites(input: {
     return [];
   }
 
-  const reachable = await Promise.all(fresh.map((site) => isReachable(site.url)));
-  const live = fresh.filter((_, index) => reachable[index]);
-  if (live.length === 0) {
-    return [];
-  }
-
-  const withCategory = live.map((site) => {
+  const candidates = fresh.map((site) => {
     const category =
       (site.categorySlug ? categoryBySlug.get(site.categorySlug) : undefined) ??
       fallbackCategory;
@@ -158,22 +165,39 @@ export async function ingestDiscoveredSites(input: {
   });
 
   /**
-   * Embed at ingest, not at publish. The click that publishes a draft happens
-   * while the user is navigating away, and it must not wait on an embedding
-   * call; doing it here also means the site is semantically searchable the
+   * Check the links and embed the text at the same time.
+   *
+   * Neither needs the other's answer, and the user is waiting on both. A
+   * wasted embedding for a URL that turns out to be dead costs a fraction of a
+   * cent; running the two in sequence cost about a second of their time.
+   *
+   * Embedding happens here rather than at publish because the click that
+   * publishes a draft fires while the user is navigating away and must not
+   * wait on an API call. It also means the site is semantically searchable the
    * moment it goes live.
    */
-  let embeddings: number[][] = [];
-  if (hasOpenAIConfigured()) {
-    try {
-      embeddings = await embedTexts(withCategory.map((row) => row.searchText));
-    } catch (error) {
-      console.error("Failed to embed discovered sites:", error);
-    }
+  const [reachable, embeddings] = await Promise.all([
+    Promise.all(candidates.map((row) => isReachable(row.site.url))),
+    hasOpenAIConfigured()
+      ? embedTexts(candidates.map((row) => row.searchText)).catch(
+          (error: unknown) => {
+            console.error("Failed to embed discovered sites:", error);
+            return [] as number[][];
+          },
+        )
+      : Promise.resolve([] as number[][]),
+  ]);
+
+  const withCategory = candidates
+    .map((row, index) => ({ ...row, embedding: embeddings[index] }))
+    .filter((_, index) => reachable[index]);
+
+  if (withCategory.length === 0) {
+    return [];
   }
 
   const stored = await Promise.all(
-    withCategory.map(async (row, index) => {
+    withCategory.map(async (row) => {
       try {
         return await insertDiscoveredDraft({
           name: row.site.name,
@@ -185,7 +209,7 @@ export async function ingestDiscoveredSites(input: {
           rating: row.site.rating,
           tags: row.site.tags,
           searchText: row.searchText,
-          embedding: embeddings[index],
+          embedding: row.embedding,
           discoveredFromQuery: input.query,
         });
       } catch (error) {

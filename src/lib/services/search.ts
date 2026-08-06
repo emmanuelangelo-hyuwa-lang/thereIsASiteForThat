@@ -185,16 +185,38 @@ async function applyRagFallback(
     }
   }
 
-  const categorySlugs = discoveryOn
-    ? await listCategories()
-        .then((rows) => rows.map((row) => row.slug))
-        .catch(() => [])
-    : [];
+  /**
+   * No model call on the fast path.
+   *
+   * This branch runs on every weak match, including the ones the search box
+   * fires while the user is still typing, and the call costs seconds. So an
+   * as-you-type lookup answers instantly with the closest catalog rows, and
+   * the results page is where the model gets to think.
+   */
+  if (!discoveryOn) {
+    return {
+      hits: candidates,
+      discoveredIds: new Set(),
+      mode: candidates.length > 0 ? "soft" : "empty",
+      source: "curated",
+      aiSummary:
+        candidates.length > 0
+          ? "No strong curated match yet. Closest catalog sites below."
+          : discoveryConfigured
+            ? "Nothing curated for this yet. Press Enter and I'll look beyond the catalog."
+            : "No matches in the catalog. Try a simpler task phrase.",
+    };
+  }
 
-  const recommendation =
-    candidates.length > 0 || discoveryOn
-      ? await recommendFromCandidates(query, candidates, categorySlugs)
-      : null;
+  const categorySlugs = await listCategories()
+    .then((rows) => rows.map((row) => row.slug))
+    .catch(() => []);
+
+  const recommendation = await recommendFromCandidates(
+    query,
+    candidates,
+    categorySlugs,
+  );
 
   if (recommendation) {
     const notes =
@@ -251,11 +273,42 @@ async function applyRagFallback(
     discoveredIds: new Set(),
     mode: "empty",
     source: "curated",
-    aiSummary:
-      discoveryConfigured && !allowDiscovery
-        ? "Nothing curated for this yet. Press Enter and I'll look beyond the catalog."
-        : "No matches in the catalog. Try a simpler task phrase.",
+    aiSummary: "No matches in the catalog. Try a simpler task phrase.",
   };
+}
+
+/**
+ * Log that this query was searched, and with what.
+ *
+ * Counted once per page view: `hit_count` is what promotes a search page to
+ * indexable, so a page that renders in two passes must not record twice.
+ */
+export async function recordSearchPageHit(input: {
+  query: string;
+  slug: string;
+  mode: SearchResponseData["mode"];
+  results: SearchResultItem[];
+  threshold?: number;
+}): Promise<void> {
+  const { query, slug, mode, results } = input;
+
+  if (results.length === 0 || results[0]?.siteId.startsWith("seed_")) {
+    return;
+  }
+
+  try {
+    const threshold = input.threshold ?? getSearchConfidenceThreshold();
+    const topConfidence = results[0]?.confidence ?? 0;
+
+    await upsertSearchPageHit({
+      query,
+      slug,
+      lastResultsJson: results.slice(0, 5),
+      hasSolidResult: mode === "curated" || topConfidence >= threshold,
+    });
+  } catch (error) {
+    console.error("Failed to upsert search page hit:", error);
+  }
 }
 
 export async function searchSites(input: {
@@ -382,21 +435,14 @@ export async function searchSites(input: {
       toResult(hit, discoveredIds.has(hit.id) ? "ai_discovered" : source),
     );
 
-  if (recordPageHit && results.length > 0 && !results[0]?.siteId.startsWith("seed_")) {
-    try {
-      const topConfidence = results[0]?.confidence ?? 0;
-      const hasSolidResult =
-        mode === "curated" || topConfidence >= threshold;
-
-      await upsertSearchPageHit({
-        query,
-        slug,
-        lastResultsJson: results.slice(0, 5),
-        hasSolidResult,
-      });
-    } catch (error) {
-      console.error("Failed to upsert search page hit:", error);
-    }
+  if (recordPageHit) {
+    await recordSearchPageHit({
+      query,
+      slug,
+      mode,
+      results,
+      threshold,
+    });
   }
 
   return {

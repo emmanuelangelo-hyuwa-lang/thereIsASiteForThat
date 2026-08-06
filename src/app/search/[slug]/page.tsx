@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
+import { after } from "next/server";
+import { Suspense } from "react";
 
 import { PageHead } from "@/components/ui/PageHead";
 import { SearchBox } from "@/features/search/SearchBox";
@@ -10,7 +12,9 @@ import { JsonLd } from "@/lib/seo/json-ld";
 import { absoluteUrl } from "@/lib/seo/url";
 import {
   queryFromSearchSlug,
+  recordSearchPageHit,
   searchSites,
+  type SearchResponseData,
 } from "@/lib/services/search";
 import {
   checkRateLimit,
@@ -43,11 +47,110 @@ export async function generateMetadata({
   };
 }
 
+function ResultsBlock({
+  data,
+  heading,
+  intro,
+  canonical,
+  siteUrl,
+  pending = false,
+}: {
+  data: SearchResponseData;
+  heading: string;
+  intro: string;
+  canonical: string;
+  siteUrl: string;
+  pending?: boolean;
+}) {
+  const itemList = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: `Best websites to ${data.query}`,
+    description: intro,
+    url: canonical,
+    numberOfItems: data.results.length,
+    itemListElement: data.results.map((result, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: result.name,
+      url: absoluteUrl(siteUrl, `/site/${result.slug}`),
+      description: result.description,
+    })),
+  };
+
+  return (
+    <>
+      {pending ? null : <JsonLd data={itemList} />}
+
+      <PageHead
+        label="Search"
+        labelHref="/"
+        title={heading}
+        lead={intro}
+        stat={{
+          value: String(data.results.length).padStart(2, "0"),
+          caption: pending ? "So far" : "Matches",
+        }}
+      />
+
+      {pending ? (
+        <p className="label label-accent pb-6">Looking beyond the catalog…</p>
+      ) : null}
+
+      <SearchResultsList
+        query={data.query}
+        mode={data.mode}
+        results={data.results}
+        aiSummary={data.aiSummary}
+      />
+    </>
+  );
+}
+
+/**
+ * The slow half of the page.
+ *
+ * Ranking and discovery cost a model call, which is most of the wait, so it
+ * streams: the catalog answer above renders as soon as the vector search is
+ * done, and this replaces it when the model has finished thinking.
+ */
+async function AssistedResults({
+  query,
+  heading,
+  intro,
+  canonical,
+  siteUrl,
+}: {
+  query: string;
+  heading: string;
+  intro: string;
+  canonical: string;
+  siteUrl: string;
+}) {
+  const data = await searchSites({
+    query,
+    limit: 10,
+    recordPageHit: true,
+    allowDiscovery: true,
+  });
+
+  return (
+    <ResultsBlock
+      data={data}
+      heading={heading}
+      intro={intro}
+      canonical={canonical}
+      siteUrl={siteUrl}
+    />
+  );
+}
+
 export default async function SearchPage({ params }: SearchPageProps) {
   const { slug } = await params;
   const page = await getSearchPageBySlug(slug).catch(() => null);
   const query = queryFromSearchSlug(slug, page?.query);
   const siteUrl = getSiteUrl();
+  const canonical = absoluteUrl(siteUrl, `/search/${slug}`);
 
   /**
    * A deliberate search is worth looking past the catalog for. These URLs are
@@ -61,59 +164,53 @@ export default async function SearchPage({ params }: SearchPageProps) {
     windowMs: 60 * 1000,
   }).ok;
 
-  const data = await searchSites({
+  // Fast pass: catalog only, no model call, so the page has something to show
+  // in a few hundred milliseconds.
+  const fast = await searchSites({
     query,
     limit: 10,
-    recordPageHit: true,
-    allowDiscovery,
+    recordPageHit: false,
+    allowDiscovery: false,
   });
 
+  // A confident catalog answer is the whole answer. Nothing to wait for.
+  const assist = allowDiscovery && fast.mode !== "curated";
+
+  // Whichever pass produced what the reader ends up seeing logs the hit, once.
+  if (!assist) {
+    after(() =>
+      recordSearchPageHit({
+        query: fast.query,
+        slug: fast.slug,
+        mode: fast.mode,
+        results: fast.results,
+        threshold: fast.threshold,
+      }),
+    );
+  }
+
   const heading =
-    data.query.length > 0
-      ? data.query.charAt(0).toUpperCase() + data.query.slice(1)
+    fast.query.length > 0
+      ? fast.query.charAt(0).toUpperCase() + fast.query.slice(1)
       : query.charAt(0).toUpperCase() + query.slice(1);
 
   const intro =
     page?.intro?.trim() ||
-    `Looking for a website to ${data.query || query}? Here are the strongest matches from our curated catalog, ranked by relevance.`;
+    `Looking for a website to ${fast.query || query}? Here are the strongest matches from our curated catalog, ranked by relevance.`;
 
-  const itemList = {
-    "@context": "https://schema.org",
-    "@type": "ItemList",
-    name: `Best websites to ${data.query || query}`,
-    description: intro,
-    url: absoluteUrl(siteUrl, `/search/${slug}`),
-    numberOfItems: data.results.length,
-    itemListElement: data.results.map((result, index) => ({
-      "@type": "ListItem",
-      position: index + 1,
-      name: result.name,
-      url: absoluteUrl(siteUrl, `/site/${result.slug}`),
-      description: result.description,
-    })),
-  };
+  const blockProps = { heading, intro, canonical, siteUrl };
 
   return (
     <main className="shell flex flex-1 flex-col pb-10">
-      <JsonLd data={itemList} />
-
-      <PageHead
-        label="Search"
-        labelHref="/"
-        title={heading}
-        lead={intro}
-        stat={{
-          value: String(data.results.length).padStart(2, "0"),
-          caption: "Matches",
-        }}
-      />
-
-      <SearchResultsList
-        query={data.query}
-        mode={data.mode}
-        results={data.results}
-        aiSummary={data.aiSummary}
-      />
+      {assist ? (
+        <Suspense
+          fallback={<ResultsBlock data={fast} {...blockProps} pending />}
+        >
+          <AssistedResults query={query} {...blockProps} />
+        </Suspense>
+      ) : (
+        <ResultsBlock data={fast} {...blockProps} />
+      )}
 
       <section className="mt-24">
         <p className="label pb-5">Search again</p>

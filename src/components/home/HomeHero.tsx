@@ -24,7 +24,13 @@ export function HomeHero({
         <KineticHeadline />
       </div>
 
-      <div className="enter enter-2 mt-12 sm:mt-16">
+      {/*
+        The entry animation keeps a transform applied (fill mode `both`), which
+        makes this a stacking context, so the popover's own z-index cannot lift
+        it past later siblings. The example chips below were painting over the
+        results. Raising the whole context is what actually settles the order.
+      */}
+      <div className="enter enter-2 relative z-50 mt-12 sm:mt-16">
         <SearchBox />
       </div>
 
