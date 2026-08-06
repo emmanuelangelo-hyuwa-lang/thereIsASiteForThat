@@ -45,10 +45,12 @@ Rules for "discovered" sites:
 - Only real, well-known, currently-live websites you are confident exist. Never invent a domain or guess a URL.
 - Use the canonical https homepage, no tracking parameters, no deep links.
 - Do not repeat anything already in the candidate list.
-- At most 5, best first. Return an empty array rather than padding with weak or uncertain entries.
+- At most 4, best first. Return an empty array rather than padding with weak or uncertain entries.
 - Prefer free/freemium when quality is equal.
 
-Be concise. If nothing fits at all, say so and suggest how to rephrase.
+The user is waiting on this response, so length costs them time. One short
+sentence per description, at most one note, no restating the query.
+If nothing fits at all, say so and suggest how to rephrase.
 
 Respond with JSON only, no markdown:
 {
@@ -89,10 +91,10 @@ export async function recommendFromCandidates(
   const candidatePayload = candidates.map((site) => ({
     id: site.id,
     name: site.name,
-    url: site.url,
-    description: site.description,
+    // Enough to judge relevance; the full text is just tokens to chew through.
+    description: site.description.slice(0, 140),
     pricing: site.pricing,
-    tags: site.tags.slice(0, 6),
+    tags: site.tags.slice(0, 4),
     similarity: Number(site.similarity.toFixed(3)),
   }));
 
@@ -104,7 +106,7 @@ export async function recommendFromCandidates(
         candidates: candidatePayload,
         categorySlugs,
       }),
-      maxTokens: 900,
+      maxTokens: 550,
     });
     if (!content) {
       return null;
