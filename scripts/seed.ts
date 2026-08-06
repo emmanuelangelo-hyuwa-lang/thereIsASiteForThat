@@ -17,8 +17,8 @@ import { buildSearchText } from "../src/lib/services/search-text";
 import { slugify } from "../src/lib/utils/slugify";
 import { normalizeUrl } from "../src/lib/utils/url";
 
-config({ path: ".env" });
-config({ path: ".env.local", override: true });
+config({ path: ".env", quiet: true });
+config({ path: ".env.local", override: true, quiet: true });
 
 async function main() {
   if (!process.env.DATABASE_URL) {
