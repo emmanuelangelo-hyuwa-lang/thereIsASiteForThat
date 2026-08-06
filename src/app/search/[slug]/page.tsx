@@ -19,6 +19,7 @@ import {
 import {
   checkRateLimit,
   clientIpFromHeaders,
+  looksLikeBot,
 } from "@/lib/utils/rate-limit";
 
 type SearchPageProps = {
@@ -152,17 +153,40 @@ export default async function SearchPage({ params }: SearchPageProps) {
   const siteUrl = getSiteUrl();
   const canonical = absoluteUrl(siteUrl, `/search/${slug}`);
 
+  const requestHeaders = await headers();
+
   /**
-   * A deliberate search is worth looking past the catalog for. These URLs are
-   * public and crawlable, though, so the same per-IP budget the API enforces
-   * applies here: over it, the page still renders, just from the catalog.
+   * Only a real visit gets to spend a model call.
+   *
+   * Every "Similar searches" link on a site page, every example chip, every
+   * rotating headline points at one of these URLs, and the router prefetches
+   * links as they enter the viewport. That is a machine following a link, not
+   * a person asking a question, and it was running discovery hundreds of times
+   * over for queries nobody typed. A prefetch renders from the catalog only.
    */
-  const ip = clientIpFromHeaders(await headers());
-  const allowDiscovery = checkRateLimit({
-    key: `discover:${ip}`,
-    limit: 10,
-    windowMs: 60 * 1000,
-  }).ok;
+  const isPrefetch = requestHeaders.get("next-router-prefetch") !== null;
+
+  /**
+   * Crawlers get the same treatment, and for the same reason: these URLs are
+   * in the sitemap, so a crawl is otherwise a standing order to run a model
+   * call per page. Bots are served the catalog, which is what they should be
+   * indexing anyway.
+   */
+  const isBot = looksLikeBot(requestHeaders.get("user-agent"));
+
+  /**
+   * Human visits are still budgeted per IP. Over it, the page renders from the
+   * catalog rather than failing.
+   */
+  const ip = clientIpFromHeaders(requestHeaders);
+  const allowDiscovery =
+    !isPrefetch &&
+    !isBot &&
+    checkRateLimit({
+      key: `discover:${ip}`,
+      limit: 10,
+      windowMs: 60 * 1000,
+    }).ok;
 
   // Fast pass: catalog only, no model call, so the page has something to show
   // in a few hundred milliseconds.

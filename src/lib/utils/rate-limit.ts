@@ -61,3 +61,21 @@ export function clientIpFromHeaders(headers: Headers): string {
   }
   return headers.get("x-real-ip")?.trim() || "unknown";
 }
+
+const BOT_UA =
+  /bot|crawler|spider|crawling|slurp|bingpreview|facebookexternalhit|embedly|quora link preview|whatsapp|telegram|discord|preview|headless|lighthouse|python-requests|curl|wget|axios|go-http-client/i;
+
+/**
+ * Cheap crawler sniff, for deciding whether a request earns expensive work.
+ *
+ * Deliberately generous: a false positive costs a bot the AI answer it was
+ * never going to read, while a false negative costs a model call. It is not a
+ * security control and is not used as one.
+ */
+export function looksLikeBot(userAgent: string | null): boolean {
+  if (!userAgent) {
+    // A browser always sends one. Something that does not is not a reader.
+    return true;
+  }
+  return BOT_UA.test(userAgent);
+}
