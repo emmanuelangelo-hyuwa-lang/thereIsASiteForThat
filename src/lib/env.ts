@@ -19,8 +19,8 @@ export function getSearchConfidenceThreshold(): number {
  * chat app. The domain is not a secret and it does not change per deploy, so
  * it lives in the code where it is version controlled and reviewable.
  */
-/** The host that actually serves. The apex redirects here, so this is canonical. */
-const PRODUCTION_SITE_URL = "https://www.thereisasiteforthat.com";
+/** The host that actually serves. The www subdomain redirects here, so this is canonical. */
+const PRODUCTION_SITE_URL = "https://thereisasiteforthat.com";
 
 const LOCAL_HOST = /^https?:\/\/(localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\])(:\d+)?$/i;
 
