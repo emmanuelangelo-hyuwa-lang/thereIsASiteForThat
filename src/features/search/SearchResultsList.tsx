@@ -111,8 +111,8 @@ export function SearchResultsList({
           </div>
           <RevealList className="mt-6" initial={3} label="more matches">
             {rest.map((result, index) => (
-              <li key={result.siteId} className="border-t border-[var(--hair)]">
-                <div className="row group flex flex-col gap-4 rounded-[var(--r-m)] px-3 py-6 sm:flex-row sm:items-center sm:gap-8 sm:px-4">
+              <li key={result.siteId}>
+                <div className="row group flex flex-col gap-4 rounded-[var(--r-l)] px-4 py-7 sm:flex-row sm:items-center sm:gap-8 sm:px-5 sm:py-8">
                   <span className="numeral w-8 shrink-0 text-base text-[var(--muted)]">
                     {String(index + 2).padStart(2, "0")}
                   </span>

@@ -67,7 +67,7 @@ export default async function MePage() {
           <p className="label pb-6">Recently bookmarked</p>
           <ul>
             {recentThree.map((site) => (
-              <li key={site.id} className="border-t border-[var(--hair)]">
+              <li key={site.id}>
                 <Link
                   href={`/site/${site.slug}`}
                   className="row flex items-center justify-between gap-6 rounded-[var(--r-m)] px-3 py-6 sm:px-4"

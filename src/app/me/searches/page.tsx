@@ -39,7 +39,7 @@ export default async function MeSearchesPage() {
           {searches.map((item, index) => (
             <li
               key={item.id}
-              className="row flex items-center gap-5 border-t border-[var(--hair)] px-3 py-6 sm:gap-8 sm:px-4"
+              className="row flex items-center gap-5 rounded-[var(--r-l)] px-4 py-7 sm:gap-8 sm:px-5"
             >
               <span className="numeral row-index w-8 shrink-0 text-base text-[var(--muted)]">
                 {String(index + 1).padStart(2, "0")}
