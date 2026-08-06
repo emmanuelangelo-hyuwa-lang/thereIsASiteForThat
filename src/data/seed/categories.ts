@@ -11,4 +11,7 @@ export const SEED_CATEGORIES = [
   { name: "Utilities", slug: "utilities", description: "QR codes, shorteners, converters, and more." },
   { name: "AI Tools", slug: "ai-tools", description: "Useful AI websites that earn a bookmark." },
   { name: "Audio Tools", slug: "audio-tools", description: "Edit, convert, and generate audio." },
+  { name: "Marketing & SEO", slug: "marketing-tools", description: "Email, SEO, analytics, and growth tools." },
+  { name: "No-Code & Automation", slug: "automation-tools", description: "Build sites, apps, and workflows without code." },
+  { name: "3D & Animation", slug: "3d-animation", description: "3D modeling, motion graphics, and animated assets." },
 ] as const;
