@@ -1,3 +1,5 @@
+import { markVerdictPending } from "@/features/votes/pending";
+
 export type ClickSource =
   | "search"
   | "detail"
@@ -18,6 +20,10 @@ export async function recordClick(input: {
   source: ClickSource;
   confidence?: number | null;
 }): Promise<void> {
+  // Mark before the request, not after. Someone can come back before a slow
+  // network call settles, and the refresh should still be waiting for them.
+  markVerdictPending(input.siteId);
+
   try {
     await fetch("/api/click", {
       method: "POST",
