@@ -1,8 +1,7 @@
-import OpenAI from "openai";
 import { z } from "zod";
 
-import { getOpenAIChatModel } from "@/lib/env";
 import type { SimilarityHit } from "@/lib/repositories/search";
+import { createChatCompletion } from "@/lib/services/openai-client";
 
 const ragResponseSchema = z.object({
   summary: z.string().min(1),
@@ -26,14 +25,6 @@ Respond with JSON only, no markdown:
 }
 
 rankedSiteIds must be a subset of the candidate ids, best-first. Omit candidates that do not help.`;
-
-function getOpenAI() {
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) {
-    throw new Error("OPENAI_API_KEY is not set");
-  }
-  return new OpenAI({ apiKey });
-}
 
 function extractJsonObject(text: string): unknown {
   const trimmed = text.trim();
@@ -65,25 +56,10 @@ export async function recommendFromCandidates(
   }));
 
   try {
-    const openai = getOpenAI();
-    const response = await openai.chat.completions.create({
-      model: getOpenAIChatModel(),
-      temperature: 0.2,
-      max_tokens: 400,
-      response_format: { type: "json_object" },
-      messages: [
-        { role: "system", content: SYSTEM_PROMPT },
-        {
-          role: "user",
-          content: JSON.stringify({
-            query,
-            candidates: candidatePayload,
-          }),
-        },
-      ],
+    const content = await createChatCompletion({
+      system: SYSTEM_PROMPT,
+      user: JSON.stringify({ query, candidates: candidatePayload }),
     });
-
-    const content = response.choices[0]?.message?.content;
     if (!content) {
       return null;
     }
