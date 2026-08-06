@@ -37,7 +37,7 @@ export default async function MeBookmarksPage() {
       ) : (
         <ul>
           {bookmarks.map((site, index) => (
-            <li key={site.id} className="border-t border-[var(--hair)]">
+            <li key={site.id}>
               <Link
                 href={`/site/${site.slug}`}
                 className="row flex items-start gap-5 rounded-[var(--r-m)] px-3 py-6 sm:gap-8 sm:px-4"

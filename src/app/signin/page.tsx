@@ -39,7 +39,7 @@ export default function SignInPage() {
         {LATER.map((item, index) => (
           <li
             key={item.label}
-            className="flex items-baseline gap-5 border-t border-[var(--hair)] py-6 sm:gap-8"
+            className="flex items-baseline gap-5 py-7 sm:gap-8"
           >
             <span className="numeral w-8 shrink-0 text-base text-[var(--muted)]">
               {String(index + 1).padStart(2, "0")}
