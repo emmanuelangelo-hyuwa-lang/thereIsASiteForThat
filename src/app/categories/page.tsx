@@ -32,11 +32,11 @@ export default async function CategoriesPage() {
           <li
             key={category.slug}
             style={{ ...accentStyle(category.slug), ["--i" as string]: index }}
-            className="border-t border-[var(--hair)]"
+            className=""
           >
             <Link
               href={`/categories/${category.slug}`}
-              className="row flex items-center gap-6 rounded-[var(--r-m)] px-3 py-7 sm:px-4"
+              className="row flex items-center gap-6 rounded-[var(--r-l)] px-4 py-8 sm:px-5"
             >
               <span className="min-w-0 flex-1">
                 <span className="headline block text-3xl text-[var(--ink)] sm:text-5xl">

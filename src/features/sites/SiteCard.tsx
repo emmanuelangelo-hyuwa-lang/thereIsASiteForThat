@@ -25,13 +25,10 @@ export function SiteCard({
   const solveRate = tally ? solveRateOf(tally) : null;
 
   return (
-    <li
-      className="border-t border-[var(--hair)]"
-      style={{ ["--i" as string]: position }}
-    >
+    <li style={{ ["--i" as string]: position }}>
       <Link
         href={`/site/${site.slug}`}
-        className="row flex items-start gap-5 rounded-[var(--r-m)] px-3 py-6 sm:gap-8 sm:px-4"
+        className="row flex items-start gap-5 rounded-[var(--r-l)] px-4 py-7 sm:gap-8 sm:px-5 sm:py-8"
       >
         {typeof index === "number" ? (
           <span className="numeral row-index mt-1 w-8 shrink-0 text-base text-[var(--muted)]">
