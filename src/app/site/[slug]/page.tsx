@@ -11,6 +11,7 @@ import { SiteVerdict } from "@/features/votes/SiteVerdict";
 import { accentStyle } from "@/lib/design/accent";
 import { getSiteUrl } from "@/lib/env";
 import { JsonLd } from "@/lib/seo/json-ld";
+import { breadcrumbList } from "@/lib/seo/schema";
 import { absoluteUrl } from "@/lib/seo/url";
 import { getBookmarkState } from "@/lib/services/bookmarks";
 import { getVerdict, listVerdicts } from "@/lib/services/votes";
@@ -92,7 +93,17 @@ export default async function SitePage({ params }: SitePageProps) {
 
   return (
     <main style={accentStyle(site.slug)} className="shell flex flex-1 flex-col pb-10">
-      <JsonLd data={appLd} />
+      <JsonLd
+        data={[
+          appLd,
+          breadcrumbList([
+            { name: "Home", path: "/" },
+            { name: "Categories", path: "/categories" },
+            { name: site.categoryName, path: `/categories/${site.categorySlug}` },
+            { name: site.name, path: `/site/${site.slug}` },
+          ]),
+        ]}
+      />
 
       <PageHead
         label={site.categoryName}

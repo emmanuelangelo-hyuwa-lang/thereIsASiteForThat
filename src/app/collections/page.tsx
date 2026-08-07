@@ -8,6 +8,9 @@ import { listCatalogCollections } from "@/lib/services/catalog";
 export const metadata: Metadata = {
   title: "Collections",
   description: "Curated collections of the best websites by audience and use case.",
+  alternates: {
+    canonical: "/collections",
+  },
 };
 
 export default async function CollectionsPage() {

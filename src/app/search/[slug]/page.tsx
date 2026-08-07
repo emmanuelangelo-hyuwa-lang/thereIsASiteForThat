@@ -9,6 +9,7 @@ import { SearchResultsList } from "@/features/search/SearchResultsList";
 import { getSiteUrl } from "@/lib/env";
 import { getSearchPageBySlug } from "@/lib/repositories/search-pages";
 import { JsonLd } from "@/lib/seo/json-ld";
+import { breadcrumbList } from "@/lib/seo/schema";
 import { absoluteUrl } from "@/lib/seo/url";
 import {
   queryFromSearchSlug,
@@ -54,6 +55,7 @@ function ResultsBlock({
   intro,
   canonical,
   siteUrl,
+  slug,
   pending = false,
 }: {
   data: SearchResponseData;
@@ -61,6 +63,7 @@ function ResultsBlock({
   intro: string;
   canonical: string;
   siteUrl: string;
+  slug: string;
   pending?: boolean;
 }) {
   const itemList = {
@@ -81,7 +84,22 @@ function ResultsBlock({
 
   return (
     <>
-      {pending ? null : <JsonLd data={itemList} />}
+      {pending ? null : (
+        <JsonLd
+          data={[
+            itemList,
+            /**
+             * Two crumbs only: there is no /search index page to point the
+             * middle of a trail at, and a breadcrumb linking to a 404 is worse
+             * than a short trail.
+             */
+            breadcrumbList([
+              { name: "Home", path: "/" },
+              { name: heading, path: `/search/${slug}` },
+            ]),
+          ]}
+        />
+      )}
 
       <PageHead
         label="Search"
@@ -121,12 +139,14 @@ async function AssistedResults({
   intro,
   canonical,
   siteUrl,
+  slug,
 }: {
   query: string;
   heading: string;
   intro: string;
   canonical: string;
   siteUrl: string;
+  slug: string;
 }) {
   const data = await searchSites({
     query,
@@ -142,6 +162,7 @@ async function AssistedResults({
       intro={intro}
       canonical={canonical}
       siteUrl={siteUrl}
+      slug={slug}
     />
   );
 }
@@ -222,7 +243,7 @@ export default async function SearchPage({ params }: SearchPageProps) {
     page?.intro?.trim() ||
     `Looking for a website to ${fast.query || query}? Here are the strongest matches from our curated catalog, ranked by relevance.`;
 
-  const blockProps = { heading, intro, canonical, siteUrl };
+  const blockProps = { heading, intro, canonical, siteUrl, slug };
 
   return (
     <main className="shell flex flex-1 flex-col pb-10">

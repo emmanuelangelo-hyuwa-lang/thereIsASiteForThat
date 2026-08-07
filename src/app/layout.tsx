@@ -4,7 +4,7 @@ import { Geist, Instrument_Serif } from "next/font/google";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
-import { getSiteUrl } from "@/lib/env";
+import { getGoogleSiteVerification, getSiteUrl } from "@/lib/env";
 
 import "./globals.css";
 
@@ -48,6 +48,29 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "There is a site for that.",
     description,
+  },
+  /**
+   * Indexing is the default, but the Googlebot line is not: without
+   * max-image-preview:large a result gets a thumbnail instead of a full-width
+   * image, and max-snippet:-1 lets the whole intro show rather than a clipped
+   * one. Pages that must stay out of the index (thin search pages) override
+   * this per route.
+   */
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
+  // Proves domain ownership to Search Console, which is how the sitemap gets
+  // submitted and how indexing problems become visible.
+  verification: {
+    google: getGoogleSiteVerification(),
   },
 };
 
