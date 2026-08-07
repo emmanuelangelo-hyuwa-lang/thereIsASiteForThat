@@ -70,14 +70,39 @@ SSR/SSG required, do not hide results behind client-only fetch for indexable pag
 ## 6. Technical SEO Checklist
 
 - [x] Unique titles/descriptions per page
-- [x] Sitemap.xml including sites, collections, indexable search pages (`src/app/sitemap.ts`)
-- [x] Canonical tags (search / site / collection)
-- [x] `robots.txt` with admin/api disallow (`src/app/robots.ts`)
+- [x] Sitemap.xml including sites, categories, collections, indexable search pages (`src/app/sitemap.ts`)
+- [x] Canonical tags on every indexable page type (home, categories, collections, search, site, submit)
+- [x] `robots.txt` with admin/api/account disallow (`src/app/robots.ts`)
 - [x] Thin search pages `noindex` until `isIndexable`
+- [x] `googlebot` directives: `max-image-preview:large`, `max-snippet:-1` (root layout)
+- [x] Search Console verification via `GOOGLE_SITE_VERIFICATION` (optional; DNS works too)
+- [x] Web manifest (`src/app/manifest.ts`); favicon, apple icon, OG and Twitter images in `src/app`
 - [ ] Fast LCP (search hero image optional; don't block)
-- [x] Structured data: `ItemList` on search/collection pages; `WebApplication` on site pages
-- [ ] Outbound links: `noopener`; use `sponsored`/`nofollow` only when paid/affiliate
+- [x] Structured data: `ItemList` on search/category/collection pages; `WebApplication` on site
+      pages; `BreadcrumbList` on all four; `WebSite` + `SearchAction` and `Organization` on home
+- [x] Outbound links: `noopener noreferrer`; use `sponsored`/`nofollow` only when paid/affiliate
 - [x] Mobile-friendly layout
+
+Builders for the shared schema objects live in `src/lib/seo/schema.ts`; `JsonLd`
+(`src/lib/seo/json-ld.tsx`) accepts a single object or an array, so a page emits one script tag.
+
+---
+
+## 6a. Getting Indexed (one-time, manual)
+
+Crawling starts only once Google knows the domain exists. In order:
+
+1. Add the property in [Search Console](https://search.google.com/search-console) as a **Domain**
+   property (covers `www` and both schemes) and verify by DNS TXT record. If DNS is not available,
+   use the HTML-tag method and put the token in `GOOGLE_SITE_VERIFICATION`.
+2. Submit `https://thereisasiteforthat.com/sitemap.xml` under **Sitemaps**.
+3. Use **URL Inspection → Request indexing** on the home page and a handful of the strongest
+   `/search/*` pages. This seeds the crawl; the rest arrives through the sitemap.
+4. Confirm rendering with the [Rich Results Test](https://search.google.com/test/rich-results) on
+   one `/site/*` and one `/search/*` URL — it reports the structured data Google actually parsed.
+
+Indexing takes days to weeks, and brand queries land before long-tail ones. Nothing in the codebase
+speeds this up; only pages worth ranking and links pointing at them do.
 
 ---
 

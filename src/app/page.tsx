@@ -1,16 +1,29 @@
+import type { Metadata } from "next";
+
 import { CategoryMap } from "@/components/home/CategoryMap";
 import { CollectionDestinations } from "@/components/home/CollectionDestinations";
 import { FeaturedPicks } from "@/components/home/FeaturedPicks";
 import { HomeHero } from "@/components/home/HomeHero";
 import { SubmitBand } from "@/components/home/SubmitBand";
-import { getSiteUrl } from "@/lib/env";
 import { JsonLd } from "@/lib/seo/json-ld";
-import { absoluteUrl } from "@/lib/seo/url";
+import { homeGraph } from "@/lib/seo/schema";
 import {
   listCatalogCategories,
   listCatalogCollections,
   listFeaturedCatalogSites,
 } from "@/lib/services/catalog";
+
+const description =
+  "Describe a task in plain language and get the website that does it. A curated catalog of the best site for each job, with pros, cons and alternatives.";
+
+export const metadata: Metadata = {
+  description,
+  // The root is reachable as /, /index and with tracking parameters attached;
+  // a stated canonical keeps those from splitting into separate results.
+  alternates: {
+    canonical: "/",
+  },
+};
 
 export default async function HomePage() {
   const [featured, categories, collections] = await Promise.all([
@@ -24,23 +37,10 @@ export default async function HomePage() {
     0,
   );
 
-  const siteUrl = getSiteUrl();
-
-  // Distinguishes this from "There's An AI For That", a similarly-named,
-  // unrelated directory that search and AI answers keep confusing it with.
-  const siteLd = {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    name: "ThereIsASiteForThat",
-    alternateName: ["There is a site for that", "TIASFT"],
-    url: absoluteUrl(siteUrl, "/"),
-    description:
-      "A curated directory of websites. Describe a task in plain language and get the one site that does it.",
-  };
-
   return (
     <main className="flex flex-1 flex-col gap-24 sm:gap-32">
-      <JsonLd data={siteLd} />
+      <JsonLd data={homeGraph(description)} />
+
       <HomeHero
         siteCount={siteCount}
         categoryCount={categories.length}

@@ -51,6 +51,15 @@ export function getSiteUrl(): string {
   return PRODUCTION_SITE_URL;
 }
 
+/**
+ * The Search Console HTML-tag token, when that verification method is used.
+ * Absent is normal: DNS or the hosting integration verifies the domain just as
+ * well, and an undefined value simply omits the meta tag.
+ */
+export function getGoogleSiteVerification(): string | undefined {
+  return optional("GOOGLE_SITE_VERIFICATION");
+}
+
 export function getOpenAIEmbeddingModel(): string {
   return optional("OPENAI_EMBEDDING_MODEL") ?? "text-embedding-3-small";
 }

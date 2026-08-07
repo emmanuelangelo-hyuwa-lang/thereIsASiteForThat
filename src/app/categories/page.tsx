@@ -7,7 +7,11 @@ import { listCatalogCategories } from "@/lib/services/catalog";
 
 export const metadata: Metadata = {
   title: "Categories",
-  description: "Browse useful websites by category.",
+  description:
+    "Browse the catalog by category: the best websites for design, writing, video, developer tools, learning and more.",
+  alternates: {
+    canonical: "/categories",
+  },
 };
 
 export default async function CategoriesPage() {

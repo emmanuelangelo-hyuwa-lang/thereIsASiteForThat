@@ -7,6 +7,9 @@ import { listCatalogCategories } from "@/lib/services/catalog";
 export const metadata: Metadata = {
   title: "Submit a site",
   description: "Suggest a website for the ThereIsASiteForThat directory.",
+  alternates: {
+    canonical: "/submit",
+  },
 };
 
 export default async function SubmitPage() {

@@ -6,6 +6,7 @@ import { SiteList } from "@/features/sites/SiteList";
 import { accentStyle } from "@/lib/design/accent";
 import { getSiteUrl } from "@/lib/env";
 import { JsonLd } from "@/lib/seo/json-ld";
+import { breadcrumbList } from "@/lib/seo/schema";
 import { absoluteUrl } from "@/lib/seo/url";
 import { getCatalogCollectionBySlug } from "@/lib/services/catalog";
 import { listVerdicts } from "@/lib/services/votes";
@@ -60,7 +61,16 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
 
   return (
     <main style={accentStyle(slug)} className="shell flex flex-1 flex-col pb-10">
-      <JsonLd data={itemList} />
+      <JsonLd
+        data={[
+          itemList,
+          breadcrumbList([
+            { name: "Home", path: "/" },
+            { name: "Collections", path: "/collections" },
+            { name: data.collection.name, path: `/collections/${slug}` },
+          ]),
+        ]}
+      />
       <PageHead
         label="Collections"
         labelHref="/collections"
