@@ -7,6 +7,7 @@ import { PageHead } from "@/components/ui/PageHead";
 import { BookmarkButton } from "@/features/bookmarks/BookmarkButton";
 import { VisitSiteLink } from "@/features/search/VisitSiteLink";
 import { SiteList } from "@/features/sites/SiteList";
+import { RefreshOnReturn } from "@/features/votes/RefreshOnReturn";
 import { SiteVerdict } from "@/features/votes/SiteVerdict";
 import { accentStyle } from "@/lib/design/accent";
 import { getSiteUrl } from "@/lib/env";
@@ -104,6 +105,7 @@ export default async function SitePage({ params }: SitePageProps) {
           ]),
         ]}
       />
+      <RefreshOnReturn siteId={site.id} />
 
       <PageHead
         label={site.categoryName}
